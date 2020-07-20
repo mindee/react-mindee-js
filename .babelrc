@@ -1,0 +1,17 @@
+{
+  "plugins": [
+    "@babel/plugin-transform-flow-strip-types",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-function-bind",
+    "@babel/plugin-transform-runtime",
+  ],
+  "presets": [
+    "@babel/preset-flow",
+    ["@babel/preset-env", {
+      "modules": false,
+      "useBuiltIns": "entry",
+      "corejs": 3
+    }],
+    "@babel/react"
+  ]
+}
