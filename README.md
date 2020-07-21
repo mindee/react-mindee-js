@@ -386,7 +386,7 @@ The annotation viewer is the main component on which you can feed an image or pd
 
 ## AnnotationLens
 
-The AnnotationLens component is a zoomed window displaying the area arround the user's pointer.
+The AnnotationLens component is a zoomed window displaying the area around the user's pointer.
 
 It works combined with a AnnotationViewer, check out the related use case below for an example.
 
