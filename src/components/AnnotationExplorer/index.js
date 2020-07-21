@@ -38,6 +38,7 @@ type Item = {
 }
 
 interface Props {
+  sliderSettings?: any;
   customPdfLogo?: string;
   maxItemsToShow?: number;
   className?: string;
@@ -46,13 +47,17 @@ interface Props {
   onChange: (number) => void;
 }
 
-const sliderSettings = {
+const defaultSliderSettings = {
+  centerMode: true,
+  centerPadding: "10px",
   arrows: false,
   speed: 500,
-  slidesToScroll: 1,
+  slidesToScroll: 2,
+  focusOnSelect: true,
 }
 
 const AnnotationExplorer = ({
+  sliderSettings = {},
   customPdfLogo = pdfLogo,
   className,
   activeIndex,
@@ -67,6 +72,7 @@ const AnnotationExplorer = ({
       className={classnames("annotation-explorer", { className })}
     >
       <Slider
+        {...defaultSliderSettings}
         {...sliderSettings}
         slidesToShow={itemsToShow}
         className={slickStyle}
