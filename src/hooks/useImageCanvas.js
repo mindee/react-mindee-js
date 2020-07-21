@@ -1,24 +1,27 @@
 // @flow
-import { useState, useRef } from "react"
+import { useState, useRef, RefObject } from "react"
 
 import { resizeCanvas, getImageBoundingBox } from "helpers/canvasUtils"
 
+interface Props {
+  containerRef: RefObject<HTMLDivElement>;
+  drawingLayerRef: RefObject<HTMLCanvasElement>;
+  backgroundRef: RefObject<HTMLCanvasElement>;
+}
+
 const useImageCanvas = ({
-  container,
-  drawingLayer,
-  background,
-  refsLoading,
-}: any) => {
+  backgroundRef,
+  drawingLayerRef,
+  containerRef,
+}: Props) => {
   const imageObjectRef = useRef<any>(null)
   const [imageBoundingBox, setImageBoundingBox] = useState<any>(null)
   const resizeAnnotation = () => {
-    if (!refsLoading) {
-      resizeCanvas(drawingLayer, container)
-      resizeCanvas(background, container)
-      setImageBoundingBox(
-        getImageBoundingBox(background, imageObjectRef.current).slice()
-      )
-    }
+    resizeCanvas(drawingLayerRef.current, containerRef.current)
+    resizeCanvas(backgroundRef.current, containerRef.current)
+    setImageBoundingBox(
+      getImageBoundingBox(backgroundRef.current, imageObjectRef.current).slice()
+    )
   }
 
   return {

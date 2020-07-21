@@ -76,6 +76,9 @@ export const useAnnotationViewer = ({
   useErrorsHandler({ image, component: "AnnotationViewer" })
 
   const {
+    backgroundRef,
+    drawingLayerRef,
+    containerRef,
     setRef,
     refsLoading,
     background,
@@ -87,7 +90,7 @@ export const useAnnotationViewer = ({
     imageBoundingBox,
     imageObjectRef,
     resizeAnnotation,
-  } = useImageCanvas({ drawingLayer, container, background, refsLoading })
+  } = useImageCanvas({ backgroundRef, drawingLayerRef, containerRef })
 
   const {
     settings,

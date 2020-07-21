@@ -30,6 +30,9 @@ const useAnnotationRefs = () => {
   return {
     setRef,
     refsLoading,
+    backgroundRef,
+    drawingLayerRef,
+    containerRef,
     background: backgroundRef.current,
     drawingLayer: drawingLayerRef.current,
     container: containerRef.current,

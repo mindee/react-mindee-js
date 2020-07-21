@@ -15,7 +15,7 @@ const Image = styled.img`
 
 const Wrapper = styled.div`
   overflow-x: auto;
-  height: ${({ height }) => height}px;
+  height: 200px;
   padding: 1rem;
   position: absolute;
   top: 0;
