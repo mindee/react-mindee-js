@@ -78,10 +78,11 @@ const AnnotationExplorer = ({
         className={slickStyle}
       >
         {items.map(({ document, type }: Item, key: number) => {
+          const active = activeIndex === key
           return (
             <ItemWrapper
-              className="item"
-              active={activeIndex === key}
+              className={classnames(className, { active })}
+              active={active}
               onClick={() => onChange(key)}
               key={key}
             >
