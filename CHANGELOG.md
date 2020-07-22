@@ -4,7 +4,7 @@
 
 * 🎉 First release
 
-## v1.0.1 (20/07/2020)
+## v1.0.1 (21/07/2020)
 
 ### New
 
@@ -13,3 +13,19 @@
 ### Fix 
 
 * 🐛 AnnotationViewer should resize correctly
+
+
+## v1.0.2 (22/07/2020)
+
+### New
+
+* 🚸 add "active" className to annotationExplorer items
+
+### Fix 
+
+* 🐛 AnnotationLens - pass the needed props
+
+
+### Changes
+
+* ⚡️ Fire resize event on canvas on fullscreen change
