@@ -63,13 +63,16 @@ export const useAnnotationLens = ({
     background,
     container,
     drawingLayer,
+    drawingLayerRef,
+    containerRef,
+    backgroundRef,
   }: any = useAnnotationRefs()
 
   const {
     imageBoundingBox,
     imageObjectRef,
     resizeAnnotation,
-  } = useImageCanvas({ drawingLayer, container, background, refsLoading })
+  } = useImageCanvas({ drawingLayerRef, containerRef, backgroundRef })
 
   const { settings, offset } = useConstructor({
     background,
