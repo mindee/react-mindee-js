@@ -2,14 +2,13 @@
 import React from "react"
 import styled from "styled-components"
 
-import { type SettingsShape, BLACK_LIGHTER } from "helpers/settings"
+import { type SettingsShape } from "helpers/settings"
 import { useAnnotationViewer } from "./hooks"
 
 import type { Shape, LensProps } from "common/types"
 import { classnames } from "helpers/sharedUtils"
 
 const StyleWrapper = styled.div`
-  border: 1px solid ${BLACK_LIGHTER};
   width: ${({ width }) => (typeof width === "number" ? `${width}px` : width)};
   height: ${({ height }) =>
     typeof height === "number" ? `${height}px` : height};

@@ -16,7 +16,7 @@ export const drawImage = (
 ) => {
   const context = canvas.getContext("2d", { alpha: false })
   context.fillStyle = settings.COLORS.BACKGROUND
-  context.fillRect(0, 0, canvas.width, canvas.height)
+  context.fillRect(0, 0, canvas.width + 1, canvas.height + 1)
   zoomInto(context, zoom, offset)
   context.drawImage(imageObject, ...imageBoundingBox)
 }

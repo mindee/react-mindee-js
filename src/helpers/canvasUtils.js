@@ -115,8 +115,8 @@ export const getDragOffset = (
   zoom: number,
   offset: Point
 ): Point => {
-  const directionX = (event.movementX * zoom) / 2
-  const directionY = (event.movementY * zoom) / 2
+  const directionX = event.movementX
+  const directionY = event.movementY
   const delta = new Point(directionX, directionY)
   return offset.add(delta)
 }

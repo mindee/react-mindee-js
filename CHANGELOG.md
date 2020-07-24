@@ -29,3 +29,9 @@
 ### Changes
 
 * ⚡️ Fire resize event on canvas on fullscreen change
+
+## v1.0.3 (24/07/2020)
+
+### New
+
+* ⚡️ allow drag with zomm outside canvas

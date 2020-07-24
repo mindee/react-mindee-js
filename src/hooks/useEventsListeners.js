@@ -82,7 +82,6 @@ const useEventsListeners = ({
   const { dragged, isDragging, setIsDragging, setDragged } = useDragging()
 
   const onMouseLeave = () => {
-    isDragging && setIsDragging(false)
     scrollDisabled && setScrollDisabled(false)
   }
 
@@ -119,6 +118,32 @@ const useEventsListeners = ({
       setDragged(true)
     }
   }
+
+  const _onMouseMove = (event: MouseEvent) => {
+    if (dragging && isDragging && zoom > 1) {
+      console.log(offset.unscale(zoom), imageBoundingBox)
+      setOffset(getDragOffset(event, zoom, offset))
+      setDragged(true)
+    }
+  }
+
+  const _onMouseUp = () => {
+    isDragging && setIsDragging(false)
+  }
+
+  useEffect(() => {
+    window.addEventListener("mouseup", _onMouseUp)
+    return () => {
+      window.removeEventListener("mouseup", _onMouseUp)
+    }
+  }, [isDragging])
+
+  useEffect(() => {
+    window.addEventListener("mousemove", _onMouseMove)
+    return () => {
+      window.removeEventListener("mousemove", _onMouseMove)
+    }
+  }, [isDragging, zoom, offset])
 
   const onMouseOver = () => {
     !scrollDisabled && setScrollDisabled(true)

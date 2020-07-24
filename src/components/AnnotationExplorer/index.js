@@ -81,7 +81,7 @@ const AnnotationExplorer = ({
           const active = activeIndex === key
           return (
             <ItemWrapper
-              className={classnames(className, { active })}
+              className={classnames("item", { active })}
               active={active}
               onClick={() => onChange(key)}
               key={key}
