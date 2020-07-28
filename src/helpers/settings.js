@@ -3,7 +3,7 @@
 const BLACK = "#000000"
 const DARK = "#001429"
 const YELLOW = "#ffc147"
-const RED = "#FD3246"
+export const RED = "#FD3246"
 const BLUE = "#007DFF"
 const GREEN = " #13ca96"
 const BLUE_DARK = "#22214E"

@@ -2,13 +2,14 @@
 import React from "react"
 import styled from "styled-components"
 
-import { BLACK_LIGHTER } from "helpers/settings"
+import { BLACK_LIGHTER, RED } from "helpers/settings"
+
 import { classnames } from "helpers/sharedUtils"
 
 const Image = styled.img`
   height: 3rem;
   border: 1px solid ${BLACK_LIGHTER};
-  border-color: ${({ active }) => (active ? "red" : `${BLACK_LIGHTER}`)};
+  border-color: ${({ active }) => (active ? RED : BLACK_LIGHTER)};
   cursor: pointer;
   border-radius: 0.125rem;
 `
@@ -37,19 +38,25 @@ const AnnotationSidebar = ({
   items,
   className,
   onChange,
-}: Props) => (
-  <Wrapper className={classnames("annotation-sidebar", className)}>
-    {items.map((item: string, key: number) => (
-      <Image
-        alt={`annotation-sidebar-item ${key}`}
-        className={`annotation-sidebar-item ${key}`}
-        key={key}
-        src={item}
-        active={activeIndex === key}
-        onClick={() => onChange && onChange(key)}
-      />
-    ))}
-  </Wrapper>
-)
+}: Props) => {
+  const onClick = (index: number) => (event: Event) => {
+    event.stopPropagation()
+    onChange && onChange(index)
+  }
+  return (
+    <Wrapper className={classnames("annotation-sidebar", className)}>
+      {items.map((item: string, key: number) => (
+        <Image
+          alt={`annotation-sidebar-item ${key}`}
+          className={`annotation-sidebar-item ${key}`}
+          key={key}
+          src={item}
+          active={activeIndex === key}
+          onClick={onClick(key)}
+        />
+      ))}
+    </Wrapper>
+  )
+}
 
 export default AnnotationSidebar

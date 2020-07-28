@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.1.1 (28/07/2020)
+
+### Change
+
+* 🚸 AnnotationSidebar - prevent event propagation on item click
+
 ## v1.1.0 (24/07/2020)
 
 ### New
