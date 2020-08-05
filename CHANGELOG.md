@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.1.2 (05/08/2020)
+
+### Fix
+
+* 🐛 Rework promises in getImagesFromPDF function
+
 ## v1.1.1 (28/07/2020)
 
 ### Change
@@ -10,8 +16,8 @@
 
 ### New
 
-* 🚸 add more options for user
-* 🚸 add "active" className to annotationExplorer items
+* 🚸 Add more options for user
+* 🚸 Add "active" className to annotationExplorer items
 
 ### Fix 
 
@@ -20,7 +26,7 @@
 ### Changes
 
 * ⚡️ Fire resize event on canvas on fullscreen change
-* ⚡️ allow drag with zomm outside canvas
+* ⚡️ Allow drag with zomm outside canvas
 
 ## v1.0.0 (20/07/2020)
 
