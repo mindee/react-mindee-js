@@ -6,7 +6,7 @@ The following is a set of guidelines for contributing to react-mindee-js which a
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the following [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [contact@mindee.co](mailto:contact@mindee.co).
+This project and everyone participating in it is governed by the following [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [contact@mindee.com](mailto:contact@mindee.com).
 
 ## How Can I Contribute
 

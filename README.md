@@ -3,7 +3,7 @@
 
 # react-mindee-js
 
-> Computer vision SDK for image segmentation and document processing on top of [mindee](https://mindee.co) APIs
+> Computer vision SDK for image segmentation and document processing on top of [mindee](https://mindee.com) APIs
 
 [![NPM](https://img.shields.io/npm/v/react-mindee-js.svg)](https://www.npmjs.com/package/react-mindee-js) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
@@ -486,10 +486,10 @@ getImagesFromPDF(pdfFile)
 # Contribute to this repo
 
 Feel free to use github to submit issues, pull requests or general feedback.
-You can also visit [our website](https://mindee.co) or drop us an [email](mailto:contact@mindee.co).
+You can also visit [our website](https://mindee.com) or drop us an [email](mailto:contact@mindee.com).
 
 Please read our [Contributing section](CONTRIBUTING.md) before contributing.
 
 # License
 
-GPLv3 © [mindee](https://mindee.co)
+GPLv3 © [mindee](https://mindee.com)
