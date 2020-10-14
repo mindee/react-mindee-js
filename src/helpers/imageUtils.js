@@ -28,8 +28,8 @@ const getImageFromPolygon = (canvas: HTMLCanvasElement, polygon: Polygon) => {
 
 export const getShapesWithImages = (image: string, shapes: Shape[]) => {
   const background = document.createElement("canvas")
-  background.width = 500
-  background.height = 500
+  background.width = 800
+  background.height = 800
   return new Promise<Shape[]>((resolve: (any) => void) => {
     const imageObject = new Image()
     imageObject.src = image
@@ -63,8 +63,8 @@ export const getShapesWithImages = (image: string, shapes: Shape[]) => {
 
 export const getImageFromShape = (imageObject: any, shape: Shape): string => {
   const background = document.createElement("canvas")
-  background.width = 1000
-  background.height = 1000
+  background.width = 800
+  background.height = 800
   const imageBoundingBox = getImageBoundingBox(background, imageObject).slice()
   drawImage(background, imageObject, imageBoundingBox, 1, new Point(), settings)
   const scaledPolygon = shape.polygon.scaleToImage(imageBoundingBox)
