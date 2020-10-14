@@ -1,5 +1,12 @@
 # CHANGELOG
 
+
+## v1.1.3 (14/10/2020)
+
+### Change
+
+* :children_crossing: update generateImagesFromShapes resolution
+
 ## v1.1.2 (05/08/2020)
 
 ### Fix
