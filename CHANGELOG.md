@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v2.0.0-rc1 (02/12/2020)
+
+### New
+
+* ✨ add AnnotationForm
+* 📝 add more stories with documentation
+* 🙈 add .gitignore and .eslintignore
+* 🚸 add typescript support
+### Change
+
+* 💥 re-create base components using mindee-js
+* 🔥 delete legacy files
+
+### Change
+
+* :children_crossing: update generateImagesFromShapes resolution
+
 ## v1.1.4 (14/10/2020)
 
 ### Change

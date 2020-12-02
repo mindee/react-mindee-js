@@ -1,5 +1,7 @@
-![logo_mindee](https://user-images.githubusercontent.com/41388086/68026973-7858b080-fcb1-11e9-85ff-724c8d014118.png)
+import { Meta } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
 
+<Meta title="Introduction" />
 
 # react-mindee-js
 
@@ -8,8 +10,6 @@
 [![NPM](https://img.shields.io/npm/v/react-mindee-js.svg)](https://www.npmjs.com/package/react-mindee-js) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ![ezgif com-video-to-gif (12)](https://user-images.githubusercontent.com/41388086/87852820-92045b80-c905-11ea-808e-5a971de2b29f.gif)
-
-Check out the full documentation on [storybook](https://publicMindee.github.io/react-mindee-js/?path=/docs).
 
 ## Features
 
@@ -50,6 +50,10 @@ yarn add react-mindee-js
 
 > react-mindee-js has one main component has a set of features to draw a list of shapes on top of a given image.
 
+<LinkTo kind="Main component/AnnotationViewer" style={{ color: '#1474f3' }}>
+  AnnotationViewer API
+</LinkTo>
+
 ```
 <AnnotationViewer />
 ```
@@ -58,14 +62,38 @@ yarn add react-mindee-js
 
 > **Helpers** work hand to hand with AnnotationViewer to provide a powerful tool for different use cases
 
-- AnnotationLens component provide a closer vision to the main canvas rendered by AnnotationViewer.
+- <LinkTo kind="Helpers/AnnotationLens" style={{ color: '#1474f3' }}>
+    {' '}
+    AnnotationLens{' '}
+  </LinkTo> component provide a closer vision to the main canvas rendered by AnnotationViewer. <LinkTo
+    kind="Examples/lens"
+    style={{ color: '#1474f3' }}
+  >
+    See example
+  </LinkTo>
 
-- AnnotationForm display textual data. Introduction can be fully customized and linked
+- <LinkTo kind="Helpers/AnnotationForm" style={{ color: '#1474f3' }}>
+    {' '}
+    AnnotationForm
+  </LinkTo> display textual data. Introduction can be fully customized and linked
   to AnnotationViewer through a state to create interactive behavior between shapes
-  and fields.
+  and fields. <LinkTo
+    kind="Examples/Form/Basic Form"
+    style={{ color: '#1474f3' }}
+  >
+    See example
+  </LinkTo>
 
-- getImagesFromPDFis a async function that takes a pdf file as an argument and return all
-  pages as a list of base64 images.
+- <LinkTo kind="Helpers/getImagesFromPDF" style={{ color: '#1474f3' }}>
+    {' '}
+    getImagesFromPDF{' '}
+  </LinkTo> is a async function that takes a pdf file as an argument and return all
+  pages as a list of base64 images. <LinkTo
+    kind="Examples/PDF"
+    style={{ color: '#1474f3' }}
+  >
+    See example
+  </LinkTo>
 
 ## Contribute to this repo
 
