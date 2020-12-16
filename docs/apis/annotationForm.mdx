@@ -1,0 +1,44 @@
+---
+name: AnnotationForm
+route: /annotation-form
+menu: Component API
+---
+
+### AnnotationForm
+
+#### fields
+
+- Type : `Array`
+- default : `[]`
+
+> List of nested objects with custom style and behavior to display textual data
+
+```javascript
+{
+    id: string
+    label: string
+    name: string
+    items: FieldItem[]
+    onClick?: (SyntheticEvent, FieldData) => void
+    onMouseEnter?: (SyntheticEvent, FieldData) => void
+    onMouseLeave?: (SyntheticEvent, FieldData) => void
+    className?: string
+    style?: CSSProperties
+}
+```
+
+---
+
+#### styles
+
+- Type : `CSSProperties`
+
+> Regular CSS object to style the container
+
+---
+
+#### className
+
+- Type : `string`
+
+> Container className

@@ -1,7 +1,5 @@
-dist
 node_modules
-yarn-error.log
+dist
 build
-.vscode
 .docz
 .netlify

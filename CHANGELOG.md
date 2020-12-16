@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v1.2.0-rc2 (16/12/2020)
+
+### New
+
+* ✨ add AnnotationForm
+* 🙈 add .gitignore and .eslintignore
+* 🚸 add typescript support
+
+### Change
+
+* 💥 re-create base components using mindee-js
+* 💥 change components API
+* 📝 update documentation
+* 🔥 delete legacy files
+
 ## v1.1.4 (14/10/2020)
 
 ### Change
