@@ -38,6 +38,7 @@
     "react-dom": "^16.0.0"
   },
   "scripts": {
+    "deploy": "npm publish --access public",
     "build": "tsc",
     "docs:dev": "docz dev",
     "docs:deploy": "docz build && netlify deploy --dir=.docz/dist --prod"
