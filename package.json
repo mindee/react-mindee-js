@@ -58,6 +58,7 @@
     "@material-ui/core": "^4.11.1",
     "@types/classnames": "^2.2.11",
     "classnames": "^2.2.6",
+    "mindee-js": "^1.0.0-rc.2",
     "react-window": "^1.8.6",
     "uuid": "^8.3.1"
   }
