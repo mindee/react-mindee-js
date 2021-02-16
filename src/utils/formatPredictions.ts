@@ -1,8 +1,8 @@
-import { COLORS } from '../common/constants'
-import { FieldSubItem } from './../common/types'
 import { AnnotationShape } from 'mindee-js'
-import { Prediction, FieldData, FieldItem } from '../common/types'
 import { v4 as uuidv4 } from 'uuid'
+
+import { COLORS } from '../common/constants'
+import { Prediction, FieldData, FieldItem, FieldSubItem } from '../common/types'
 
 type FormattedPrediction = {
   shapes: AnnotationShape[]

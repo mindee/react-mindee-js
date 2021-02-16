@@ -31,11 +31,7 @@ menu: Component API
     id: string
     coordinates: number[][]
     crop?: string
-    options?: {
-        default?: ShapeConfig
-        onMouseEnter?: ShapeConfig
-        onMouseLeave?: ShapeConfig
-  }
+    config: ShapeConfig
 }
 ```
 
@@ -49,15 +45,12 @@ menu: Component API
 ```javascript
   {
     backgroundColor: 'black',
-    shape: {
-        default: {
-            stroke: 'red',
-            strokeWidth: 3,
-            listening: true,
-        },
-        onMouseEnter: {},
-        onMouseLeave: {},
+    shapeConfig: {
+        stroke: 'red',
+        strokeWidth: 3,
+        listening: true,
     },
+
     zoom: {
         modifier: 1.2,
         max: 10,
@@ -78,11 +71,7 @@ menu: Component API
     max: number
     defaultZoom: number
   }
-  shape?: {
-    default?: ShapeConfig
-    onMouseEnter?: ShapeConfig
-    onMouseLeave?: ShapeConfig
-  }
+  shapeConfig?: ShapeConfig
 }
 ```
 
