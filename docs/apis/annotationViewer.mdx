@@ -19,15 +19,15 @@ menu: Component API
 
 #### shapes
 
-- Type : `Array`
+- Type : `AnnotationShape[}`
 - Default : `[]`
 
-> List of shapes to draw on canvas. Check [ShapeConfig](https://konvajs.org/api/Konva.Line.html#main) to custom shape style and behaviour for each state.
+> List of shapes to draw on canvas. Below is Check [ShapeConfig](https://konvajs.org/api/Konva.Line.html#main) to custom shape style and behaviour for each state.
 
 > Warning : you must provide a unique "id" to each shape for optimization matters.
 
 ```js
-{
+type AnnotationShape = {
     id: string
     coordinates: number[][]
     crop?: string
@@ -50,7 +50,6 @@ menu: Component API
         strokeWidth: 3,
         listening: true,
     },
-
     zoom: {
         modifier: 1.2,
         max: 10,
@@ -61,10 +60,10 @@ menu: Component API
 ```
 
 > - Object of options to change default style and behavior. Here you can pass a custom style to all shape as you may do for each one.
-> - Note that **shape** object overrides shapes individual custom style.
+> - Note that **shapeConfig** object overrides all shapes custom configs.
 
 ```js
-{
+type Option = {
   backgroundColor?: string
   zoom?: {
     modifier: number
@@ -79,86 +78,74 @@ menu: Component API
 
 #### orientation
 
-- Type : `Number`
+- Type : `number`
 - Default : `0`
 
 > Rotation in degree applied to the provided image
 
 ---
 
-#### on-shape-mouse-enter
+#### onShapeMouseEnter
 
-- Type : `Function`
+- Type : `(shape: AnnotationShape) => void`
 
 > Return the shape on mouse enter event. Check [ShapeConfig](https://konvajs.org/api/Konva.Line.html#main) to custom shape style and behaviour for each state.
 
 ```javascript
-{
-  id: string
-  coordinates: number[][]
-  crop?: string
-  options?: {
-    default?: ShapeConfig
-    onMouseEnter?: ShapeConfig
-    onMouseLeave?: ShapeConfig
-  }
+type AnnotationShape = {
+    id: string
+    coordinates: number[][]
+    crop?: string
+    config: ShapeConfig
 }
 ```
 
 ---
 
-#### on-shape-mouse-leave
+#### onShapeMouseLeave
 
-- Type : `Function`
+- Type : `(shape: AnnotationShape) => void`
 
 > Return the shape on mouse leave event. Check [ShapeConfig](https://konvajs.org/api/Konva.Line.html#main) to custom shape style and behaviour for each state.
 
 ```javascript
-{
-  id: string
-  coordinates: number[][]
-  crop?: string
-  options?: {
-    default?: ShapeConfig
-    onMouseEnter?: ShapeConfig
-    onMouseLeave?: ShapeConfig
-  }
+type AnnotationShape = {
+    id: string
+    coordinates: number[][]
+    crop?: string
+    config: ShapeConfig
 }
 ```
 
 ---
 
-#### on-shape-click
+#### onShapeClick
 
-- Type : `Function`
+- Type : `(shape: AnnotationShape) => void`
 
 > Return the shape on click event. Check [ShapeConfig](https://konvajs.org/api/Konva.Line.html#main) to custom shape style and behaviour for each state.
 
 ```javascript
-{
-  id: string
-  coordinates: number[][]
-  crop?: string
-  options?: {
-    default?: ShapeConfig
-    onMouseEnter?: ShapeConfig
-    onMouseLeave?: ShapeConfig
-  }
+type AnnotationShape = {
+    id: string
+    coordinates: number[][]
+    crop?: string
+    config: ShapeConfig
 }
 ```
 
 ---
 
-#### on-pointer-move
+#### onPointerMove
 
-- Type : `Function`
+- Type : `(pointerPosition: PointerPosition) => void`
 
-> Return the pointer position on mouse move
+> Return the pointer position on mouse move event
 
 ```javascript
-{
-    x:number,
-    y: number
+type PointerPosition = {
+  x: number,
+  y: number,
 }
 ```
 
