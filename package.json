@@ -2,7 +2,7 @@
   "name": "react-mindee-js",
   "version": "1.2.0-rc.2",
   "description": "Front-End Computer Vision SDK for React",
-  "author": "@techmindee",
+  "author": "@mindee",
   "license": "GPL-3.0",
   "repository": "publicMindee/react-mindee-js",
   "main": "dist/index.js",
@@ -24,6 +24,7 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "gatsby-plugin-mdx": "^1.6.0",
+    "npm-install-peers": "^1.2.2",
     "prettier": "^2.1.2",
     "react-is": "^17.0.1",
     "typescript": "^4.0.5"
@@ -33,6 +34,7 @@
     "react-dom": "^17.0.1"
   },
   "scripts": {
+    "install-dev": "yarn npm-install-peers",
     "dev": "tsc --watch",
     "deploy": "npm publish --access public",
     "build": "tsc",

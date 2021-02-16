@@ -7,4 +7,6 @@ src
 .eslintignore
 .docz
 .netlify
+.vscode
+
 docs

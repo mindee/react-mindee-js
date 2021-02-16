@@ -14,5 +14,5 @@
     "outDir": "dist"
   },
   "include": ["src"],
-  "exclude": ["node_modules", "build", "dist", ".storybook", "./src/stories"]
+  "exclude": ["node_modules", "build", "dist", ".netlify", ".vscode"]
 }
