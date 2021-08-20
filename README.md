@@ -1,6 +1,6 @@
 ![logo_mindee](https://user-images.githubusercontent.com/41388086/68026973-7858b080-fcb1-11e9-85ff-724c8d014118.png)
 
-# react-mindee-js
+# react-mindee-js v1.2
 
 #### React components built on top [mindee-js](https://www.npmjs.com/package/mindee-js) SDK
 
@@ -9,7 +9,6 @@
 [![NPM](https://img.shields.io/npm/v/react-mindee-js.svg)](https://www.npmjs.com/package/react-mindee-js) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ![ezgif com-video-to-gif (12)](https://user-images.githubusercontent.com/41388086/87852820-92045b80-c905-11ea-808e-5a971de2b29f.gif)
-
 
 **[Check out the full documentation](https://react-mindee-js.netlify.app).**
 
@@ -39,13 +38,13 @@ The React SDK is compatible with `React 16.8.0 +`
 Installing with npm
 
 ```bash
-npm install --save react-mindee-js@next
+npm install --save react-mindee-js
 ```
 
 installing with yarn
 
 ```
-yarn add react-mindee-js@next
+yarn add react-mindee-js
 ```
 
 ## Main component

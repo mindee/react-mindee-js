@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.2.0 (20/08/2021)
+
+### New
+
+- 🎉 1.2.0 official release
+
 ## v1.2.0-rc3 (16/02/2021)
 
 ### Changes
