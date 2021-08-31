@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.2.1 (31/08/2021)
+
+### Changes
+
+- :memo: change the website docs url in README
+
 ## v1.2.0 (20/08/2021)
 
 ### New

@@ -10,7 +10,7 @@
 
 ![ezgif com-video-to-gif (12)](https://user-images.githubusercontent.com/41388086/87852820-92045b80-c905-11ea-808e-5a971de2b29f.gif)
 
-**[Check out the full documentation](https://react-mindee-js.netlify.app).**
+**[Check out the full documentation](https://react-mindee-js-legacy.netlify.app).**
 
 ## Features
 
@@ -49,7 +49,7 @@ yarn add react-mindee-js
 
 ## Main component
 
-> [AnnotationViewer](https://react-mindee-js.netlify.app/annotation-viewer) has a set of features to draw a list of shapes on top of a given image.
+> [AnnotationViewer](https://react-mindee-js-legacy.netlify.app/annotation-viewer) has a set of features to draw a list of shapes on top of a given image.
 
 ```js
 import dummyImage from 'assets/image.jpg'
@@ -83,11 +83,11 @@ const Example = () => {
 
 > **Helpers** work hand to hand with AnnotationViewer to provide a powerful tool for different use cases
 
-- [AnnotationLens](https://react-mindee-js.netlify.app/annotation-lens) component provide a closer vision to the main canvas rendered by AnnotationViewer.
+- [AnnotationLens](https://react-mindee-js-legacy.netlify.app/annotation-lens) component provide a closer vision to the main canvas rendered by AnnotationViewer.
 
-- [AnnotationForm](https://react-mindee-js.netlify.app/annotation-form) display textual data. Introduction can be fully customized and linked to AnnotationViewer through a state to create interactive behavior between shapes and fields.
+- [AnnotationForm](https://react-mindee-js-legacy.netlify.app/annotation-form) display textual data. Introduction can be fully customized and linked to AnnotationViewer through a state to create interactive behavior between shapes and fields.
 
-- [getImagesFromPDF](https://react-mindee-js.netlify.app/get-images-from-pdf) This function returns a Promise that resolves with a list of images as base64 format . It takes pdf file (object URL).
+- [getImagesFromPDF](https://react-mindee-js-legacy.netlify.app/get-images-from-pdf) This function returns a Promise that resolves with a list of images as base64 format . It takes pdf file (object URL).
 
 ## Contribute to this repo
 
