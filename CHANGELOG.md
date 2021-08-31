@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## v1.3.0-rc2 (31/08/2021)
+
+### Changes
+
+- 💥 replace web-components by pure React components
+- 💥 Change AnnotationViewer & AnnotationLens props
+- ♻️ refactor utility functions code
+- ⚡️ improve canvas rendering performance
+- 📝 replace docs library - use docusaurus
+
+### New
+
+- ✅ Add visual testing using cypress
+- 👷 Add github test workflow
+
+## v1.2.1 (31/08/2021)
+
+### Changes
+
+- :memo: change the website docs url in README
+
+## v1.2.0 (20/08/2021)
+
+### New
+
+- 🎉 1.2.0 official release
+
 ## v1.2.0-rc3 (16/02/2021)
 
 ### Changes

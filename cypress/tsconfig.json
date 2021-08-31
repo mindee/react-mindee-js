@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "ES2020",
+    "module": "ES2020",
+    "lib": ["es2017", "es7", "es6", "dom"],
+    "types": [
+      "vite/client",
+      "@types/jest",
+      "cypress",
+      "cypress-image-snapshot"
+    ],
+    "declaration": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "baseUrl": "."
+  },
+  "include": ["**/*.ts*"],
+  "exclude": ["node_modules"]
+}

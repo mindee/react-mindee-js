@@ -1,49 +1,54 @@
-import { CSSProperties } from 'react'
+import Konva from 'konva'
+import { Line, LineConfig } from 'konva/lib/shapes/Line'
+import { RectConfig } from 'konva/lib/shapes/Rect'
 
-export type FieldSubItem = {
+export type AnnotationShape<T = any> = T & {
   id: string
-  fieldId: string
-  fieldItemId: string
-  label: string
-  value: string | number
-  className?: string
-  style?: CSSProperties
-  onClick?: (SyntheticEvent, FieldSubItem) => void
-  onMouseEnter?: (SyntheticEvent, FieldSubItem) => void
-  onMouseLeave?: (SyntheticEvent, FieldSubItem) => void
+  coordinates: number[][]
+  config?: LineConfig
 }
 
-export type FieldItem = {
-  id: string
-  fieldId: string
-  subItems: FieldSubItem[]
-  className?: string
-  style?: CSSProperties
-  onClick?: (SyntheticEvent, FieldItem) => void
-  onMouseEnter?: (SyntheticEvent, FieldItem) => void
-  onMouseLeave?: (SyntheticEvent, FieldItem) => void
-  renderSubItems?: (subItems: FieldSubItem[]) => JSX.Element
+export type Orientation = 0 | 90 | 180 | 270
+
+export type BaseOptions = {
+  shapeConfig?: LineConfig
 }
 
-export type FieldData = {
-  id: string
-  label: string
-  name: string
-  items: FieldItem[]
-  scrollToItem?: number
-  onClick?: (SyntheticEvent, FieldData) => void
-  onMouseEnter?: (SyntheticEvent, FieldData) => void
-  onMouseLeave?: (SyntheticEvent, FieldData) => void
-  className?: string
-  style?: CSSProperties
-  column: number
+export type AnnotationLayers = {
+  shapes: Konva.Layer
+  image: Konva.Layer
 }
 
-export type Prediction = {
-  [feature: string]: {
-    segmentation?: {
-      bounding_box?: number[][]
-    }
-    [value: string]: any
+export type AnnotationLensOptions = BaseOptions
+
+export type AnnotationViewerOptions = BaseOptions & {
+  selectionRectConfig?: RectConfig
+  enableSelection?: boolean
+  onMouseEnter?: (polygon: Line) => void
+  onMouseLeave?: (polygon: Line) => void
+  onClick?: (polygon: Line) => void
+  zoom?: {
+    modifier: number
+    max: number
+    defaultZoom: number
   }
+}
+
+export type ImageBoundingBox = {
+  x: number
+  y: number
+  width: number
+  height: number
+  scale: number
+}
+
+export type PointerPosition = {
+  x: number
+  y: number
+}
+
+export type AnnotationData = {
+  image?: string | null
+  shapes?: AnnotationShape[]
+  orientation?: Orientation
 }

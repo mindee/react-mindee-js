@@ -1,18 +1,25 @@
 {
   "compilerOptions": {
     "jsx": "react",
-    "experimentalDecorators": true,
-    "module": "es6",
-    "moduleResolution": "node",
-    "noImplicitAny": false,
-    "baseUrl": "src",
-    "target": "es2015",
+    "target": "ES6",
+    "module": "ES6",
     "declaration": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "plugins": [
+      // Transform paths in output .js files
+      { "transform": "typescript-transform-paths" },
+
+      // Transform paths in output .d.ts files (Include this line if you output declarations files)
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "build", "dist", ".netlify", ".vscode"]
+  "exclude": ["node_modules", "dist", "docs", "src/**/*.spec.tsx", "cypress"]
 }

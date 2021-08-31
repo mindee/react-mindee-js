@@ -1,29 +1,40 @@
-import { FieldData, FieldItem } from './common/types'
+import { Stage } from 'konva/lib/Stage'
 import {
-  getImagesFromPDF,
   AnnotationShape,
-  Options,
+  AnnotationLensOptions,
+  AnnotationViewerOptions,
   PointerPosition,
   Orientation,
-} from 'mindee-js'
-import 'mindee-js'
+  AnnotationData,
+} from './common/types'
 
-import AnnotationForm from './components/AnnotationForm'
+import {
+  drawLayer,
+  drawShape,
+  setShapeConfig,
+  drawShapes,
+} from './utils/functions'
+import getImagesFromPDF from './utils/getImagesFromPDF'
 import AnnotationLens from './components/AnnotationLens'
 import AnnotationViewer from './components/AnnotationViewer'
+import { dataURItoBlob } from './utils/image'
 
-import { formatPrediction } from './utils/formatPredictions'
-
-export {
-  FieldData,
-  FieldItem,
+export type {
+  Stage,
   AnnotationShape,
-  Options,
+  AnnotationLensOptions,
+  AnnotationViewerOptions,
   PointerPosition,
   Orientation,
+  AnnotationData,
+}
+export {
+  drawShapes,
+  dataURItoBlob,
   AnnotationLens,
   AnnotationViewer,
   getImagesFromPDF,
-  AnnotationForm,
-  formatPrediction,
+  drawShape,
+  drawLayer,
+  setShapeConfig,
 }
