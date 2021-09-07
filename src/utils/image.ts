@@ -1,3 +1,4 @@
+import { ImageData } from '@/common/types'
 import Konva from 'konva'
 
 export const dataURItoBlob = (dataURI: string) => {
@@ -51,35 +52,28 @@ export const computeImageBoundingBox = (
   }
 }
 
-export const createImageShape = (imageObject: HTMLImageElement) =>
-  new Konva.Image({
-    image: imageObject,
-    listening: false,
-  })
-
 const resizeStage = (stage: Konva.Stage, container: HTMLDivElement) => {
   stage.width(container.clientWidth)
   stage.height(container.clientHeight)
 }
 
 export const handleResizeImage = (
-  stage?: Konva.Stage,
-  container?: HTMLDivElement | null,
-  imageObject?: HTMLImageElement | null,
-  imageShape?: Konva.Image
+  stage: Konva.Stage | null,
+  container: HTMLDivElement | null,
+  { element, shape }: ImageData
 ) => {
-  if (!imageShape || !container || !stage || !imageObject) {
+  if (!container || !stage) {
     return
   }
   resizeStage(stage, container)
-  const imageBoundingBox = computeImageBoundingBox(container, imageObject)
+  const imageBoundingBox = computeImageBoundingBox(container, element)
   const { x, y, width, height, scale } = imageBoundingBox
   stage?.scale({
     x: scale,
     y: scale,
   })
   stage.position({ x, y })
-  imageShape.width(width / scale)
-  imageShape.height(height / scale)
+  shape.width(width / scale)
+  shape.height(height / scale)
   return imageBoundingBox
 }

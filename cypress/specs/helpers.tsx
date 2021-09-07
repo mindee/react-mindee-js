@@ -1,8 +1,9 @@
-import dummyImage from './assets/demo.jpg'
-import anotherDummyImage from './assets/another-demo.jpg'
-
-import { dummyShapes } from './assets/shapes'
 import React, { useState } from 'react'
+
+import dummyImage from '../assets/demo.jpg'
+import anotherDummyImage from '../assets/another-demo.jpg'
+import { dummyShapes } from '../assets/shapes'
+
 import { AnnotationLens, AnnotationViewer, AnnotationData } from '../../dist'
 
 type TesterProps = {
@@ -87,6 +88,11 @@ export const AnnotationViewerStateTester = ({
   const passDifferentOrientation = () => {
     setData({ image: dummyImage, shapes: dummyShapes, orientation: 90 })
   }
+
+  const passEmptyImage = () => {
+    setData({ shapes: dummyShapes })
+  }
+
   return (
     <div
       data-cy="AnnotationViewerTester"
@@ -106,6 +112,9 @@ export const AnnotationViewerStateTester = ({
         onClick={passDifferentOrientation}
       >
         Pass different orientation
+      </button>
+      <button data-cy="empty-image" onClick={passEmptyImage}>
+        Pass empty image
       </button>
       <AnnotationViewer
         id={id}

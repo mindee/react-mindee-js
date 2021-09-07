@@ -4,7 +4,7 @@ import { Key } from 'ts-key-enum'
 import Konva from 'konva'
 
 interface Props {
-  stage?: Konva.Stage
+  stage: Konva.Stage | null
   isSelectionActiveRef: MutableRefObject<boolean>
 }
 export default function useMultiSelection({

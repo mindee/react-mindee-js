@@ -1,0 +1,12 @@
+{
+  "componentFolder": "cypress/specs",
+  "testFiles": "**/*.spec.{js,ts,jsx,tsx}",
+  "viewportWidth": 1500,
+  "viewportHeight": 900,
+  "video": false,
+  "screenshotOnRunFailure": false,
+  "retries": {
+    "runMode": 3,
+    "openMode": 0
+  }
+}

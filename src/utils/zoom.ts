@@ -8,12 +8,12 @@ import Konva from 'konva'
 import { KonvaEventObject } from 'konva/lib/Node'
 
 export const handleStageZoom = (
-  stage?: Konva.Stage,
-  imageBoundingBox?: ImageBoundingBox,
-  event?: KonvaEventObject<any>,
-  options?: AnnotationViewerOptions
+  stage: Konva.Stage | null,
+  imageBoundingBox: ImageBoundingBox | null,
+  event: KonvaEventObject<any>,
+  options: AnnotationViewerOptions
 ) => {
-  if (!stage || !imageBoundingBox || !event || !options) {
+  if (!stage || !imageBoundingBox) {
     return
   }
   const { x, y, scale } = imageBoundingBox
@@ -55,12 +55,12 @@ export const handleStageZoom = (
 }
 
 export const handleLensZoom = (
-  stage?: Konva.Stage,
-  imageBoundingBox?: ImageBoundingBox,
-  pointerPosition?: PointerPosition,
+  stage: Konva.Stage | null,
+  imageBoundingBox: ImageBoundingBox | null,
+  pointerPosition: PointerPosition,
   zoomLevel = DEFAULT_LENS_ZOOM_LEVEL
 ) => {
-  if (!stage || !imageBoundingBox || !pointerPosition) {
+  if (!stage || !imageBoundingBox) {
     return
   }
   const { height, width, scale } = imageBoundingBox

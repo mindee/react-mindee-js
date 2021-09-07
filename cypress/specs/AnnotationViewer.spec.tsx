@@ -1,12 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { mount } from '@cypress/react'
-import { AnnotationData, AnnotationShape, AnnotationViewer } from '../../dist'
+import { AnnotationShape, AnnotationViewer } from '../../dist'
 import { Key } from 'ts-key-enum'
 
-import dummyImage from './assets/demo.jpg'
-import anotherDummyImage from './assets/another-demo.jpg'
+import dummyImage from '../assets/demo.jpg'
+import { dummyShapes } from '../assets/shapes'
 
-import { dummyShapes } from './assets/shapes'
 import { AnnotationViewerStateTester } from './helpers'
 
 const containerHeight = 800
@@ -16,6 +15,7 @@ describe('AnnotationViewer', () => {
   it('mount correctly', () => {
     mount(
       <AnnotationViewer
+        onShapeClick={console.log}
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}

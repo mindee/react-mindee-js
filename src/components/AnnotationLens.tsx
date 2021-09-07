@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Konva from 'konva'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -12,27 +12,16 @@ import {
 } from '@/common/constants'
 
 import {
-  PointerPosition,
   ImageBoundingBox,
-  AnnotationData,
-  AnnotationLensOptions,
+  ImageData,
+  AnnotationLensProps,
 } from '@/common/types'
 
 import { mapShapesToPolygons } from '@/utils/canvas'
 import { rotateImage } from '@/utils/orientation'
 import { handleLensZoom } from '@/utils/zoom'
-import { createImageShape, handleResizeImage } from '@/utils/image'
+import { handleResizeImage } from '@/utils/image'
 import { clearLayers } from '@/utils/layer'
-
-interface Props {
-  id?: string
-  zoomLevel?: number
-  data?: AnnotationData
-  pointerPosition?: PointerPosition
-  getStage?: (stage: Konva.Stage) => void
-  style?: CSSProperties
-  options?: AnnotationLensOptions
-}
 
 export default function AnnotationLens({
   id: containerId = uuidv4(),
@@ -42,23 +31,24 @@ export default function AnnotationLens({
   style = {},
   options: customOptions = {},
   data = DEFAULT_DATA,
-}: Props) {
+}: AnnotationLensProps) {
   const options = {
     ...DEFAULT_ANNOTATION_LENS_OPTIONS,
     ...customOptions,
   }
   const annotationData = useRef(DEFAULT_DATA)
-  const imageObject = useRef(new Image())
-  const imageShapeObject = useRef<Konva.Image | null>(null)
+  const imageDataObject = useRef<ImageData>({
+    element: new Image(),
+    shape: new Konva.Image({ image: new Image() }),
+  })
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   const layersObject = useRef({
     shapes: new Konva.Layer({ id: KONVA_REFS.shapesLayer, listening: false }),
     image: new Konva.Layer({ listening: false }),
   })
-  const stageObject = useRef<Konva.Stage>()
-  const imageBoundingBoxObject = useRef<ImageBoundingBox>()
-
+  const stageObject = useRef<Konva.Stage | null>(null)
+  const imageBoundingBoxObject = useRef<ImageBoundingBox | null>(null)
   useEffect(() => {
     stageObject.current = new Konva.Stage({
       container: containerId,
@@ -69,6 +59,7 @@ export default function AnnotationLens({
       layersObject.current.image,
       layersObject.current.shapes
     )
+    layersObject.current.image.add(imageDataObject.current.shape)
   }, [])
 
   const onZoomChange = () => {
@@ -85,10 +76,11 @@ export default function AnnotationLens({
   }, [pointerPosition, zoomLevel])
 
   useEffect(() => {
-    // if image is null or undefined, we should clear everything and wait for the next state change
     if (!data.image) {
       clearLayers(layersObject.current)
-      imageObject.current = new Image()
+      imageDataObject.current.element = new Image()
+      imageDataObject.current.shape.image(imageDataObject.current.element)
+      annotationData.current = data
       return
     }
     if (
@@ -104,26 +96,27 @@ export default function AnnotationLens({
   }, [data])
 
   const loadImage = async () => {
-    imageObject.current.onload = () => {
-      layersObject.current.image.destroyChildren()
-      imageShapeObject.current = createImageShape(imageObject.current)
-      layersObject.current.image.add(imageShapeObject.current!)
+    imageDataObject.current.element.onload = () => {
+      imageDataObject.current.shape.image(imageDataObject.current.element)
       resizeImage()
     }
     if (annotationData.current.orientation) {
       try {
         const image = await rotateImage(annotationData.current)
-        imageObject.current.src = image
+        imageDataObject.current.element.src = image
       } catch (error) {
         console.error(error)
       }
     } else {
-      imageObject.current.src = annotationData.current.image!
+      imageDataObject.current.element.src = annotationData.current.image!
     }
   }
 
   const drawShapes = () => {
     layersObject.current.shapes.destroyChildren()
+    if (!annotationData.current.shapes) {
+      return
+    }
     mapShapesToPolygons(
       layersObject.current.shapes,
       annotationData.current.shapes,
@@ -136,15 +129,16 @@ export default function AnnotationLens({
   }
 
   const resizeImage = () => {
-    imageBoundingBoxObject.current = handleResizeImage(
+    const imageBoundingBox = handleResizeImage(
       stageObject.current,
       containerRef.current,
-      imageObject.current,
-      imageShapeObject.current as Konva.Image | undefined
+      imageDataObject.current
     )
-    layersObject.current.image.batchDraw()
-    onZoomChange()
-    drawShapes()
+    if (imageBoundingBox) {
+      imageBoundingBoxObject.current = imageBoundingBox
+      onZoomChange()
+      drawShapes()
+    }
   }
 
   return (

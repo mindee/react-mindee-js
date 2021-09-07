@@ -1,4 +1,6 @@
-# Introduction
+# Check [React mindee documentation](https://react-mindee-js.netlify.app) for docs, guides, API and more!
+
+## Introduction
 
 #### **React mindee** is a very opinionated JavaScript library that will help you build interactive canvas for computer vision detection use cases.
 
@@ -6,9 +8,7 @@ There are many powerful JavaScript frameworks and tools that can help you make a
 
 This library was made for building frontend interfaces on top of **[Mindee](https://mindee.com/)** document parsing APIs and more generally on top of any computer vision detection APIs.
 
-### Check [React mindee](https://react-mindee-js.netlify.app) for docs, guides, API and more!
-
-[![NPM](https://img.shields.io/npm/v/react-mindee-js.svg)](https://www.npmjs.com/package/react-mindee-js/v/1.3.0-rc.2) [![tests](https://github.com/mindee/react-mindee-js/actions/workflows/cypress-workflow.yml/badge.svg?branch=new-version)](https://github.com/mindee/react-mindee-js/actions/workflows/cypress-workflow.yml)
+[![NPM](https://img.shields.io/npm/v/react-mindee-js.svg)](https://www.npmjs.com/package/react-mindee-js/v/1.3.0) [![tests](https://github.com/mindee/react-mindee-js/actions/workflows/cypress-workflow.yml/badge.svg?branch=new-version)](https://github.com/mindee/react-mindee-js/actions/workflows/cypress-workflow.yml)
 
 ![ezgif com-video-to-gif (12)](https://user-images.githubusercontent.com/41388086/87852820-92045b80-c905-11ea-808e-5a971de2b29f.gif)
 
@@ -30,13 +30,13 @@ The React SDK is compatible with `React 16.8.0 +`
 The easiest way to use react-select is to install it from npm and build it into your app with Webpack.
 
 ```bash
-npm install --save react-mindee-js@1.3.0-rc.2
+npm install --save react-mindee-js
 ```
 
 or using yarn
 
 ```
-yarn add react-mindee-js@1.3.0-rc.2
+yarn add react-mindee-js
 ```
 
 ## Usage

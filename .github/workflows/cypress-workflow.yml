@@ -13,6 +13,6 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          config-file: cypress/cypress.json
+          config-file: cypress.json
           build: yarn cy:prepare
           command: yarn cy:run

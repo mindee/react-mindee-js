@@ -1,6 +1,6 @@
 import { KonvaEventObject } from 'konva/lib/Node'
 import React from 'react'
-import { CSSProperties, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import Konva from 'konva'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -12,11 +12,9 @@ import {
 } from '@/utils/selection'
 
 import {
-  AnnotationData,
-  AnnotationShape,
-  AnnotationViewerOptions,
+  AnnotationViewerProps,
   ImageBoundingBox,
-  PointerPosition,
+  ImageData,
 } from '@/common/types'
 
 import {
@@ -30,21 +28,8 @@ import { getMousePosition, mapShapesToPolygons } from '@/utils/canvas'
 import { rotateImage } from '@/utils/orientation'
 import { handleStageZoom } from '@/utils/zoom'
 import useMultiSelection from '@/utils/useMultiSelection'
-import { createImageShape, handleResizeImage } from '@/utils/image'
+import { handleResizeImage } from '@/utils/image'
 import { clearLayers } from '@/utils/layer'
-
-interface Props {
-  id?: string
-  getPointerPosition?: (data: PointerPosition) => void
-  data?: AnnotationData
-  getStage?: (stage: Konva.Stage) => void
-  onShapeMultiSelect?: (shapes: AnnotationShape[]) => void
-  onShapeClick?: (shape: AnnotationShape) => void
-  onShapeMouseEnter?: (shape: AnnotationShape) => void
-  onShapeMouseLeave?: (shape: AnnotationShape) => void
-  options?: AnnotationViewerOptions
-  style?: CSSProperties
-}
 
 export default function AnnotationViewer({
   id: containerId = uuidv4(),
@@ -57,23 +42,25 @@ export default function AnnotationViewer({
   onShapeClick,
   options: customOptions = {},
   data = DEFAULT_DATA,
-}: Props) {
+}: AnnotationViewerProps) {
   const options = {
     ...DEFAULT_ANNOTATION_VIEWER_OPTIONS,
     ...customOptions,
   }
   const annotationData = useRef(DEFAULT_DATA)
   const isSelectionActiveRef = useRef(false)
-  const imageObject = useRef(new Image())
-  const imageShapeObject = useRef<Konva.Image | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const selectionRectObject = useRef(createSelectionRect(options))
+  const imageDataObject = useRef<ImageData>({
+    element: new Image(),
+    shape: new Konva.Image({ image: new Image() }),
+  })
   const layersObject = useRef({
     shapes: new Konva.Layer({ id: KONVA_REFS.shapesLayer }),
     image: new Konva.Layer({ listening: false }),
   })
-  const stageObject = useRef<Konva.Stage | undefined>()
-  const imageBoundingBoxObject = useRef<ImageBoundingBox | undefined>()
+  const stageObject = useRef<Konva.Stage | null>(null)
+  const imageBoundingBoxObject = useRef<ImageBoundingBox | null>(null)
 
   useMultiSelection({ stage: stageObject.current, isSelectionActiveRef })
 
@@ -92,7 +79,9 @@ export default function AnnotationViewer({
     // if image is null or undefined, we should clear everything and wait for the next state change
     if (!data.image) {
       clearLayers(layersObject.current)
-      imageObject.current = new Image()
+      imageDataObject.current.element = new Image()
+      imageDataObject.current.shape.image(imageDataObject.current.element)
+      annotationData.current = data
       return
     }
     if (
@@ -112,12 +101,12 @@ export default function AnnotationViewer({
       container: containerId,
     })
     getStage?.(stageObject.current)
-    layersObject.current.image.listening(false)
     stageObject.current.add(
       layersObject.current.image,
       layersObject.current.shapes
     )
     stageObject.current.on('wheel', onZoom)
+    layersObject.current.image.add(imageDataObject.current.shape)
     getPointerPosition &&
       stageObject.current.on('mousemove', () => {
         const mousePointTo = getMousePosition(
@@ -127,6 +116,7 @@ export default function AnnotationViewer({
         mousePointTo && getPointerPosition(mousePointTo)
       })
     if (options.enableSelection) {
+      layersObject.current.shapes.add(selectionRectObject.current)
       stageObject.current.on('mousedown touchstart', (event) =>
         onSelectionStart(
           event,
@@ -152,21 +142,19 @@ export default function AnnotationViewer({
   }
 
   const loadImage = async () => {
-    imageObject.current.onload = () => {
-      layersObject.current.image.destroyChildren()
-      imageShapeObject.current = createImageShape(imageObject.current)
-      layersObject.current.image.add(imageShapeObject.current!)
+    imageDataObject.current.element.onload = () => {
+      imageDataObject.current.shape.image(imageDataObject.current.element)
       resizeImage()
     }
     if (annotationData.current.orientation) {
       try {
         const image = await rotateImage(annotationData.current)
-        imageObject.current.src = image
+        imageDataObject.current.element.src = image
       } catch (error) {
         console.error(error)
       }
     } else {
-      imageObject.current.src = annotationData.current.image!
+      imageDataObject.current.element.src = annotationData.current.image!
     }
   }
 
@@ -175,6 +163,10 @@ export default function AnnotationViewer({
     if (options.enableSelection) {
       layersObject.current.shapes.add(selectionRectObject.current)
     }
+    if (!annotationData.current.shapes) {
+      return
+    }
+
     mapShapesToPolygons(
       layersObject.current.shapes,
       annotationData.current.shapes,
@@ -189,14 +181,16 @@ export default function AnnotationViewer({
   }
 
   const resizeImage = () => {
-    imageBoundingBoxObject.current = handleResizeImage(
+    const imageBoundingBox = handleResizeImage(
       stageObject.current,
       containerRef.current,
-      imageObject.current,
-      imageShapeObject.current as Konva.Image | undefined
+      imageDataObject.current
     )
-    layersObject.current.image.batchDraw()
-    drawShapes()
+    if (imageBoundingBox) {
+      imageBoundingBoxObject.current = imageBoundingBox
+      layersObject.current.image.batchDraw()
+      drawShapes()
+    }
   }
 
   const onZoom = (event: KonvaEventObject<any>) => {

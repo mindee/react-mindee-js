@@ -25,7 +25,7 @@ export const onSelectionStart = (
   }
   const stage = layer.getStage()
   const pointerPosition = stage.getPointerPosition()
-  if (!stage || event.target !== stage || !pointerPosition) {
+  if (!stage || !pointerPosition) {
     return
   }
   const x = stage.x()

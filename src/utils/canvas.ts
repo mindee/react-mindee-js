@@ -11,16 +11,16 @@ import { Layer } from 'konva/lib/Layer'
 import { Line } from 'konva/lib/shapes/Line'
 
 export const mapShapesToPolygons = (
-  shapesLayer?: Layer,
+  shapesLayer: Layer,
   shapes: AnnotationShape[] = [],
   useEvents: boolean = true,
-  imageBoundingBox?: ImageBoundingBox,
-  options?: AnnotationLensOptions | AnnotationViewerOptions,
+  imageBoundingBox: ImageBoundingBox | null,
+  options: AnnotationLensOptions | AnnotationViewerOptions,
   onClick?: (shape: AnnotationShape) => void,
   onShapeMouseEnter?: (shape: AnnotationShape) => void,
   onShapeMouseLeave?: (shape: AnnotationShape) => void
 ) => {
-  if (!imageBoundingBox || !shapesLayer) {
+  if (!imageBoundingBox) {
     return
   }
   shapes.forEach((shape: AnnotationShape) => {
@@ -100,8 +100,8 @@ const mapCoordinatesToPoints = (
   }, [])
 
 export const getMousePosition = (
-  stage?: Konva.Stage,
-  imageBoundingBox?: ImageBoundingBox
+  stage: Konva.Stage | null,
+  imageBoundingBox: ImageBoundingBox | null
 ) => {
   if (!stage || !imageBoundingBox) {
     return

@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.3.0-rc2 (31/08/2021)
+## v1.3.0 (07/09/2021)
 
 ### Changes
 
@@ -12,8 +12,8 @@
 
 ### New
 
-- ✅ Add visual testing using cypress
-- 👷 Add github test workflow
+- ✅ add visual testing using cypress
+- 👷 add github test workflow
 
 ## v1.2.1 (31/08/2021)
 

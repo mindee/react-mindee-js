@@ -4,7 +4,6 @@ node_modules
 .prettierrc
 src
 .eslintignore
-.docz
 .npmignore
 .netlify
 .vscode
@@ -12,4 +11,3 @@ src
 cypress
 docs
 yarn-error.log
-build

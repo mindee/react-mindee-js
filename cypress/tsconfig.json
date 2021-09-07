@@ -16,6 +16,5 @@
     "esModuleInterop": true,
     "baseUrl": "."
   },
-  "include": ["**/*.ts*"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts*"]
 }

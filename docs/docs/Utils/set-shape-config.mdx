@@ -1,0 +1,31 @@
+---
+sidebar_position: 3
+---
+
+# setShapeConfig
+
+- Type : `(stage: Stage, shapeId: string | number, config: Config) => Promise`
+
+> Only update shape config without redrawing shapes layer
+
+:::tip How to get stage object ?
+You can get the stage object using the **[getStage](/docs/API/annotation-viewer-api#getstage)** available on **AnnotationViewer** and **AnnotationLens**
+:::
+
+#### Example
+
+```tsx
+const stageObject = useRef<Stage | null>(null)
+
+const onMouseClick = (shape: AnnotationShape) => {
+  setShapeConfig(stageObject.current, shape.id, { fill: 'red' })
+}
+
+return (
+  <AnnotationViewer
+    getStage={getStage}
+    onMouseClick={onMouseClick}
+    // other props
+  />
+)
+```

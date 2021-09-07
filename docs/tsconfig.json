@@ -1,0 +1,13 @@
+{
+  "include": ["examples/", "src/"],
+  "compilerOptions": {
+    "jsx": "react",
+    "declaration": true,
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "paths": {
+      "@site/static/*": ["./static/*"]
+    }
+  }
+}

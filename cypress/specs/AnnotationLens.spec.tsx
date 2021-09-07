@@ -20,6 +20,7 @@ describe('AnnotationLens', () => {
       />
     ).then(() => {
       cy.wait(500)
+      cy.pause()
       cy.get('canvas')
         .should('have.length', 2)
         .each(($canvas) => {

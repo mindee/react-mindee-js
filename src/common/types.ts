@@ -1,6 +1,7 @@
 import Konva from 'konva'
 import { Line, LineConfig } from 'konva/lib/shapes/Line'
 import { RectConfig } from 'konva/lib/shapes/Rect'
+import { CSSProperties } from 'react'
 
 export type AnnotationShape<T = any> = T & {
   id: string
@@ -51,4 +52,32 @@ export type AnnotationData = {
   image?: string | null
   shapes?: AnnotationShape[]
   orientation?: Orientation
+}
+
+export type ImageData = {
+  element: HTMLImageElement
+  shape: Konva.Image
+}
+
+export interface AnnotationViewerProps {
+  id?: string
+  getPointerPosition?: (data: PointerPosition) => void
+  data?: AnnotationData
+  getStage?: (stage: Konva.Stage) => void
+  onShapeMultiSelect?: (shapes: AnnotationShape[]) => void
+  onShapeClick?: (shape: AnnotationShape) => void
+  onShapeMouseEnter?: (shape: AnnotationShape) => void
+  onShapeMouseLeave?: (shape: AnnotationShape) => void
+  options?: AnnotationViewerOptions
+  style?: CSSProperties
+}
+
+export interface AnnotationLensProps {
+  id?: string
+  zoomLevel?: number
+  data?: AnnotationData
+  pointerPosition?: PointerPosition
+  getStage?: (stage: Konva.Stage) => void
+  style?: CSSProperties
+  options?: AnnotationLensOptions
 }

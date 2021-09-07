@@ -1,0 +1,30 @@
+---
+sidebar_position: 4
+---
+
+# drawLayer
+
+- Signature : `(stage: Stage) => void`
+
+> redraw the shapes layer, the canvas on which we draw shapes. This method is useful to batch updates applied on shapes config.
+
+:::tip How to get stage object ?
+You can get the stage object using the **[getStage](/docs/API/annotation-viewer-api#getstage)** available on **AnnotationViewer** and **AnnotationLens**
+:::
+
+#### Example
+
+```tsx
+const stageObject = useRef()
+
+const triggerLayerRedraw = () => {
+  drawLayer(stageObject.current)
+}
+
+return (
+  <AnnotationViewer
+    getStage={getStage}
+    // other props
+  />
+)
+```

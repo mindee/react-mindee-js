@@ -1,7 +1,12 @@
 import { Line } from 'konva/lib/shapes/Line'
 import { AnnotationData } from '..'
 
-export const DEFAULT_STYLE = { height: 300, width: 300, display: 'flex' }
+export const DEFAULT_STYLE = {
+  height: 300,
+  width: 300,
+  display: 'flex',
+  backgroundColor: '#001429',
+}
 
 export enum KONVA_REFS {
   shapesLayer = 'shapes-layer',

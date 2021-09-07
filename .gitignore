@@ -3,6 +3,4 @@ node_modules
 yarn-error.log
 build
 .vscode
-.docz
 .netlify
-docs
