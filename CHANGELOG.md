@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.3.1 (22/10/2021)
+
+### New
+
+- ✨ add toBase64 utility function
+
+### Changes
+
+chg: 🚸 AnnotationViewer - add OS X support to multi selection event key
+
 ## v1.3.0 (07/09/2021)
 
 ### Changes
