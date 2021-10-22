@@ -49,3 +49,12 @@ export const setShapeConfig = (
     console.error('setShapeConfig : The provided shape id is not valid')
   }
 }
+
+export const toBase64 = (
+  base64: string,
+  type:
+    | 'application/pdf'
+    | 'image/jpeg'
+    | 'image/png'
+    | 'image/svg+xml' = 'image/jpeg'
+) => `data:${type};base64,${base64}`
