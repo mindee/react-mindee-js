@@ -13,6 +13,7 @@ import {
   drawShape,
   setShapeConfig,
   drawShapes,
+  toBase64,
 } from './utils/functions'
 import getImagesFromPDF from './utils/getImagesFromPDF'
 import AnnotationLens from './components/AnnotationLens'
@@ -29,6 +30,7 @@ export type {
   AnnotationData,
 }
 export {
+  toBase64,
   drawShapes,
   dataURItoBlob,
   AnnotationLens,

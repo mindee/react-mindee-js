@@ -1,7 +1,6 @@
 import React from 'react'
 import { mount } from '@cypress/react'
 import { AnnotationShape, AnnotationViewer } from '../../dist'
-import { Key } from 'ts-key-enum'
 
 import dummyImage from '../assets/demo.jpg'
 import { dummyShapes } from '../assets/shapes'
@@ -31,7 +30,6 @@ describe('AnnotationViewer', () => {
         cy.wrap(canvasHeight).should('equal', containerHeight)
       })
     cy.get('#annotationViewer').matchImageSnapshot('default')
-    cy.pause()
   })
 
   it('zoom correctly', () => {
@@ -150,15 +148,16 @@ describe('AnnotationViewer', () => {
         onShapeMultiSelect={events.onShapeMultiSelect}
       />
     ).then(() => {
+      cy.pause()
       cy.get('#annotationViewer')
         .children()
-        .trigger('keydown', { key: Key.Control })
+        .trigger('keydown', { altKey: true, ctrlKey: true })
         .trigger('mousedown', { which: 1, clientX: 10, clientY: 10 })
         .trigger('mousemove', { which: 1, clientX: 600, clientY: 300 })
         .matchImageSnapshot('multi-select')
       cy.get('#annotationViewer')
         .trigger('mouseup')
-        .trigger('keyup', { key: Key.Control })
+        .trigger('keyup', { altKey: true, ctrlKey: true })
         .then(() => {
           cy.wait(200)
           expect(events.onShapeMultiSelect).to.be.calledOnceWithExactly(

@@ -1,6 +1,5 @@
 import useEventListener from './useEventListener'
 import { MutableRefObject } from 'react'
-import { Key } from 'ts-key-enum'
 import Konva from 'konva'
 
 interface Props {
@@ -15,13 +14,9 @@ export default function useMultiSelection({
     'keydown',
     (event: KeyboardEvent) => {
       event.stopPropagation()
-      switch (event.key) {
-        case Key.Control:
-          stage?.draggable(false)
-          isSelectionActiveRef.current = true
-          break
-        default:
-          break
+      if (event.ctrlKey || event.altKey) {
+        stage?.draggable(false)
+        isSelectionActiveRef.current = true
       }
     }
   )
@@ -29,13 +24,9 @@ export default function useMultiSelection({
     'keyup',
     (event: KeyboardEvent) => {
       event.stopPropagation()
-      switch (event.key) {
-        case Key.Control:
-          stage?.draggable(true)
-          isSelectionActiveRef.current = false
-          break
-        default:
-          break
+      if (event.ctrlKey || event.altKey) {
+        stage?.draggable(false)
+        isSelectionActiveRef.current = true
       }
     }
   )

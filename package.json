@@ -1,6 +1,6 @@
 {
   "name": "react-mindee-js",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Front-End Computer Vision SDK for React",
   "author": "@mindee",
   "license": "GPL-3.0",
@@ -15,7 +15,6 @@
   "dependencies": {
     "konva": "^8.1.3",
     "pdfjs-dist": "2.6.347",
-    "ts-key-enum": "^2.0.7",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -35,12 +34,12 @@
     "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.1.2",
     "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "ts-patch": "^1.4.3",
     "typescript": "^4.1.2",
     "typescript-transform-paths": "^3.3.1",
     "vite": "^2.5.1",
-    "vite-tsconfig-paths": "^3.3.13",
-    "react-dom": "^17.0.2"
+    "vite-tsconfig-paths": "^3.3.13"
   },
   "peerDependencies": {
     "react": "^17.0.2"
