@@ -26,9 +26,9 @@ import {
 
 import { getMousePosition, mapShapesToPolygons } from '@/utils/canvas'
 import { rotateImage } from '@/utils/orientation'
-import { handleStageZoom } from '@/utils/zoom'
+import { handleStageZoom, handleZoomScale } from '@/utils/zoom'
 import useMultiSelection from '@/utils/useMultiSelection'
-import { handleResizeImage } from '@/utils/image'
+import { handleResizeImage, setStageBasedImagePosition } from '@/utils/image'
 import { clearLayers } from '@/utils/layer'
 
 export default function AnnotationViewer({
@@ -37,6 +37,8 @@ export default function AnnotationViewer({
   onShapeMouseEnter,
   onShapeMultiSelect,
   onShapeMouseLeave,
+  customZoomLevel,
+  customStagePosition,
   getStage,
   style = {},
   onShapeClick,
@@ -74,6 +76,37 @@ export default function AnnotationViewer({
       window.removeEventListener('resize', resizeImage)
     }
   }, [data])
+
+  useEffect(() => {
+    if (
+      customStagePosition &&
+      stageObject.current &&
+      imageBoundingBoxObject.current
+    ) {
+      let stageX = stageObject.current.x()
+      let stageY = stageObject.current.y()
+      const zoomScale = stageObject.current.getAttr('zoomScale')
+      const newPosition = {
+        x: stageX + customStagePosition.x * zoomScale,
+        y: stageY + customStagePosition.y * zoomScale,
+      }
+      setStageBasedImagePosition({
+        imageBoundingBox: imageBoundingBoxObject.current,
+        stage: stageObject.current,
+        newPosition,
+      })
+    }
+  }, [customStagePosition])
+
+  useEffect(() => {
+    if (customZoomLevel) {
+      handleZoomScale(
+        stageObject.current,
+        customZoomLevel,
+        imageBoundingBoxObject.current
+      )
+    }
+  }, [customZoomLevel])
 
   useEffect(() => {
     // if image is null or undefined, we should clear everything and wait for the next state change

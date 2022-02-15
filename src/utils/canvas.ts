@@ -81,8 +81,8 @@ export const scalePointToImage = (
 ) => {
   const { width, height, scale } = imageBoundingBox
   return {
-    x: (point.x * width) / scale,
-    y: (point.y * height) / scale,
+    x: (Math.min(point.x, 1) * width) / scale,
+    y: (Math.min(point.y, 1) * height) / scale,
   }
 }
 

@@ -59,6 +59,10 @@ export type ImageData = {
   shape: Konva.Image
 }
 
+export type ZoomOptions = {
+  scale?: number
+  position?: PointerPosition
+}
 export interface AnnotationViewerProps {
   id?: string
   getPointerPosition?: (data: PointerPosition) => void
@@ -70,6 +74,9 @@ export interface AnnotationViewerProps {
   onShapeMouseLeave?: (shape: AnnotationShape) => void
   options?: AnnotationViewerOptions
   style?: CSSProperties
+  zoomScale?: number
+  customStagePosition?: PointerPosition
+  customZoomLevel?: number
 }
 
 export interface AnnotationLensProps {

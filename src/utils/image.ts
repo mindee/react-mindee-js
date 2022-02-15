@@ -1,5 +1,7 @@
+import { ImageBoundingBox, PointerPosition } from './../common/types'
 import { ImageData } from '@/common/types'
 import Konva from 'konva'
+import { Stage } from '..'
 
 export const dataURItoBlob = (dataURI: string) => {
   let byteString
@@ -72,8 +74,44 @@ export const handleResizeImage = (
     x: scale,
     y: scale,
   })
+  stage.setAttr('zoomScale', 1)
   stage.position({ x, y })
   shape.width(width / scale)
   shape.height(height / scale)
   return imageBoundingBox
+}
+
+export const setStageBasedImagePosition = ({
+  imageBoundingBox,
+  stage,
+  newPosition,
+}: {
+  imageBoundingBox: ImageBoundingBox
+  stage: Stage
+  newPosition: PointerPosition
+}) => {
+  const { x, y, width, height } = imageBoundingBox
+  const zoomScale = stage.getAttr('zoomScale')
+  let stageX = stage.x()
+  let stageY = stage.y()
+  const { x: newStageX, y: newStageY } = newPosition
+
+  if (
+    (newStageX < x * zoomScale || newStageX < stageX) &&
+    (newStageX > stage.width() - (width + x) * zoomScale || newStageX > stageX)
+  ) {
+    stageX = newStageX
+  }
+  if (
+    (newStageY < y * zoomScale || newStageY < stageY) &&
+    (newStageY > stage.height() - (height + y) * zoomScale ||
+      newStageY > stageY)
+  ) {
+    stageY = newStageY
+  }
+  stage.position({
+    x: stageX,
+    y: stageY,
+  })
+  stage.batchDraw()
 }
