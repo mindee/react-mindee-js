@@ -1,3 +1,4 @@
+import { Stage } from '..'
 import Konva from 'konva'
 import { Line, LineConfig } from 'konva/lib/shapes/Line'
 import { RectConfig } from 'konva/lib/shapes/Rect'
@@ -67,7 +68,7 @@ export interface AnnotationViewerProps {
   id?: string
   getPointerPosition?: (data: PointerPosition) => void
   data?: AnnotationData
-  getStage?: (stage: Konva.Stage) => void
+  getStage?: (stage: Stage) => void
   onShapeMultiSelect?: (shapes: AnnotationShape[]) => void
   onShapeClick?: (shape: AnnotationShape) => void
   onShapeMouseEnter?: (shape: AnnotationShape) => void
@@ -84,7 +85,7 @@ export interface AnnotationLensProps {
   zoomLevel?: number
   data?: AnnotationData
   pointerPosition?: PointerPosition
-  getStage?: (stage: Konva.Stage) => void
+  getStage?: (stage: Stage) => void
   style?: CSSProperties
   options?: AnnotationLensOptions
 }
