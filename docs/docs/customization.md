@@ -21,7 +21,7 @@ sidebar_position: 6
 - `shapeConfig`: shapes config applied to all shapes.
 
 :::caution
-individual shape [**config**](/docs/API/annotation-viewer-api#data) passed on each item of the list of shapes override the **shapeConfig** property
+individual shape [**config**](https://konvajs.org/api/Konva.Shape.html) passed on each item of the list of shapes override the **shapeConfig** property
 :::
 
 - `zoom`:
