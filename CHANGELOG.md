@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.3.3 (04/04/2022)
+
+### New
+
+- ✨ add dynamic zoom …
+
+### Fixes
+
+- 🐛 add image cross origin header
+
 ## v1.3.2 (06/01/2022)
 
 ### New

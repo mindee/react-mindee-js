@@ -27,7 +27,7 @@ export const rotateImage = ({
 const applyRotation = (file: string, orientation: number) =>
   new Promise<string>((resolve) => {
     const image = new Image()
-
+    image.crossOrigin = ''
     image.onload = () => {
       // Create canvas (off screen) to render image and apply transformations
       const canvas = document.createElement('canvas')
@@ -110,9 +110,3 @@ const applyRotation = (file: string, orientation: number) =>
 
     image.src = file
   })
-
-export const rotateLeft = (file: string): Promise<string> =>
-  applyRotation(file, 8)
-
-export const rotateRight = (file: string): Promise<string> =>
-  applyRotation(file, 6)
