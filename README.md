@@ -105,4 +105,4 @@ Please read our [Contributing section](https://github.com/publicMindee/react-min
 
 ## License
 
-GPLv3 © [mindee](https://mindee.com)
+MIT © [mindee](https://mindee.com)
