@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.3.4 (22/04/2022)
+
+### New
+
+- :page_facing_up: change license to MIT …
+
 ## v1.3.3 (04/04/2022)
 
 ### New
