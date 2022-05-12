@@ -28,11 +28,16 @@ const getImageFromPage = (
         canvasContext: context,
         viewport: viewport,
       }
-      page.render(renderContext as RenderParameters).promise.then(() => {
-        resolve(canvas.toDataURL())
-      })
+      page
+        .render(renderContext as RenderParameters)
+        .promise.then(() => {
+          resolve(canvas.toDataURL())
+        })
+        .catch((error) => {
+          reject(error)
+        })
     } catch (error) {
-      reject(null)
+      reject(error)
     }
   })
 
@@ -53,12 +58,18 @@ export default function getImagesFromPDF(
           return
         }
         onSuccess?.()
-        Promise.all(
+        Promise.allSettled(
           Array.from(Array(document.numPages).keys()).map((index) =>
             getImageFromPage(document, index + 1, resolution)
           )
         )
-          .then((images: string[]) => {
+          .then((results) => {
+            const images = results.reduce<string[]>((accumulator, result) => {
+              if (result.status === 'fulfilled') {
+                accumulator.push(result.value)
+              }
+              return accumulator
+            }, [])
             resolve(images)
           })
           .catch((e) => {
