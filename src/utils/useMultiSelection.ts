@@ -14,7 +14,12 @@ export default function useMultiSelection({
     'keydown',
     (event: KeyboardEvent) => {
       event.stopPropagation()
-      if (event.ctrlKey || event.altKey) {
+      if (
+        event.ctrlKey ||
+        event.altKey ||
+        event.key === 'Control' ||
+        event.key === 'Alt'
+      ) {
         stage?.draggable(false)
         isSelectionActiveRef.current = true
       }
@@ -24,9 +29,14 @@ export default function useMultiSelection({
     'keyup',
     (event: KeyboardEvent) => {
       event.stopPropagation()
-      if (event.ctrlKey || event.altKey) {
-        stage?.draggable(false)
-        isSelectionActiveRef.current = true
+      if (
+        event.ctrlKey ||
+        event.altKey ||
+        event.key === 'Control' ||
+        event.key === 'Alt'
+      ) {
+        stage?.draggable(true)
+        isSelectionActiveRef.current = false
       }
     }
   )

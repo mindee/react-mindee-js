@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.3.8 (20/17/2022)
+
+### Fixes
+
+- 🐛 :bug: fix multi-selection behavior
+
 ## v1.3.7 (12/05/2022)
 
 ### Fixes

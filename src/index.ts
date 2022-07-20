@@ -19,7 +19,6 @@ import getImagesFromPDF from './utils/getImagesFromPDF'
 import AnnotationLens from './components/AnnotationLens'
 import AnnotationViewer from './components/AnnotationViewer'
 import { dataURItoBlob } from './utils/image'
-
 export type {
   Stage,
   AnnotationShape,
