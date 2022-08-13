@@ -18,7 +18,7 @@
     "@docusaurus/preset-classic": "2.0.0-beta.4",
     "@mdx-js/react": "^1.6.21",
     "@svgr/webpack": "^5.5.0",
-    "canvas": "^2.8.0",
+    "canvas": "^2.9.3",
     "clsx": "^1.1.1",
     "file-loader": "^6.2.0",
     "netlify": "^8.0.0",
