@@ -1,5 +1,5 @@
 {
-  "componentFolder": "cypress/specs",
+  "componentFolder": "cypress/integration",
   "testFiles": "**/*.spec.{js,ts,jsx,tsx}",
   "viewportWidth": 1500,
   "viewportHeight": 900,

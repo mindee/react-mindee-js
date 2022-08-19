@@ -47,14 +47,13 @@ export default function getImagesFromPDF(
   onSuccess?: () => void,
   resolution?: number
 ) {
-  return new Promise(
-    (
-      resolve: (images: string[]) => void,
-      reject: (data: { error?: any; hasPageCountError?: boolean }) => void
-    ) => {
-      getDocument(file).promise.then((document: PDFDocumentProxy) => {
+  return new Promise<string[]>((resolve, reject) => {
+    getDocument(file)
+      .promise.then((document: PDFDocumentProxy) => {
         if (document.numPages > maxPages) {
-          reject({ hasPageCountError: true })
+          const error = new Error('Too many pages')
+          error.name = 'TooManyPagesError'
+          reject(error)
           return
         }
         onSuccess?.()
@@ -72,10 +71,12 @@ export default function getImagesFromPDF(
             }, [])
             resolve(images)
           })
-          .catch((e) => {
-            reject({ error: e })
+          .catch((error) => {
+            reject(error)
           })
       })
-    }
-  )
+      .catch((error) => {
+        reject(error)
+      })
+  })
 }

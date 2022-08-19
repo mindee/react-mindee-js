@@ -4,7 +4,7 @@ import { mount } from '@cypress/react'
 import {
   AnnotationLensPointerPositionTester,
   AnnotationLensStateTester,
-} from './helpers'
+} from '../specs/helpers'
 
 const containerHeight = 600
 const containerWidth = 600

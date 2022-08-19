@@ -1,6 +1,12 @@
 # CHANGELOG
 
-## v1.3.8 (20/17/2022)
+## v1.3.9 (19/08/2022)
+
+### Fixes
+
+- 🐛 handle getImagesFromPDF exceptions
+
+## v1.3.8 (20/07/2022)
 
 ### Fixes
 
