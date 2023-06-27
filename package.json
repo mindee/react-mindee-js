@@ -45,18 +45,19 @@
     "react": "^17.0.2"
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "tsc --watch",
-    "cy:prepare": "yarn build",
+    "cy:prepare": "pnpm build",
     "prepare": "ts-patch install -s",
     "build": "tsc",
     "cy:open": "cypress open-ct",
     "cy:run": "cypress run-ct",
-    "docs:start": "yarn --cwd ./docs start",
-    "docs:install": "yarn --cwd ./docs install",
-    "docs:prepare": "yarn build && yarn docs:install",
-    "docs:update": "yarn --cwd ./docs add ../",
-    "docs:build": "yarn --cwd ./docs build",
-    "docs:deploy": "yarn --cwd ./docs deploy"
+    "docs:start": "pnpm --dir ./docs start",
+    "docs:install": "pnpm --dir ./docs install",
+    "docs:prepare": "pnpm build && pnpm docs:install",
+    "docs:update": "pnpm --dir ./docs add ../",
+    "docs:build": "pnpm --dir ./docs build",
+    "docs:deploy": "pnpm --dir ./docs deploy"
   },
   "keywords": [
     "react",
