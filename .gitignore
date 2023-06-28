@@ -1,6 +1,7 @@
 dist
 node_modules
 yarn-error.log
+pnpm-debug.log*
 build
 .vscode
 .netlify
