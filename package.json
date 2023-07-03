@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": "publicMindee/react-mindee-js",
   "main": "dist/index.js",
-  "module": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "engines": {
     "node": ">=10",
