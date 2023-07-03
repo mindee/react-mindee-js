@@ -1,4 +1,4 @@
-import { AnnotationShape } from '../../dist'
+import { AnnotationShape } from '@/index'
 
 export const dummyShapes: AnnotationShape[] = [
   {

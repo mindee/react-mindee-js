@@ -1,13 +1,82 @@
 import React from 'react'
-import { AnnotationShape, AnnotationViewer } from '../../dist'
 
-import dummyImage from '../assets/demo.jpg'
-import { dummyShapes } from '../assets/shapes'
+import anotherDummyImage from 'cypress/assets/another-demo.jpg'
+import dummyImage from 'cypress/assets/demo.jpg'
+import { dummyShapes } from '../../cypress/assets/shapes'
+import { useState } from 'react'
 
-import { AnnotationViewerStateTester } from './helpers'
+import AnnotationViewer from './AnnotationViewer'
+import { AnnotationData, AnnotationShape } from '@/common/types'
 
 const containerHeight = 800
 const containerWidth = 700
+type TesterProps = {
+  containerWidth: number
+  containerHeight: number
+  id?: string
+}
+export const AnnotationViewerStateTester = ({
+  containerHeight,
+  containerWidth,
+  id = 'AnnotationViewer',
+}: TesterProps) => {
+  const [data, setData] = useState<AnnotationData>({
+    image: dummyImage,
+    shapes: dummyShapes,
+  })
+
+  const passSameData = () => {
+    setData({ image: dummyImage, shapes: dummyShapes })
+  }
+  const passDifferentImage = () => {
+    setData({ image: anotherDummyImage, shapes: dummyShapes })
+  }
+  const passDifferentShapes = () => {
+    setData({ image: dummyImage, shapes: dummyShapes.slice(3) })
+  }
+  const passDifferentOrientation = () => {
+    setData({ image: dummyImage, shapes: dummyShapes, orientation: 90 })
+  }
+
+  const passEmptyImage = () => {
+    setData({ shapes: dummyShapes })
+  }
+
+  return (
+    <div
+      data-cy="AnnotationViewerTester"
+      style={{ display: 'flex', flexDirection: 'column' }}
+    >
+      <button data-cy="same-data" onClick={passSameData}>
+        Pass same data
+      </button>
+      <button data-cy="different-image" onClick={passDifferentImage}>
+        Pass different Image
+      </button>
+      <button data-cy="different-shapes" onClick={passDifferentShapes}>
+        Pass different shapes
+      </button>
+      <button
+        data-cy="different-orientation"
+        onClick={passDifferentOrientation}
+      >
+        Pass different orientation
+      </button>
+      <button data-cy="empty-image" onClick={passEmptyImage}>
+        Pass empty image
+      </button>
+      <AnnotationViewer
+        id={id}
+        data={data}
+        style={{
+          height: containerHeight,
+          width: containerWidth,
+          background: 'black',
+        }}
+      />
+    </div>
+  )
+}
 
 describe('AnnotationViewer', () => {
   it('mount correctly', () => {

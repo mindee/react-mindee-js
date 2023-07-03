@@ -1,8 +1,10 @@
 import React, { useRef, useState } from 'react'
-import { AnnotationViewer, PointerPosition, Stage } from '../../dist'
 
-import dummyImage from '../assets/demo.jpg'
-import { dummyShapes } from '../assets/shapes'
+import dummyImage from 'cypress/assets/demo.jpg'
+import { dummyShapes } from 'cypress/assets/shapes'
+import { PointerPosition } from '@/common/types'
+import { Stage } from 'konva/lib/Stage'
+import AnnotationViewer from './AnnotationViewer'
 
 const containerHeight = 700
 const containerWidth = 700
