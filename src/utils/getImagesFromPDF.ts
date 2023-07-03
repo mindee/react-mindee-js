@@ -43,7 +43,7 @@ const getImageFromPage = (
 
 export default function getImagesFromPDF(
   file: string,
-  maxPages: number = Infinity,
+  maxPages = Infinity,
   onSuccess?: () => void,
   resolution?: number
 ) {
