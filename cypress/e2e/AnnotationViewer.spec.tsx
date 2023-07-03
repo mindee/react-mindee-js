@@ -1,5 +1,4 @@
 import React from 'react'
-import { mount } from '@cypress/react'
 import { AnnotationShape, AnnotationViewer } from '../../dist'
 
 import dummyImage from '../assets/demo.jpg'
@@ -12,7 +11,7 @@ const containerWidth = 700
 
 describe('AnnotationViewer', () => {
   it('mount correctly', () => {
-    mount(
+    cy.mount(
       <AnnotationViewer
         onShapeClick={console.log}
         id="annotationViewer"
@@ -33,7 +32,7 @@ describe('AnnotationViewer', () => {
   })
 
   it('zoom correctly', () => {
-    mount(
+    cy.mount(
       <AnnotationViewer
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
@@ -75,7 +74,7 @@ describe('AnnotationViewer', () => {
       .spy(events, 'onShapeMouseLeave')
       .withArgs(dummyShapes[1])
 
-    mount(
+    cy.mount(
       <AnnotationViewer
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
@@ -134,7 +133,7 @@ describe('AnnotationViewer', () => {
       },
     }
     cy.spy(events, 'onShapeMultiSelect')
-    mount(
+    cy.mount(
       <AnnotationViewer
         options={{
           enableSelection: true,
@@ -169,7 +168,7 @@ describe('AnnotationViewer', () => {
 
   it('support custom options', () => {
     dummyShapes[0].config = { fill: 'green', opacity: 0.2 }
-    mount(
+    cy.mount(
       <AnnotationViewer
         options={{
           shapeConfig: { fill: 'blue', opacity: 0.2 },
@@ -184,7 +183,7 @@ describe('AnnotationViewer', () => {
   })
 
   it('support state changes', () => {
-    mount(
+    cy.mount(
       <AnnotationViewerStateTester
         id="annotationViewer"
         containerHeight={containerHeight}
