@@ -13,8 +13,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'react-mindee-js',
-      fileName: 'react-mindee-js',
+      name: 'React mindee js',
+      formats: ['es'],
+      fileName: 'index',
     },
     rollupOptions: {
       external: ['react', 'react-dom'],
