@@ -1,5 +1,4 @@
 import React from 'react'
-import { mount } from '@cypress/react'
 
 import {
   AnnotationLensPointerPositionTester,
@@ -12,7 +11,7 @@ const containerWidth = 600
 describe('AnnotationLens', () => {
   const componentId = 'annotationLens'
   it('mount correctly', () => {
-    mount(
+    cy.mount(
       <AnnotationLensPointerPositionTester
         containerHeight={containerHeight}
         containerWidth={containerWidth}
@@ -56,7 +55,7 @@ describe('AnnotationLens', () => {
   })
 
   it('support state changes', () => {
-    mount(
+    cy.mount(
       <AnnotationLensStateTester
         id={componentId}
         containerHeight={containerHeight}

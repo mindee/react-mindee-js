@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react'
-import { mount } from '@cypress/react'
 import { AnnotationViewer, PointerPosition, Stage } from '../../dist'
 
 import dummyImage from '../assets/demo.jpg'
@@ -78,7 +77,7 @@ const AnnotationViewerWithDynamicZoom = ({ id, data }: any) => {
 
 describe('AnnotationViewer', () => {
   it('mount correctly', () => {
-    mount(
+    cy.mount(
       <AnnotationViewerWithDynamicZoom
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
