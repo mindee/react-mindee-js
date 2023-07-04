@@ -1,6 +1,6 @@
-import { getImagesFromPDF } from '../../dist'
-import multiPage from '../assets/multi-page.pdf'
-import brokenPDF from '../assets/broken-pdf.pdf'
+import multiPage from 'cypress/assets/multi-page.pdf'
+import brokenPDF from 'cypress/assets/broken-pdf.pdf'
+import getImagesFromPDF from './getImagesFromPDF'
 
 describe('getImageFromPDF', () => {
   it('should return PDF pages', () => {
