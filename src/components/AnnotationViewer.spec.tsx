@@ -1,12 +1,11 @@
-import React from 'react'
-
+import React, { useState } from 'react'
 import anotherDummyImage from 'cypress/assets/another-demo.jpg'
 import dummyImage from 'cypress/assets/demo.jpg'
-import { dummyShapes } from '../../cypress/assets/shapes'
-import { useState } from 'react'
 
-import AnnotationViewer from './AnnotationViewer'
 import { AnnotationData, AnnotationShape } from '@/common/types'
+
+import { dummyShapes } from '../../cypress/assets/shapes'
+import AnnotationViewer from './AnnotationViewer'
 
 const containerHeight = 800
 const containerWidth = 700
@@ -86,7 +85,7 @@ describe('AnnotationViewer', () => {
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
-      />
+      />,
     )
     cy.wait(1000)
     cy.get('canvas')
@@ -106,7 +105,7 @@ describe('AnnotationViewer', () => {
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
-      />
+      />,
     )
     cy.wait(1000)
     cy.get('#annotationViewer')
@@ -152,7 +151,7 @@ describe('AnnotationViewer', () => {
       />,
       {
         log: true,
-      }
+      },
     )
     cy.wait(1000)
     cy.get('#annotationViewer')
@@ -214,7 +213,7 @@ describe('AnnotationViewer', () => {
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
         onShapeMultiSelect={events.onShapeMultiSelect}
-      />
+      />,
     ).then(() => {
       cy.pause()
       cy.get('#annotationViewer')
@@ -229,7 +228,7 @@ describe('AnnotationViewer', () => {
         .then(() => {
           cy.wait(200)
           expect(events.onShapeMultiSelect).to.be.calledOnceWithExactly(
-            dummyShapes.slice(0, 2)
+            dummyShapes.slice(0, 2),
           )
         })
     })
@@ -245,7 +244,7 @@ describe('AnnotationViewer', () => {
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
-      />
+      />,
     ).then(() => {
       cy.get('#annotationViewer').matchImageSnapshot('custom-options')
     })
@@ -257,7 +256,7 @@ describe('AnnotationViewer', () => {
         id="annotationViewer"
         containerHeight={containerHeight}
         containerWidth={containerWidth}
-      />
+      />,
     ).then(() => {
       cy.get('[data-cy="same-data"]').click()
       cy.wait(400)

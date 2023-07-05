@@ -1,14 +1,14 @@
-import { useRef, useEffect, RefObject } from 'react'
+import { RefObject, useEffect, useRef } from 'react'
 
 export default function useEventListener<
   T extends HTMLElement = HTMLDivElement,
-  E = Event
+  E = Event,
 >(
   eventName: string,
 
   handler: (event: E) => void,
 
-  element?: RefObject<T>
+  element?: RefObject<T>,
 ) {
   // Create a ref that stores handler
 

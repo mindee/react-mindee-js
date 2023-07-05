@@ -1,12 +1,12 @@
-import { KONVA_REFS } from '@/common/constants'
 import Konva from 'konva'
-
-import { AnnotationShape, AnnotationViewerOptions } from '@/common/types'
 import { Layer } from 'konva/lib/Layer'
 import { KonvaEventObject } from 'konva/lib/Node'
+import { Line } from 'konva/lib/shapes/Line'
 import { Rect } from 'konva/lib/shapes/Rect'
 import { Stage } from 'konva/lib/Stage'
-import { Line } from 'konva/lib/shapes/Line'
+
+import { KONVA_REFS } from '@/common/constants'
+import { AnnotationShape, AnnotationViewerOptions } from '@/common/types'
 
 export const createSelectionRect = (options: AnnotationViewerOptions) =>
   new Konva.Rect({
@@ -18,7 +18,7 @@ export const onSelectionStart = (
   event?: KonvaEventObject<Stage>,
   layer?: Layer,
   rect?: Rect,
-  selectionEnabled?: boolean
+  selectionEnabled?: boolean,
 ) => {
   if (!selectionEnabled || !layer || !rect || !event) {
     return
@@ -69,7 +69,7 @@ export const onSelectionMove = (layer?: Layer, rect?: Rect) => {
 export const onSelectionEnd = (
   layer?: Layer,
   rect?: Rect,
-  onShapeMultiSelect?: (shapes: AnnotationShape[]) => void
+  onShapeMultiSelect?: (shapes: AnnotationShape[]) => void,
 ) => {
   // no nothing if we didn't start selection
   const stage = layer?.getStage()
@@ -86,7 +86,7 @@ export const onSelectionEnd = (
   const box = rect.getClientRect()
   const selected = shapes
     .filter((shape: Konva.Shape) =>
-      Konva.Util.haveIntersection(box, shape.getClientRect())
+      Konva.Util.haveIntersection(box, shape.getClientRect()),
     )
     .map((shape: Konva.Shape) => shape.getAttr('shape'))
   if (selected.length) {

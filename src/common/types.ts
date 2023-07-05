@@ -1,8 +1,9 @@
-import { Stage } from '..'
+import { CSSProperties } from 'react'
 import Konva from 'konva'
 import { Line, LineConfig } from 'konva/lib/shapes/Line'
 import { RectConfig } from 'konva/lib/shapes/Rect'
-import { CSSProperties } from 'react'
+
+import { Stage } from '..'
 
 export type AnnotationShape<T = any> = T & {
   id: string

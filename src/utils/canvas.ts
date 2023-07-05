@@ -1,14 +1,15 @@
+import Konva from 'konva'
+import { Layer } from 'konva/lib/Layer'
+import { Line } from 'konva/lib/shapes/Line'
+
+import { KONVA_REFS } from '@/common/constants'
 import {
-  AnnotationShape,
   AnnotationLensOptions,
+  AnnotationShape,
   AnnotationViewerOptions,
   ImageBoundingBox,
   PointerPosition,
 } from '@/common/types'
-import { KONVA_REFS } from '@/common/constants'
-import Konva from 'konva'
-import { Layer } from 'konva/lib/Layer'
-import { Line } from 'konva/lib/shapes/Line'
 
 export const mapShapesToPolygons = (
   shapesLayer: Layer,
@@ -18,7 +19,7 @@ export const mapShapesToPolygons = (
   options: AnnotationLensOptions | AnnotationViewerOptions,
   onClick?: (shape: AnnotationShape) => void,
   onShapeMouseEnter?: (shape: AnnotationShape) => void,
-  onShapeMouseLeave?: (shape: AnnotationShape) => void
+  onShapeMouseLeave?: (shape: AnnotationShape) => void,
 ) => {
   if (!imageBoundingBox) {
     return
@@ -41,7 +42,7 @@ export const mapShapesToPolygons = (
         options as AnnotationViewerOptions,
         onClick,
         onShapeMouseEnter,
-        onShapeMouseLeave
+        onShapeMouseLeave,
       )
     }
   })
@@ -52,7 +53,7 @@ const bindEventToPolygon = (
   options: AnnotationViewerOptions,
   onClick?: (shape: AnnotationShape) => void,
   onShapeMouseEnter?: (shape: AnnotationShape) => void,
-  onShapeMouseLeave?: (shape: AnnotationShape) => void
+  onShapeMouseLeave?: (shape: AnnotationShape) => void,
 ) => {
   const stage = polygon.getStage()
   const shape = polygon.getAttr('shape')
@@ -77,7 +78,7 @@ const bindEventToPolygon = (
 
 export const scalePointToImage = (
   point: PointerPosition,
-  imageBoundingBox: ImageBoundingBox
+  imageBoundingBox: ImageBoundingBox,
 ) => {
   const { width, height, scale } = imageBoundingBox
   return {
@@ -88,12 +89,12 @@ export const scalePointToImage = (
 
 const mapCoordinatesToPoints = (
   coordinates: number[][],
-  imageBoundingBox: ImageBoundingBox
+  imageBoundingBox: ImageBoundingBox,
 ): number[] =>
   coordinates.reduce((accumulator, element) => {
     const { x, y } = scalePointToImage(
       { x: element[0], y: element[1] },
-      imageBoundingBox
+      imageBoundingBox,
     )
     accumulator = accumulator.concat([x, y])
     return accumulator
@@ -101,7 +102,7 @@ const mapCoordinatesToPoints = (
 
 export const getMousePosition = (
   stage: Konva.Stage | null,
-  imageBoundingBox: ImageBoundingBox | null
+  imageBoundingBox: ImageBoundingBox | null,
 ) => {
   if (!stage || !imageBoundingBox) {
     return
