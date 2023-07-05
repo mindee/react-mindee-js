@@ -1,7 +1,6 @@
 import { defineConfig } from 'cypress'
 import { addMatchImageSnapshotPlugin } from 'cypress-image-snapshot/plugin'
 import { defineConfig as defineViteConfig } from 'vite'
-
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({

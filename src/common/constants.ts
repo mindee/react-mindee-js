@@ -1,4 +1,5 @@
 import { Line } from 'konva/lib/shapes/Line'
+
 import { AnnotationData } from '..'
 
 export const DEFAULT_STYLE = {

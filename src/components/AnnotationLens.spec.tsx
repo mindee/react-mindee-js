@@ -1,11 +1,11 @@
-import { dummyShapes } from 'cypress/assets/shapes'
 import React, { useState } from 'react'
-
-import dummyImage from 'cypress/assets/demo.jpg'
 import anotherDummyImage from 'cypress/assets/another-demo.jpg'
+import dummyImage from 'cypress/assets/demo.jpg'
+import { dummyShapes } from 'cypress/assets/shapes'
+
+import { AnnotationData } from '@/common/types'
 
 import AnnotationLens from './AnnotationLens'
-import { AnnotationData } from '@/common/types'
 
 const containerHeight = 600
 const containerWidth = 600
@@ -107,7 +107,7 @@ describe('AnnotationLens', () => {
         containerHeight={containerHeight}
         containerWidth={containerWidth}
         id={componentId}
-      />
+      />,
     ).then(() => {
       cy.wait(500)
       cy.pause()
@@ -124,7 +124,7 @@ describe('AnnotationLens', () => {
         .click()
         .then(() => {
           cy.get(`#${componentId}`).matchImageSnapshot(
-            componentId + '.pointer-move.1'
+            componentId + '.pointer-move.1',
           )
         })
 
@@ -132,14 +132,14 @@ describe('AnnotationLens', () => {
         .click()
         .then(() => {
           cy.get(`#${componentId}`).matchImageSnapshot(
-            componentId + '.pointer-move.2'
+            componentId + '.pointer-move.2',
           )
         })
       cy.get('[data-cy="move-pointer"]')
         .click()
         .then(() => {
           cy.get(`#${componentId}`).matchImageSnapshot(
-            componentId + '.pointer-move.3'
+            componentId + '.pointer-move.3',
           )
         })
     })
@@ -151,7 +151,7 @@ describe('AnnotationLens', () => {
         id={componentId}
         containerHeight={containerHeight}
         containerWidth={containerWidth}
-      />
+      />,
     ).then(() => {
       cy.get('[data-cy="same-data"]').click()
       cy.wait(400)
@@ -159,17 +159,17 @@ describe('AnnotationLens', () => {
       cy.get('[data-cy="different-image"]').click()
       cy.wait(400)
       cy.get(`#${componentId}`).matchImageSnapshot(
-        'annotationLens.different-image'
+        'annotationLens.different-image',
       )
       cy.get('[data-cy="different-shapes"]').click()
       cy.wait(400)
       cy.get(`#${componentId}`).matchImageSnapshot(
-        'annotationLens.different-shapes'
+        'annotationLens.different-shapes',
       )
       cy.get('[data-cy="different-orientation"]').click()
       cy.wait(400)
       cy.get(`#${componentId}`).matchImageSnapshot(
-        'annotationLens.different-orientation'
+        'annotationLens.different-orientation',
       )
     })
   })

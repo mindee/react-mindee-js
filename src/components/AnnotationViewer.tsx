@@ -1,35 +1,32 @@
-import { KonvaEventObject } from 'konva/lib/Node'
-import React from 'react'
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Konva from 'konva'
+import { KonvaEventObject } from 'konva/lib/Node'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
-  onSelectionStart,
-  onSelectionMove,
-  onSelectionEnd,
-  createSelectionRect,
-} from '@/utils/selection'
-
+  DEFAULT_ANNOTATION_VIEWER_OPTIONS,
+  DEFAULT_DATA,
+  DEFAULT_STYLE,
+  KONVA_REFS,
+} from '@/common/constants'
 import {
   AnnotationViewerProps,
   ImageBoundingBox,
   ImageData,
 } from '@/common/types'
 
-import {
-  KONVA_REFS,
-  DEFAULT_STYLE,
-  DEFAULT_DATA,
-  DEFAULT_ANNOTATION_VIEWER_OPTIONS,
-} from '@/common/constants'
-
 import { getMousePosition, mapShapesToPolygons } from '@/utils/canvas'
-import { rotateImage } from '@/utils/orientation'
-import { handleStageZoom, handleZoomScale } from '@/utils/zoom'
-import useMultiSelection from '@/utils/useMultiSelection'
 import { handleResizeImage, setStageBasedImagePosition } from '@/utils/image'
 import { clearLayers } from '@/utils/layer'
+import { rotateImage } from '@/utils/orientation'
+import {
+  createSelectionRect,
+  onSelectionEnd,
+  onSelectionMove,
+  onSelectionStart,
+} from '@/utils/selection'
+import useMultiSelection from '@/utils/useMultiSelection'
+import { handleStageZoom, handleZoomScale } from '@/utils/zoom'
 
 export default function AnnotationViewer({
   id: containerId = uuidv4(),
@@ -83,8 +80,8 @@ export default function AnnotationViewer({
       stageObject.current &&
       imageBoundingBoxObject.current
     ) {
-      let stageX = stageObject.current.x()
-      let stageY = stageObject.current.y()
+      const stageX = stageObject.current.x()
+      const stageY = stageObject.current.y()
       const zoomScale = stageObject.current.getAttr('zoomScale')
       const newPosition = {
         x: stageX + customStagePosition.x * zoomScale,
@@ -103,7 +100,7 @@ export default function AnnotationViewer({
       handleZoomScale(
         stageObject.current,
         customZoomLevel,
-        imageBoundingBoxObject.current
+        imageBoundingBoxObject.current,
       )
     }
   }, [customZoomLevel])
@@ -136,7 +133,7 @@ export default function AnnotationViewer({
     getStage?.(stageObject.current)
     stageObject.current.add(
       layersObject.current.image,
-      layersObject.current.shapes
+      layersObject.current.shapes,
     )
     stageObject.current.on('wheel', onZoom)
     layersObject.current.image.add(imageDataObject.current.shape)
@@ -144,7 +141,7 @@ export default function AnnotationViewer({
       stageObject.current.on('mousemove', () => {
         const mousePointTo = getMousePosition(
           stageObject.current,
-          imageBoundingBoxObject.current
+          imageBoundingBoxObject.current,
         )
         mousePointTo && getPointerPosition(mousePointTo)
       })
@@ -155,21 +152,21 @@ export default function AnnotationViewer({
           event,
           layersObject.current.shapes,
           selectionRectObject.current,
-          isSelectionActiveRef.current
-        )
+          isSelectionActiveRef.current,
+        ),
       )
       stageObject.current.on('mousemove touchmove', () =>
         onSelectionMove(
           layersObject.current.shapes,
-          selectionRectObject.current
-        )
+          selectionRectObject.current,
+        ),
       )
       stageObject.current.on('mouseup touchend', () =>
         onSelectionEnd(
           layersObject.current.shapes,
           selectionRectObject.current,
-          onShapeMultiSelect
-        )
+          onShapeMultiSelect,
+        ),
       )
     }
   }
@@ -208,7 +205,7 @@ export default function AnnotationViewer({
       options,
       onShapeClick,
       onShapeMouseEnter,
-      onShapeMouseLeave
+      onShapeMouseLeave,
     )
     layersObject.current.shapes.batchDraw()
   }
@@ -217,7 +214,7 @@ export default function AnnotationViewer({
     const imageBoundingBox = handleResizeImage(
       stageObject.current,
       containerRef.current,
-      imageDataObject.current
+      imageDataObject.current,
     )
     if (imageBoundingBox) {
       imageBoundingBoxObject.current = imageBoundingBox
@@ -231,7 +228,7 @@ export default function AnnotationViewer({
       stageObject.current,
       imageBoundingBoxObject.current,
       event,
-      options
+      options,
     )
   }
   return (

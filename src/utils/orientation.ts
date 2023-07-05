@@ -101,7 +101,7 @@ const applyRotation = (file: string, orientation: number) =>
         0,
         0,
         outputCanvas.width,
-        outputCanvas.height
+        outputCanvas.height,
       )
 
       // export image data
