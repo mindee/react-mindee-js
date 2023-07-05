@@ -3,7 +3,7 @@ import dummyImage from 'cypress/assets/demo.jpg'
 import { dummyShapes } from 'cypress/assets/shapes'
 import { Stage } from 'konva/lib/Stage'
 
-import { PointerPosition } from '@/common/types'
+import { AnnotationViewerProps, PointerPosition } from '@/common/types'
 
 import AnnotationViewer from './AnnotationViewer'
 
@@ -12,7 +12,15 @@ const containerWidth = 700
 
 const getStageZoomScale = (stage: Stage) => stage.getAttr('zoomScale')
 
-const AnnotationViewerWithDynamicZoom = ({ id, data }: any) => {
+type AnnotationViewerWithDynamicZoomProps = {
+  id: AnnotationViewerProps['id']
+  data: AnnotationViewerProps['data']
+}
+
+const AnnotationViewerWithDynamicZoom = ({
+  id,
+  data,
+}: AnnotationViewerWithDynamicZoomProps) => {
   const [customStagePosition, setCustomStagePosition] = useState({ x: 0, y: 0 })
   const stageObject = useRef<Stage | null>(null)
   const [customZoomLevel, setCustomZoomLevel] = useState(1)
