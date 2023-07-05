@@ -1,17 +1,18 @@
-import { PDF_RESOLUTION, MAX_PDF_SCALE } from '@/common/constants'
-import { GlobalWorkerOptions, version, getDocument } from 'pdfjs-dist'
+import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist'
 import {
   PDFDocumentProxy,
   PDFPageProxy,
   RenderParameters,
 } from 'pdfjs-dist/types/display/api'
 
+import { MAX_PDF_SCALE, PDF_RESOLUTION } from '@/common/constants'
+
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.js`
 
 const getImageFromPage = (
   _document: PDFDocumentProxy,
   pageNumber: number,
-  resolution = PDF_RESOLUTION
+  resolution = PDF_RESOLUTION,
 ) =>
   new Promise<string>(async (resolve, reject) => {
     try {
@@ -45,7 +46,7 @@ export default function getImagesFromPDF(
   file: string,
   maxPages = Infinity,
   onSuccess?: () => void,
-  resolution?: number
+  resolution?: number,
 ) {
   return new Promise<string[]>((resolve, reject) => {
     getDocument(file)
@@ -59,8 +60,8 @@ export default function getImagesFromPDF(
         onSuccess?.()
         Promise.allSettled(
           Array.from(Array(document.numPages).keys()).map((index) =>
-            getImageFromPage(document, index + 1, resolution)
-          )
+            getImageFromPage(document, index + 1, resolution),
+          ),
         )
           .then((results) => {
             const images = results.reduce<string[]>((accumulator, result) => {

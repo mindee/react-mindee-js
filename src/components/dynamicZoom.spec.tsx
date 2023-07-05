@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react'
-
 import dummyImage from 'cypress/assets/demo.jpg'
 import { dummyShapes } from 'cypress/assets/shapes'
-import { PointerPosition } from '@/common/types'
 import { Stage } from 'konva/lib/Stage'
+
+import { PointerPosition } from '@/common/types'
+
 import AnnotationViewer from './AnnotationViewer'
 
 const containerHeight = 700
@@ -83,7 +84,7 @@ describe('AnnotationViewer', () => {
       <AnnotationViewerWithDynamicZoom
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
-      />
+      />,
     )
   })
 })

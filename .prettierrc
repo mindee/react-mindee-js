@@ -2,9 +2,25 @@
   "printWidth": 80,
   "tabWidth": 2,
   "singleQuote": true,
-  "trailingComma": "es5",
+  "trailingComma": "all",
   "semi": false,
-  "newline-before-return": true,
-  "no-duplicate-variable": [true, "check-parameters"],
-  "no-var-keyword": true
+  "importOrder": [
+    "^(react/(.*)$)|^(react$)",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@/common/(.*)$",
+    "",
+    "^@/components/(.*)$",
+    "",
+    "^@/utils/(.*)$",
+    "",
+    "^[./]"
+  ],
+  "importOrderSeparation": false,
+  "importOrderSortSpecifiers": true,
+  "importOrderBuiltinModulesToTop": true,
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrderMergeDuplicateImports": true,
+  "importOrderCombineTypeAndValueImports": true,
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"]
 }

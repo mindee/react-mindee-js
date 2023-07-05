@@ -1,7 +1,9 @@
-import { ImageBoundingBox, PointerPosition } from './../common/types'
-import { ImageData } from '@/common/types'
 import Konva from 'konva'
+
+import { ImageData } from '@/common/types'
+
 import { Stage } from '..'
+import { ImageBoundingBox, PointerPosition } from './../common/types'
 
 export const dataURItoBlob = (dataURI: string) => {
   let byteString
@@ -26,7 +28,7 @@ export const dataURItoBlob = (dataURI: string) => {
 
 export const computeImageBoundingBox = (
   { clientWidth, clientHeight }: HTMLDivElement,
-  imageObj: HTMLImageElement
+  imageObj: HTMLImageElement,
 ) => {
   const imageAspectRatio = imageObj.width / imageObj.height
   const canvasAspectRatio = clientWidth / clientHeight
@@ -62,7 +64,7 @@ const resizeStage = (stage: Konva.Stage, container: HTMLDivElement) => {
 export const handleResizeImage = (
   stage: Konva.Stage | null,
   container: HTMLDivElement | null,
-  { element, shape }: ImageData
+  { element, shape }: ImageData,
 ) => {
   if (!container || !stage) {
     return

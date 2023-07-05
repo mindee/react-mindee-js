@@ -20,6 +20,7 @@
   "devDependencies": {
     "@cypress/react": "^7.0.3",
     "@cypress/vite-dev-server": "^2.0.7",
+    "@ianvs/prettier-plugin-sort-imports": "^4.0.2",
     "@types/cypress-image-snapshot": "^3.1.6",
     "@types/jest": "^27.0.1",
     "@types/node": "^20.3.3",
@@ -32,7 +33,7 @@
     "cypress-image-snapshot": "^4.0.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^2.1.2",
+    "prettier": "^2.8.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ts-patch": "^1.4.3",
@@ -58,7 +59,9 @@
     "docs:prepare": "pnpm build && pnpm docs:install",
     "docs:update": "pnpm --dir ./docs add ../",
     "docs:build": "pnpm --dir ./docs build",
-    "docs:deploy": "pnpm --dir ./docs deploy"
+    "docs:deploy": "pnpm --dir ./docs deploy",
+    "prettier:check": "prettier --check ./src",
+    "prettier:write": "prettier --write ./src"
   },
   "keywords": [
     "react",

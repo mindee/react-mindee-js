@@ -1,5 +1,6 @@
-import multiPage from 'cypress/assets/multi-page.pdf'
 import brokenPDF from 'cypress/assets/broken-pdf.pdf'
+import multiPage from 'cypress/assets/multi-page.pdf'
+
 import getImagesFromPDF from './getImagesFromPDF'
 
 describe('getImageFromPDF', () => {

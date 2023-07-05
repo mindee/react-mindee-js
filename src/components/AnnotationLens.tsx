@@ -3,25 +3,24 @@ import Konva from 'konva'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
-  KONVA_REFS,
-  DEFAULT_STYLE,
-  DEFAULT_POINTER_POSITION,
-  DEFAULT_LENS_ZOOM_LEVEL,
-  DEFAULT_DATA,
   DEFAULT_ANNOTATION_LENS_OPTIONS,
+  DEFAULT_DATA,
+  DEFAULT_LENS_ZOOM_LEVEL,
+  DEFAULT_POINTER_POSITION,
+  DEFAULT_STYLE,
+  KONVA_REFS,
 } from '@/common/constants'
-
 import {
+  AnnotationLensProps,
   ImageBoundingBox,
   ImageData,
-  AnnotationLensProps,
 } from '@/common/types'
 
 import { mapShapesToPolygons } from '@/utils/canvas'
-import { rotateImage } from '@/utils/orientation'
-import { handleLensZoom } from '@/utils/zoom'
 import { handleResizeImage } from '@/utils/image'
 import { clearLayers } from '@/utils/layer'
+import { rotateImage } from '@/utils/orientation'
+import { handleLensZoom } from '@/utils/zoom'
 
 export default function AnnotationLens({
   id: containerId = uuidv4(),
@@ -57,7 +56,7 @@ export default function AnnotationLens({
     getStage?.(stageObject.current)
     stageObject.current.add(
       layersObject.current.image,
-      layersObject.current.shapes
+      layersObject.current.shapes,
     )
     layersObject.current.image.add(imageDataObject.current.shape)
   }, [])
@@ -67,7 +66,7 @@ export default function AnnotationLens({
       stageObject.current,
       imageBoundingBoxObject.current,
       pointerPosition,
-      zoomLevel
+      zoomLevel,
     )
   }
 
@@ -122,7 +121,7 @@ export default function AnnotationLens({
       annotationData.current.shapes,
       false,
       imageBoundingBoxObject.current,
-      options
+      options,
     )
 
     layersObject.current.shapes.batchDraw()
@@ -132,7 +131,7 @@ export default function AnnotationLens({
     const imageBoundingBox = handleResizeImage(
       stageObject.current,
       containerRef.current,
-      imageDataObject.current
+      imageDataObject.current,
     )
     if (imageBoundingBox) {
       imageBoundingBoxObject.current = imageBoundingBox

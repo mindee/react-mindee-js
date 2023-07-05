@@ -1,6 +1,7 @@
-import useEventListener from './useEventListener'
 import { MutableRefObject } from 'react'
 import Konva from 'konva'
+
+import useEventListener from './useEventListener'
 
 interface Props {
   stage: Konva.Stage | null
@@ -23,7 +24,7 @@ export default function useMultiSelection({
         stage?.draggable(false)
         isSelectionActiveRef.current = true
       }
-    }
+    },
   )
   useEventListener<HTMLDivElement, KeyboardEvent>(
     'keyup',
@@ -38,6 +39,6 @@ export default function useMultiSelection({
         stage?.draggable(true)
         isSelectionActiveRef.current = false
       }
-    }
+    },
   )
 }
