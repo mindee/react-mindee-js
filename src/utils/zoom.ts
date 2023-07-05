@@ -50,7 +50,7 @@ export const handleZoomScale = (
 export const handleStageZoom = (
   stage: Konva.Stage | null,
   imageBoundingBox: ImageBoundingBox | null,
-  event: KonvaEventObject<any>,
+  event: KonvaEventObject<WheelEvent>,
   options: AnnotationViewerOptions,
 ) => {
   if (!stage || !imageBoundingBox) {

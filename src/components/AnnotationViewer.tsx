@@ -223,7 +223,7 @@ export default function AnnotationViewer({
     }
   }
 
-  const onZoom = (event: KonvaEventObject<any>) => {
+  const onZoom = (event: KonvaEventObject<WheelEvent>) => {
     handleStageZoom(
       stageObject.current,
       imageBoundingBoxObject.current,
