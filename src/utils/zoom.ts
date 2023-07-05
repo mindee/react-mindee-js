@@ -8,8 +8,6 @@ import {
   PointerPosition,
 } from '@/common/types'
 
-import { ZoomOptions } from './../common/types'
-
 export const handleZoomScale = (
   stage: Konva.Stage | null,
   zoomScale: number,

@@ -34,7 +34,7 @@ export default function useEventListener<
     const eventListener = (event: E) => {
       // eslint-disable-next-line no-extra-boolean-cast
 
-      if (!!savedHandler?.current) {
+      if (savedHandler?.current) {
         savedHandler.current(event)
       }
     }

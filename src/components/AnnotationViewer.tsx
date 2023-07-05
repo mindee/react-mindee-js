@@ -80,8 +80,8 @@ export default function AnnotationViewer({
       stageObject.current &&
       imageBoundingBoxObject.current
     ) {
-      let stageX = stageObject.current.x()
-      let stageY = stageObject.current.y()
+      const stageX = stageObject.current.x()
+      const stageY = stageObject.current.y()
       const zoomScale = stageObject.current.getAttr('zoomScale')
       const newPosition = {
         x: stageX + customStagePosition.x * zoomScale,

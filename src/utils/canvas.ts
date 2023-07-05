@@ -14,7 +14,7 @@ import {
 export const mapShapesToPolygons = (
   shapesLayer: Layer,
   shapes: AnnotationShape[] = [],
-  useEvents: boolean = true,
+  useEvents = true,
   imageBoundingBox: ImageBoundingBox | null,
   options: AnnotationLensOptions | AnnotationViewerOptions,
   onClick?: (shape: AnnotationShape) => void,
