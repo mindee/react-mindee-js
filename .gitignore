@@ -5,3 +5,5 @@ pnpm-debug.log*
 build
 .vscode
 .netlify
+cypress/snapshots/*
+!cypress/snapshots/components
