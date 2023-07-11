@@ -95,15 +95,17 @@ export default function AnnotationViewer({
     }
   }, [customStagePosition])
 
-  useEffect(() => {
-    if (customZoomLevel) {
-      handleZoomScale(
-        stageObject.current,
-        customZoomLevel,
-        imageBoundingBoxObject.current,
-      )
-    }
-  }, [customZoomLevel])
+  const applyCustomZoomLevel = () => {
+    if (!customZoomLevel) return
+
+    handleZoomScale(
+      stageObject.current,
+      customZoomLevel,
+      imageBoundingBoxObject.current,
+    )
+  }
+
+  useEffect(() => applyCustomZoomLevel(), [customZoomLevel])
 
   useEffect(() => {
     // if image is null or undefined, we should clear everything and wait for the next state change
@@ -175,7 +177,9 @@ export default function AnnotationViewer({
     imageDataObject.current.element.onload = () => {
       imageDataObject.current.shape.image(imageDataObject.current.element)
       resizeImage()
+      applyCustomZoomLevel()
     }
+
     if (annotationData.current.orientation) {
       try {
         const image = await rotateImage(annotationData.current)

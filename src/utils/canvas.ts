@@ -11,6 +11,8 @@ import {
   PointerPosition,
 } from '@/common/types'
 
+import { roundTo } from './roundTo'
+
 export const mapShapesToPolygons = (
   shapesLayer: Layer,
   shapes: AnnotationShape[] = [],
@@ -82,8 +84,8 @@ export const scalePointToImage = (
 ) => {
   const { width, height, scale } = imageBoundingBox
   return {
-    x: (Math.min(point.x, 1) * width) / scale,
-    y: (Math.min(point.y, 1) * height) / scale,
+    x: roundTo((Math.min(point.x, 1) * width) / scale, 2),
+    y: roundTo((Math.min(point.y, 1) * height) / scale, 2),
   }
 }
 
@@ -115,11 +117,15 @@ export const getMousePosition = (
   const stageX = stage.x()
   const stageY = stage.y()
   return {
-    x:
+    x: roundTo(
       ((pointerX - stageX) * imageBoundingBox.scale) /
-      (oldScale * imageBoundingBox.width),
-    y:
+        (oldScale * imageBoundingBox.width),
+      2,
+    ),
+    y: roundTo(
       ((pointerY - stageY) * imageBoundingBox.scale) /
-      (oldScale * imageBoundingBox.height),
+        (oldScale * imageBoundingBox.height),
+      2,
+    ),
   }
 }

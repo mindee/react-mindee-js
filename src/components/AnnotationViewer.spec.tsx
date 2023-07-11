@@ -247,6 +247,20 @@ describe('AnnotationViewer', () => {
     })
   })
 
+  it('support custom zoom level', () => {
+    dummyShapes[0].config = { fill: 'green', opacity: 0.2 }
+    cy.mount(
+      <AnnotationViewer
+        id="annotationViewer"
+        data={{ image: dummyImage, shapes: dummyShapes }}
+        style={{ height: containerHeight, width: containerWidth }}
+        customZoomLevel={2}
+      />,
+    ).then(() => {
+      cy.get('#annotationViewer').matchImageSnapshot('custom-zoom-level')
+    })
+  })
+
   it('support state changes', () => {
     cy.mount(
       <AnnotationViewerStateTester
