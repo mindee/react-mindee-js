@@ -195,12 +195,8 @@ describe('AnnotationViewer', () => {
   })
 
   it('support multi selection', () => {
-    const events = {
-      onShapeMultiSelect: (shapes: AnnotationShape[]) => {
-        console.log(shapes)
-      },
-    }
-    cy.spy(events, 'onShapeMultiSelect')
+    const onShapeMultiSelectSpy = cy.spy().as('onShapeMultiSelectSpy')
+
     cy.mount(
       <AnnotationViewer
         options={{
@@ -212,7 +208,7 @@ describe('AnnotationViewer', () => {
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
-        onShapeMultiSelect={events.onShapeMultiSelect}
+        onShapeMultiSelect={onShapeMultiSelectSpy}
       />,
     ).then(() => {
       cy.pause()
@@ -227,7 +223,8 @@ describe('AnnotationViewer', () => {
         .trigger('keyup', { altKey: true, ctrlKey: true })
         .then(() => {
           cy.wait(200)
-          expect(events.onShapeMultiSelect).to.be.calledOnceWithExactly(
+          cy.get('@onShapeMultiSelectSpy').should(
+            'have.been.calledOnceWithExactly',
             dummyShapes.slice(0, 2),
           )
         })
@@ -247,6 +244,20 @@ describe('AnnotationViewer', () => {
       />,
     ).then(() => {
       cy.get('#annotationViewer').matchImageSnapshot('custom-options')
+    })
+  })
+
+  it('support custom zoom level', () => {
+    dummyShapes[0].config = { fill: 'green', opacity: 0.2 }
+    cy.mount(
+      <AnnotationViewer
+        id="annotationViewer"
+        data={{ image: dummyImage, shapes: dummyShapes }}
+        style={{ height: containerHeight, width: containerWidth }}
+        customZoomLevel={2}
+      />,
+    ).then(() => {
+      cy.get('#annotationViewer').matchImageSnapshot('custom-zoom-level')
     })
   })
 

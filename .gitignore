@@ -5,3 +5,7 @@ pnpm-debug.log*
 build
 .vscode
 .netlify
+cypress/screenshots
+cypress/snapshots/*
+!cypress/snapshots/components
+cypress/**/__diff_output__
