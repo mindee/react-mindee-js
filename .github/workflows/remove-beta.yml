@@ -1,0 +1,22 @@
+name: Remove beta from npm
+
+on:
+  workflow_dispatch:
+
+env:
+  LIBRARY_NAME: react-mindee-js
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.x
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          registry-url: https://registry.npmjs.org
+      - run: pnpm dist-tag rm $LIBRARY_NAME beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
