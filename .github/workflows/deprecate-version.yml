@@ -1,0 +1,30 @@
+name: Deprecate version of package from npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      VERSION:
+        description: 'Version to deprecate'
+        required: true
+      MESSAGE:
+        description: 'Deprecation message'
+        required: false
+        default: 'This version is deprecated, please use the latest stable version'
+
+env:
+  LIBRARY_NAME: react-mindee-js
+
+jobs:
+  deprecate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.x
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          registry-url: https://registry.npmjs.org
+      - run: pnpm deprecate $LIBRARY_NAME@${{ inputs.VERSION }} ${{ inputs.MESSAGE }}}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

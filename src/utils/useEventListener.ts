@@ -1,14 +1,14 @@
-import { useRef, useEffect, RefObject } from 'react'
+import { RefObject, useEffect, useRef } from 'react'
 
 export default function useEventListener<
   T extends HTMLElement = HTMLDivElement,
-  E = Event
+  E = Event,
 >(
   eventName: string,
 
   handler: (event: E) => void,
 
-  element?: RefObject<T>
+  element?: RefObject<T>,
 ) {
   // Create a ref that stores handler
 
@@ -34,7 +34,7 @@ export default function useEventListener<
     const eventListener = (event: E) => {
       // eslint-disable-next-line no-extra-boolean-cast
 
-      if (!!savedHandler?.current) {
+      if (savedHandler?.current) {
         savedHandler.current(event)
       }
     }

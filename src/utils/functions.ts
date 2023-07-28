@@ -1,7 +1,9 @@
-import { KONVA_REFS } from '@/common/constants'
 import Konva from 'konva'
 import { Layer } from 'konva/lib/Layer'
 import { LineConfig } from 'konva/lib/shapes/Line'
+
+import { KONVA_REFS } from '@/common/constants'
+
 import { Stage } from '..'
 
 export const drawLayer = (stage: Konva.Stage) => {
@@ -16,7 +18,7 @@ export const drawLayer = (stage: Konva.Stage) => {
 export const drawShape = (
   stage: Konva.Stage,
   id: string | number,
-  config: LineConfig
+  config: LineConfig,
 ) => {
   const shape = stage.findOne(`#${id}`)
   if (shape) {
@@ -40,7 +42,7 @@ export const drawShapes = (stage: Stage, config: LineConfig) => {
 export const setShapeConfig = (
   stage: Konva.Stage,
   id: string | number,
-  config: LineConfig
+  config: LineConfig,
 ) => {
   const shape = stage.findOne(`#${id}`)
   if (shape) {
@@ -56,5 +58,5 @@ export const toBase64 = (
     | 'application/pdf'
     | 'image/jpeg'
     | 'image/png'
-    | 'image/svg+xml' = 'image/jpeg'
+    | 'image/svg+xml' = 'image/jpeg',
 ) => `data:${type};base64,${base64}`

@@ -1,24 +1,27 @@
-import {
-  AnnotationShape,
-  AnnotationLensOptions,
-  AnnotationViewerOptions,
-  ImageBoundingBox,
-  PointerPosition,
-} from '@/common/types'
-import { KONVA_REFS } from '@/common/constants'
 import Konva from 'konva'
 import { Layer } from 'konva/lib/Layer'
 import { Line } from 'konva/lib/shapes/Line'
 
+import { KONVA_REFS } from '@/common/constants'
+import {
+  AnnotationLensOptions,
+  AnnotationShape,
+  AnnotationViewerOptions,
+  ImageBoundingBox,
+  PointerPosition,
+} from '@/common/types'
+
+import { roundTo } from './roundTo'
+
 export const mapShapesToPolygons = (
   shapesLayer: Layer,
   shapes: AnnotationShape[] = [],
-  useEvents: boolean = true,
+  useEvents = true,
   imageBoundingBox: ImageBoundingBox | null,
   options: AnnotationLensOptions | AnnotationViewerOptions,
   onClick?: (shape: AnnotationShape) => void,
   onShapeMouseEnter?: (shape: AnnotationShape) => void,
-  onShapeMouseLeave?: (shape: AnnotationShape) => void
+  onShapeMouseLeave?: (shape: AnnotationShape) => void,
 ) => {
   if (!imageBoundingBox) {
     return
@@ -41,7 +44,7 @@ export const mapShapesToPolygons = (
         options as AnnotationViewerOptions,
         onClick,
         onShapeMouseEnter,
-        onShapeMouseLeave
+        onShapeMouseLeave,
       )
     }
   })
@@ -52,7 +55,7 @@ const bindEventToPolygon = (
   options: AnnotationViewerOptions,
   onClick?: (shape: AnnotationShape) => void,
   onShapeMouseEnter?: (shape: AnnotationShape) => void,
-  onShapeMouseLeave?: (shape: AnnotationShape) => void
+  onShapeMouseLeave?: (shape: AnnotationShape) => void,
 ) => {
   const stage = polygon.getStage()
   const shape = polygon.getAttr('shape')
@@ -77,23 +80,23 @@ const bindEventToPolygon = (
 
 export const scalePointToImage = (
   point: PointerPosition,
-  imageBoundingBox: ImageBoundingBox
+  imageBoundingBox: ImageBoundingBox,
 ) => {
   const { width, height, scale } = imageBoundingBox
   return {
-    x: (Math.min(point.x, 1) * width) / scale,
-    y: (Math.min(point.y, 1) * height) / scale,
+    x: roundTo((Math.min(point.x, 1) * width) / scale, 2),
+    y: roundTo((Math.min(point.y, 1) * height) / scale, 2),
   }
 }
 
 const mapCoordinatesToPoints = (
   coordinates: number[][],
-  imageBoundingBox: ImageBoundingBox
+  imageBoundingBox: ImageBoundingBox,
 ): number[] =>
   coordinates.reduce((accumulator, element) => {
     const { x, y } = scalePointToImage(
       { x: element[0], y: element[1] },
-      imageBoundingBox
+      imageBoundingBox,
     )
     accumulator = accumulator.concat([x, y])
     return accumulator
@@ -101,7 +104,7 @@ const mapCoordinatesToPoints = (
 
 export const getMousePosition = (
   stage: Konva.Stage | null,
-  imageBoundingBox: ImageBoundingBox | null
+  imageBoundingBox: ImageBoundingBox | null,
 ) => {
   if (!stage || !imageBoundingBox) {
     return
@@ -114,11 +117,15 @@ export const getMousePosition = (
   const stageX = stage.x()
   const stageY = stage.y()
   return {
-    x:
+    x: roundTo(
       ((pointerX - stageX) * imageBoundingBox.scale) /
-      (oldScale * imageBoundingBox.width),
-    y:
+        (oldScale * imageBoundingBox.width),
+      2,
+    ),
+    y: roundTo(
       ((pointerY - stageY) * imageBoundingBox.scale) /
-      (oldScale * imageBoundingBox.height),
+        (oldScale * imageBoundingBox.height),
+      2,
+    ),
   }
 }

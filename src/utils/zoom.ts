@@ -1,33 +1,56 @@
-import { ZoomOptions } from './../common/types'
+import Konva from 'konva'
+import { KonvaEventObject } from 'konva/lib/Node'
+
 import { DEFAULT_LENS_ZOOM_LEVEL } from '@/common/constants'
 import {
   AnnotationViewerOptions,
   ImageBoundingBox,
   PointerPosition,
 } from '@/common/types'
-import Konva from 'konva'
-import { KonvaEventObject } from 'konva/lib/Node'
+
+import { roundTo } from '@/utils/roundTo'
+
+export const calculateZoomScale = (
+  stage: Konva.Stage,
+  zoomScale: number,
+  imageBoundingBox: ImageBoundingBox,
+) => {
+  const oldScale = stage.scaleX()
+
+  const stagePosition = stage.position()
+  const pointerPosition = {
+    x: 0.5 * imageBoundingBox.width + imageBoundingBox.x,
+    y: 0.5 * imageBoundingBox.height + imageBoundingBox.y,
+  }
+
+  const mousePointTo = {
+    x: (pointerPosition.x - stagePosition.x) / oldScale,
+    y: (pointerPosition.y - stagePosition.y) / oldScale,
+  }
+
+  const newScale = zoomScale * imageBoundingBox.scale
+
+  const newPos = {
+    x: roundTo(pointerPosition.x - mousePointTo.x * newScale, 2),
+    y: roundTo(pointerPosition.y - mousePointTo.y * newScale, 2),
+  }
+
+  return { newScale: roundTo(newScale, 2), newPos }
+}
 
 export const handleZoomScale = (
   stage: Konva.Stage | null,
   zoomScale: number,
-  imageBoundingBox: ImageBoundingBox | null
+  imageBoundingBox: ImageBoundingBox | null,
 ) => {
-  if (!stage || !imageBoundingBox) {
-    return
-  }
-  const stageX = stage.x()
-  const stageY = stage.y()
-  const oldScale = stage.scaleX()
-  const { x: pointerX, y: pointerY } = {
-    x: 0.5 * imageBoundingBox.width + imageBoundingBox.x,
-    y: 0.5 * imageBoundingBox.height + imageBoundingBox.y,
-  }
-  const mousePointTo = {
-    x: (pointerX - stageX) / oldScale,
-    y: (pointerY - stageY) / oldScale,
-  }
-  const newScale = zoomScale * imageBoundingBox.scale
+  if (!stage || !imageBoundingBox) return
+
+  const { newScale, newPos } = calculateZoomScale(
+    stage,
+    zoomScale,
+    imageBoundingBox,
+  )
+
   if (newScale < imageBoundingBox.scale) {
     stage.draggable(false)
     stage.scale({ x: imageBoundingBox.scale, y: imageBoundingBox.scale })
@@ -36,10 +59,6 @@ export const handleZoomScale = (
   } else {
     stage.draggable(true)
     stage.scale({ x: newScale, y: newScale })
-    const newPos = {
-      x: pointerX - mousePointTo.x * newScale,
-      y: pointerY - mousePointTo.y * newScale,
-    }
     stage.setAttr('zoomScale', newScale / imageBoundingBox.scale)
     stage.position(newPos)
   }
@@ -47,76 +66,101 @@ export const handleZoomScale = (
   stage.batchDraw()
 }
 
+export const calculateStageZoom = (
+  stage: Konva.Stage,
+  deltaY: number,
+  options: AnnotationViewerOptions,
+) => {
+  const oldScale = stage.scaleX()
+
+  const stagePosition = stage.position()
+  const pointerPosition = stage.getPointerPosition() || { x: 0, y: 0 }
+
+  const mousePointTo = {
+    x: (pointerPosition.x - stagePosition.x) / oldScale,
+    y: (pointerPosition.y - stagePosition.y) / oldScale,
+  }
+
+  const { modifier } = options.zoom!
+
+  const newScale = deltaY < 0 ? oldScale * modifier : oldScale / modifier
+
+  const newPos = {
+    x: roundTo(pointerPosition.x - mousePointTo.x * newScale, 2),
+    y: roundTo(pointerPosition.y - mousePointTo.y * newScale, 2),
+  }
+
+  return { newScale: roundTo(newScale, 2), newPos }
+}
+
 export const handleStageZoom = (
   stage: Konva.Stage | null,
   imageBoundingBox: ImageBoundingBox | null,
-  event: KonvaEventObject<any>,
-  options: AnnotationViewerOptions
+  event: KonvaEventObject<WheelEvent>,
+  options: AnnotationViewerOptions,
 ) => {
-  if (!stage || !imageBoundingBox) {
-    return
-  }
-  const { x, y, scale } = imageBoundingBox
+  if (!stage || !imageBoundingBox) return
+
   event.evt.preventDefault()
-  const oldScale = stage.scaleX()
-  const stageX = stage.x()
-  const stageY = stage.y()
-  const { x: pointerX, y: pointerY } = stage.getPointerPosition() || {
-    x: 0,
-    y: 0,
-  }
 
-  const mousePointTo = {
-    x: (pointerX - stageX) / oldScale,
-    y: (pointerY - stageY) / oldScale,
-  }
-  const { max, modifier } = options.zoom!
+  const { max } = options.zoom!
 
-  const newScale =
-    event.evt.deltaY < 0 ? oldScale * modifier : oldScale / modifier
-  if (newScale > max) {
-    return
-  }
-  if (newScale < scale) {
+  const { newScale, newPos } = calculateStageZoom(
+    stage,
+    event.evt.deltaY,
+    options,
+  )
+
+  if (newScale > max) return
+
+  if (newScale < imageBoundingBox.scale) {
     stage.draggable(false)
-    stage.scale({ x: scale, y: scale })
-    stage.position({ x, y })
+    stage.scale({ x: imageBoundingBox.scale, y: imageBoundingBox.scale })
+    stage.position({ x: imageBoundingBox.x, y: imageBoundingBox.y })
     stage.setAttr('zoomScale', 1)
   } else {
     stage.draggable(true)
     stage.scale({ x: newScale, y: newScale })
-    const newPos = {
-      x: pointerX - mousePointTo.x * newScale,
-      y: pointerY - mousePointTo.y * newScale,
-    }
-    stage.setAttr('zoomScale', newScale / scale)
+    stage.setAttr('zoomScale', newScale / imageBoundingBox.scale)
     stage.position(newPos)
   }
 
   stage.batchDraw()
 }
 
+export const calculateLensZoom = (
+  pointerPosition: PointerPosition,
+  imageBoundingBox: ImageBoundingBox,
+  stage: Konva.Stage,
+  zoomLevel: number,
+): PointerPosition => {
+  const pointerX =
+    (pointerPosition.x * imageBoundingBox.width) / imageBoundingBox.scale
+  const pointerY =
+    (pointerPosition.y * imageBoundingBox.height) / imageBoundingBox.scale
+
+  return {
+    x: roundTo(-pointerX * zoomLevel + stage.width() / 2, 2),
+    y: roundTo(-pointerY * zoomLevel + stage.height() / 2, 2),
+  }
+}
+
 export const handleLensZoom = (
   stage: Konva.Stage | null,
   imageBoundingBox: ImageBoundingBox | null,
   pointerPosition: PointerPosition,
-  zoomLevel = DEFAULT_LENS_ZOOM_LEVEL
+  zoomLevel = DEFAULT_LENS_ZOOM_LEVEL,
 ) => {
-  if (!stage || !imageBoundingBox) {
-    return
-  }
-  const { height, width, scale } = imageBoundingBox
+  if (!stage || !imageBoundingBox) return
 
-  const { x: _x, y: _y } = pointerPosition
-  const pointerX = (_x * width) / scale
-  const pointerY = (_y * height) / scale
-  const newScale = zoomLevel
-  stage.scale({ x: newScale, y: newScale })
-  const newPos = {
-    x: -pointerX * newScale + stage.width() / 2,
-    y: -pointerY * newScale + stage.height() / 2,
-  }
+  const newPos = calculateLensZoom(
+    pointerPosition,
+    imageBoundingBox,
+    stage,
+    zoomLevel,
+  )
+
+  stage.scale({ x: zoomLevel, y: zoomLevel })
   stage.position(newPos)
-
   stage.batchDraw()
 }

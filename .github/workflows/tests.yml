@@ -1,0 +1,35 @@
+name: Run tests on PRs
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 8.x
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: install dependencies
+        run: pnpm install
+      - name: run lint
+        run: pnpm lint
+
+  cypress-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 8.x
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Cypress run
+        uses: cypress-io/github-action@v5
+        with:
+          config-file: cypress.json
+          build: pnpm cy:prepare
+          command: pnpm cy:run
