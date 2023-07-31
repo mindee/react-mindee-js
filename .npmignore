@@ -2,12 +2,13 @@ node_modules
 .gitignore
 .eslintrc
 .prettierrc
-src
+/src
 .eslintignore
 .npmignore
 .netlify
 .vscode
 .github
 cypress
+cypress.config.ts
 docs
 yarn-error.log
