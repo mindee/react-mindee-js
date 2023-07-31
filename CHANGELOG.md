@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v1.4.0-rc1 (31/07/2023)
+
+### New
+
+- :construction_worker: add lint & publish workflow with GA
+
+### Changes
+
+- :wrench: move to vite
+- :white_check_mark: improve test coverage
+- :arrow_up: update typescript, react and cypress
+- :wrench: migrate from yarn to pnpm
+- :white_check_mark: rework tests
+- :label: remove unnecessary any types
+- :wrench: update eslint and prettier configs
+
 ## v1.3.9 (19/08/2022)
 
 ### Fixes
