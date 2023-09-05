@@ -26,6 +26,7 @@ export default defineConfig({
       framework: 'react',
       bundler: 'vite',
       viteConfig: defineViteConfig({
+        assetsInclude: ['**/*.tiff', '**/*.heic'],
         plugins: [tsconfigPaths()],
       }),
     },
