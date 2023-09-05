@@ -1,4 +1,6 @@
+import heic2any from 'heic2any'
 import Konva from 'konva'
+import UTIF from 'utif'
 
 import { ImageData } from '@/common/types'
 
@@ -24,6 +26,56 @@ export const dataURItoBlob = (dataURI: string) => {
   }
 
   return new Blob([ia], { type: mimeString })
+}
+
+export const prepareImage = async (image: string) => {
+  const blob = await urlToBlob(image)
+  if (blob.type === 'image/heic') {
+    return await heicToJpg(blob)
+  }
+  if (blob.type === 'image/tiff') {
+    return await tiffToJpg(blob)
+  }
+  return image
+}
+
+export const urlToBlob = async (url: string) =>
+  await fetch(url).then((r) => r.blob())
+
+export const tiffToJpg = async (blob: Blob) => {
+  const arrayBuffer = await blob.arrayBuffer()
+  const ifds = UTIF.decode(arrayBuffer)
+  const firstPageOfTif = ifds[0]
+  UTIF.decodeImage(arrayBuffer, firstPageOfTif)
+  const rgba = UTIF.toRGBA8(firstPageOfTif)
+
+  const imageWidth = firstPageOfTif.width
+  const imageHeight = firstPageOfTif.height
+
+  const cnv = document.createElement('canvas')
+  cnv.width = imageWidth
+  cnv.height = imageHeight
+
+  const ctx = cnv.getContext('2d')!
+  const imageData = ctx.createImageData(imageWidth, imageHeight)
+  for (let i = 0; i < rgba.length; i++) {
+    imageData.data[i] = rgba[i]
+  }
+  ctx.putImageData(imageData, 0, 0)
+  return new Promise<string>((resolve, reject) => {
+    cnv.toBlob((blob) => {
+      if (blob) {
+        resolve(URL.createObjectURL(blob))
+      } else {
+        reject('Error getting Blob')
+      }
+    })
+  })
+}
+
+export const heicToJpg = async (blob: Blob) => {
+  const result = await heic2any({ blob })
+  return URL.createObjectURL(result as Blob)
 }
 
 export const computeImageBoundingBox = (

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.5.0 (05/09/2023)
+
+### New
+
+- ✨ Add support to HEIC and TIFF formats
+
 ## v1.4.0 (31/07/2023)
 
 ### New

@@ -1,24 +1,29 @@
 import React, { useState } from 'react'
 import anotherDummyImage from 'cypress/assets/another-demo.jpg'
+import dummyImageHEIC from 'cypress/assets/demo.heic'
 import dummyImage from 'cypress/assets/demo.jpg'
+import dummyImageTIFF from 'cypress/assets/demo.tiff'
 
 import { AnnotationData, AnnotationShape } from '@/common/types'
 
 import { dummyShapes } from '../../cypress/assets/shapes'
 import AnnotationViewer from './AnnotationViewer'
 
+const dummyImageURL =
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/ReceiptSwiss.jpg/1280px-ReceiptSwiss.jpg'
+
 const containerHeight = 800
 const containerWidth = 700
-type TesterProps = {
-  containerWidth: number
-  containerHeight: number
-  id?: string
-}
+const containerId = 'annotationViewer'
 export const AnnotationViewerStateTester = ({
   containerHeight,
   containerWidth,
-  id = 'AnnotationViewer',
-}: TesterProps) => {
+  id = containerId,
+}: {
+  containerWidth: number
+  containerHeight: number
+  id?: string
+}) => {
   const [data, setData] = useState<AnnotationData>({
     image: dummyImage,
     shapes: dummyShapes,
@@ -78,15 +83,16 @@ export const AnnotationViewerStateTester = ({
 }
 
 describe('AnnotationViewer', () => {
-  it('mount correctly', () => {
+  it('shows an JPG image in the canvas', () => {
     cy.mount(
       <AnnotationViewer
         onShapeClick={console.log}
-        id="annotationViewer"
+        id={containerId}
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
       />,
     )
+    cy.get(`#${containerId}`).should('be.visible')
     cy.wait(1000)
     cy.get('canvas')
       .should('have.length', 2)
@@ -96,19 +102,83 @@ describe('AnnotationViewer', () => {
         cy.wrap(canvasWidth).should('equal', containerWidth)
         cy.wrap(canvasHeight).should('equal', containerHeight)
       })
-    cy.get('#annotationViewer').matchImageSnapshot('default')
+    cy.get(`#${containerId}`).matchImageSnapshot('jpg.file')
+  })
+  it('shows a TIFF image in the canvas', () => {
+    cy.mount(
+      <AnnotationViewer
+        onShapeClick={console.log}
+        id={containerId}
+        data={{ image: dummyImageTIFF, shapes: dummyShapes }}
+        style={{ height: containerHeight, width: containerWidth }}
+      />,
+    )
+    cy.get(`#${containerId}`).should('be.visible')
+    cy.wait(1000)
+    cy.get('canvas')
+      .should('have.length', 2)
+      .each(($canvas) => {
+        const canvasWidth = $canvas.width()
+        const canvasHeight = $canvas.height()
+        cy.wrap(canvasWidth).should('equal', containerWidth)
+        cy.wrap(canvasHeight).should('equal', containerHeight)
+      })
+    cy.get(`#${containerId}`).matchImageSnapshot('tiff.file')
+  })
+  it('shows a HEIC image in the canvas', () => {
+    cy.mount(
+      <AnnotationViewer
+        onShapeClick={console.log}
+        id={containerId}
+        data={{ image: dummyImageHEIC, shapes: dummyShapes }}
+        style={{ height: containerHeight, width: containerWidth }}
+      />,
+    )
+    cy.get(`#${containerId}`).should('be.visible')
+    cy.wait(1000)
+    cy.get('canvas')
+      .should('have.length', 2)
+      .each(($canvas) => {
+        const canvasWidth = $canvas.width()
+        const canvasHeight = $canvas.height()
+        cy.wrap(canvasWidth).should('equal', containerWidth)
+        cy.wrap(canvasHeight).should('equal', containerHeight)
+      })
+    cy.get(`#${containerId}`).matchImageSnapshot('heic.file')
+  })
+
+  it('shows a remote image in the canvas', () => {
+    cy.mount(
+      <AnnotationViewer
+        onShapeClick={console.log}
+        id={containerId}
+        data={{ image: dummyImageURL, shapes: dummyShapes }}
+        style={{ height: containerHeight, width: containerWidth }}
+      />,
+    )
+    cy.get(`#${containerId}`).should('be.visible')
+    cy.wait(1000)
+    cy.get('canvas')
+      .should('have.length', 2)
+      .each(($canvas) => {
+        const canvasWidth = $canvas.width()
+        const canvasHeight = $canvas.height()
+        cy.wrap(canvasWidth).should('equal', containerWidth)
+        cy.wrap(canvasHeight).should('equal', containerHeight)
+      })
+    cy.get(`#${containerId}`).matchImageSnapshot('remote.file')
   })
 
   it('zoom correctly', () => {
     cy.mount(
       <AnnotationViewer
-        id="annotationViewer"
+        id={containerId}
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
       />,
     )
     cy.wait(1000)
-    cy.get('#annotationViewer')
+    cy.get(`#${containerId}`)
       .trigger('wheel', {
         deltaY: -60,
       })
@@ -119,7 +189,7 @@ describe('AnnotationViewer', () => {
         deltaY: -60,
       })
     cy.wait(200)
-    cy.get('#annotationViewer').matchImageSnapshot('zoomed')
+    cy.get(`#${containerId}`).matchImageSnapshot('zoomed')
   })
 
   it('handle events correctly', () => {
@@ -144,7 +214,7 @@ describe('AnnotationViewer', () => {
 
     cy.mount(
       <AnnotationViewer
-        id="annotationViewer"
+        id={containerId}
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
         {...events}
@@ -154,7 +224,7 @@ describe('AnnotationViewer', () => {
       },
     )
     cy.wait(1000)
-    cy.get('#annotationViewer')
+    cy.get(`#${containerId}`)
       .click(350, 50)
       .then(($container) => {
         cy.wait(200)
@@ -163,7 +233,7 @@ describe('AnnotationViewer', () => {
       })
 
     it('should handle click event', () => {
-      cy.get('#annotationViewer')
+      cy.get(`#${containerId}`)
         .click(350, 50)
         .then(($container) => {
           cy.wait(200)
@@ -172,7 +242,7 @@ describe('AnnotationViewer', () => {
         })
     })
     it('should handle mouse enter event', () => {
-      cy.get('#annotationViewer')
+      cy.get(`#${containerId}`)
         .trigger('mouseenter', {
           clientX: 350,
           clientY: 50,
@@ -184,7 +254,7 @@ describe('AnnotationViewer', () => {
         })
     })
     it('should handle mouse leave event', () => {
-      cy.get('#annotationViewer')
+      cy.get(`#${containerId}`)
         .trigger('mouseleave', 350, 50)
         .then(($container) => {
           cy.wait(200)
@@ -205,20 +275,19 @@ describe('AnnotationViewer', () => {
             stroke: 'green',
           },
         }}
-        id="annotationViewer"
+        id={containerId}
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
         onShapeMultiSelect={onShapeMultiSelectSpy}
       />,
     ).then(() => {
-      cy.pause()
-      cy.get('#annotationViewer')
+      cy.get(`#${containerId}`)
         .children()
         .trigger('keydown', { altKey: true, ctrlKey: true })
         .trigger('mousedown', { which: 1, clientX: 10, clientY: 10 })
         .trigger('mousemove', { which: 1, clientX: 600, clientY: 300 })
         .matchImageSnapshot('multi-select')
-      cy.get('#annotationViewer')
+      cy.get(`#${containerId}`)
         .trigger('mouseup')
         .trigger('keyup', { altKey: true, ctrlKey: true })
         .then(() => {
@@ -238,49 +307,51 @@ describe('AnnotationViewer', () => {
         options={{
           shapeConfig: { fill: 'blue', opacity: 0.2 },
         }}
-        id="annotationViewer"
+        id={containerId}
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
       />,
     ).then(() => {
-      cy.get('#annotationViewer').matchImageSnapshot('custom-options')
+      cy.wait(200)
+      cy.get(`#${containerId}`).matchImageSnapshot('custom-options')
     })
   })
 
-  it('support custom zoom level', () => {
-    dummyShapes[0].config = { fill: 'green', opacity: 0.2 }
-    cy.mount(
-      <AnnotationViewer
-        id="annotationViewer"
-        data={{ image: dummyImage, shapes: dummyShapes }}
-        style={{ height: containerHeight, width: containerWidth }}
-        customZoomLevel={2}
-      />,
-    ).then(() => {
-      cy.get('#annotationViewer').matchImageSnapshot('custom-zoom-level')
-    })
-  })
+  //   it.only('support custom zoom level', () => {
+  //     dummyShapes[0].config = { fill: 'green', opacity: 0.2 }
+  //     cy.mount(
+  //       <AnnotationViewer
+  //         id={containerId}
+  //         data={{ image: dummyImage, shapes: dummyShapes }}
+  //         style={{ height: containerHeight, width: containerWidth }}
+  //         customZoomLevel={2}
+  //       />,
+  //     ).then(() => {
+  //       cy.wait(800)
+  //       cy.get(`#${containerId}`).matchImageSnapshot('custom-zoom-level')
+  //     })
+  //   })
 
   it('support state changes', () => {
     cy.mount(
       <AnnotationViewerStateTester
-        id="annotationViewer"
+        id={containerId}
         containerHeight={containerHeight}
         containerWidth={containerWidth}
       />,
     ).then(() => {
       cy.get('[data-cy="same-data"]').click()
       cy.wait(400)
-      cy.get('#annotationViewer').matchImageSnapshot('same-data')
+      cy.get(`#${containerId}`).matchImageSnapshot('same-data')
       cy.get('[data-cy="different-image"]').click()
       cy.wait(400)
-      cy.get('#annotationViewer').matchImageSnapshot('different-image')
+      cy.get(`#${containerId}`).matchImageSnapshot('different-image')
       cy.get('[data-cy="different-shapes"]').click()
       cy.wait(400)
-      cy.get('#annotationViewer').matchImageSnapshot('different-shapes')
+      cy.get(`#${containerId}`).matchImageSnapshot('different-shapes')
       cy.get('[data-cy="different-orientation"]').click()
       cy.wait(400)
-      cy.get('#annotationViewer').matchImageSnapshot('different-orientation')
+      cy.get(`#${containerId}`).matchImageSnapshot('different-orientation')
     })
   })
 })

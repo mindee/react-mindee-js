@@ -16,7 +16,11 @@ import {
 } from '@/common/types'
 
 import { getMousePosition, mapShapesToPolygons } from '@/utils/canvas'
-import { handleResizeImage, setStageBasedImagePosition } from '@/utils/image'
+import {
+  handleResizeImage,
+  prepareImage,
+  setStageBasedImagePosition,
+} from '@/utils/image'
 import { clearLayers } from '@/utils/layer'
 import { rotateImage } from '@/utils/orientation'
 import {
@@ -174,6 +178,9 @@ export default function AnnotationViewer({
   }
 
   const loadImage = async () => {
+    annotationData.current.image = await prepareImage(
+      annotationData.current.image!,
+    )
     imageDataObject.current.element.onload = () => {
       imageDataObject.current.shape.image(imageDataObject.current.element)
       resizeImage()
@@ -183,6 +190,7 @@ export default function AnnotationViewer({
     if (annotationData.current.orientation) {
       try {
         const image = await rotateImage(annotationData.current)
+
         imageDataObject.current.element.src = image
       } catch (error) {
         console.error(error)
