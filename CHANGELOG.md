@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.0 (05/10/2023)
+
+### Changes
+
+- 🔨 disable cache when fetching annotation image
+
 ## v1.5.1 (05/09/2023)
 
 ### New
