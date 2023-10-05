@@ -29,7 +29,6 @@ export const dataURItoBlob = (dataURI: string) => {
 }
 
 export const prepareImage = async (image: string) => {
-  console.log('new version')
   const blob = await urlToBlob(image)
   if (blob.type === 'image/heic') {
     return await heicToJpg(blob)
