@@ -40,7 +40,10 @@ export const prepareImage = async (image: string) => {
 }
 
 export const urlToBlob = async (url: string) =>
-  await fetch(url).then((r) => r.blob())
+  await fetch(url, {
+    method: 'GET',
+    cache: 'no-cache',
+  }).then((r) => r.blob())
 
 export const tiffToJpg = async (blob: Blob) => {
   const arrayBuffer = await blob.arrayBuffer()
