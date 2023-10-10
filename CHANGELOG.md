@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.1 (10/10/2023)
+
+### Changes
+
+- 🔇 remove console.log
+
 ## v1.6.0 (05/10/2023)
 
 ### Changes
