@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.2 (11/11.2024)
+
+### Changes
+
+- bump the supported React to v18
+
 ## v1.6.1 (10/10/2023)
 
 ### Changes
