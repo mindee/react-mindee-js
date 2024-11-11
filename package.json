@@ -39,8 +39,8 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-unused-imports": "^2.0.0",
     "prettier": "^2.8.8",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "ts-patch": "^1.4.3",
     "typescript": "^4.9.5",
     "typescript-transform-paths": "^3.3.1",
@@ -49,7 +49,7 @@
     "vite-tsconfig-paths": "^4.2.0"
   },
   "peerDependencies": {
-    "react": "^17.0.2"
+    "react": "^18.3.1"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",

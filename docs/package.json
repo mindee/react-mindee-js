@@ -25,8 +25,8 @@
     "netlify": "^8.0.0",
     "prism-react-renderer": "^1.2.1",
     "raw-loader": "^4.0.2",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-loadable": "^5.5.0",
     "react-mindee-js": "link:..",
     "url-loader": "^4.1.1"
