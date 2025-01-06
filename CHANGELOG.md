@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.2 (10/10/2023)
+
+### Changes
+
+- :arrow_up: update pdfjs-dist to v4.10.38
+
 ## v1.6.1 (10/10/2023)
 
 ### Changes
