@@ -16,7 +16,7 @@
     "@types/utif": "^3.0.1",
     "heic2any": "^0.0.4",
     "konva": "^8.1.3",
-    "pdfjs-dist": "2.6.347",
+    "pdfjs-dist": "4.10.38",
     "utif": "^3.1.0",
     "uuid": "^8.3.2"
   },
