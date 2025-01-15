@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.4 (15/10/2023)
+
+### Changes
+
+- remove beta tag
+
 ## v1.6.3 (15/10/2023)
 
 ### Changes
