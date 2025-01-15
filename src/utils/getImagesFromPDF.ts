@@ -9,7 +9,7 @@ import { RenderParameters } from 'pdfjs-dist/types/src/display/api'
 
 import { MAX_PDF_SCALE, PDF_RESOLUTION } from '@/common/constants'
 
-GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
+GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/legacy/build/pdf.worker.min.mjs`
 
 const getImageFromPage = async (
   _document: PDFDocumentProxy,
