@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.3 (15/10/2023)
+
+### Changes
+
+- use legacy build of pdfjs-dist
+
 ## v1.6.2 (10/10/2023)
 
 ### Changes
