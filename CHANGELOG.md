@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.5 (16/10/2023)
+
+### Changes
+
+- :arrow_down: downgrade pdfjs-dist to support older browser versions
+
 ## v1.6.4 (15/10/2023)
 
 ### Changes
