@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.6 (31/03/2025)
+
+### Changes
+
+- :children_crossing: updated to support dragging on shapes in annotation viewer
+
 ## v1.6.5 (16/10/2023)
 
 ### Changes
