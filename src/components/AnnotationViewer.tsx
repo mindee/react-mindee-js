@@ -174,6 +174,17 @@ export default function AnnotationViewer({
           onShapeMultiSelect,
         ),
       )
+
+      stageObject.current.on('dragstart', () => {
+        if (stageObject.current?.container()) {
+          stageObject.current.container().style.cursor = 'grabbing'
+        }
+      })
+      stageObject.current.on('dragend', () => {
+        if (stageObject.current?.container()) {
+          stageObject.current.container().style.cursor = 'pointer'
+        }
+      })
     }
   }
 
