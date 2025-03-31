@@ -59,42 +59,19 @@ const bindEventToPolygon = (
 ) => {
   const stage = polygon.getStage()
   const shape = polygon.getAttr('shape')
-  let startPos = { x: 0, y: 0 }
-  let hasMoved = false
-
-  polygon.on('mousedown', () => {
-    startPos = stage!.getPointerPosition() || { x: 0, y: 0 }
-    hasMoved = false
+  polygon.on('mouseup', (event) => {
+    event.cancelBubble = true
+    onClick?.(shape)
+    options?.onClick?.(polygon)
   })
-
-  polygon.on('mousemove', () => {
-    if (!startPos) return
-    const currentPos = stage!.getPointerPosition() || { x: 0, y: 0 }
-    const dx = currentPos.x - startPos.x
-    const dy = currentPos.y - startPos.y
-
-    // If moved more than 5 pixels, consider it a drag
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-      hasMoved = true
-    }
-  })
-
-  polygon.on('mouseup', () => {
-    if (!hasMoved) {
-      onClick?.(shape)
-      options?.onClick?.(polygon)
-    }
-    startPos = { x: 0, y: 0 }
-    hasMoved = false
-  })
-
-  polygon.on('mouseleave', function () {
+  polygon.on('mouseleave', function (event) {
+    event.cancelBubble = true
     stage!.container().style.cursor = 'inherit'
     options?.onMouseLeave?.(polygon)
     onShapeMouseLeave?.(shape)
   })
-
-  polygon.on('mouseenter', function () {
+  polygon.on('mouseenter', function (event) {
+    event.cancelBubble = true
     options?.onMouseEnter?.(polygon)
     stage!.container().style.cursor = 'pointer'
     onShapeMouseEnter?.(shape)
