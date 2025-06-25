@@ -59,7 +59,7 @@ const bindEventToPolygon = (
 ) => {
   const stage = polygon.getStage()
   const shape = polygon.getAttr('shape')
-  polygon.on('mousedown', (event) => {
+  polygon.on('mouseup', (event) => {
     event.cancelBubble = true
     onClick?.(shape)
     options?.onClick?.(polygon)

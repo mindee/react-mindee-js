@@ -1,10 +1,41 @@
 # CHANGELOG
 
-## v1.6.2 (11/11.2024)
+## v1.6.7 (25/06/2025)
 
 ### Changes
 
 - bump the supported React to v18
+
+## v1.6.6 (31/03/2025)
+
+### Changes
+
+- :children_crossing: updated to support dragging on shapes in annotation viewer
+
+## v1.6.5 (16/10/2023)
+
+### Changes
+
+- :arrow_down: downgrade pdfjs-dist to support older browser versions
+
+## v1.6.4 (15/10/2023)
+
+### Changes
+
+- remove beta tag
+
+## v1.6.3 (15/10/2023)
+
+### Changes
+
+- use legacy build of pdfjs-dist
+
+## v1.6.2 (10/10/2023)
+
+### Changes
+
+- :arrow_up: update pdfjs-dist to v4.10.38
+
 
 ## v1.6.1 (10/10/2023)
 

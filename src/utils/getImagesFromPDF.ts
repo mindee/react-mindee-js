@@ -1,9 +1,11 @@
-import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist'
 import {
+  getDocument,
+  GlobalWorkerOptions,
   PDFDocumentProxy,
   PDFPageProxy,
-  RenderParameters,
-} from 'pdfjs-dist/types/display/api'
+  version,
+} from 'pdfjs-dist'
+import { RenderParameters } from 'pdfjs-dist/types/src/display/api'
 
 import { MAX_PDF_SCALE, PDF_RESOLUTION } from '@/common/constants'
 
