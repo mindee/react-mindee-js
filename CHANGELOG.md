@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.7 (25/06/2025)
+
+### Changes
+
+- bump the supported React to v18
+
 ## v1.6.6 (31/03/2025)
 
 ### Changes
@@ -29,6 +35,7 @@
 ### Changes
 
 - :arrow_up: update pdfjs-dist to v4.10.38
+
 
 ## v1.6.1 (10/10/2023)
 
