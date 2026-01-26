@@ -12,7 +12,7 @@ export default function useEventListener<
 ) {
   // Create a ref that stores handler
 
-  const savedHandler = useRef<(event: E) => void>()
+  const savedHandler = useRef<(event: E) => void>(null)
 
   useEffect(() => {
     // Define the listening target
