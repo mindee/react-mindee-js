@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.9 (26/01/2026)
+
+### Fixes
+
+- fix pnpm version in package.json
+
 ## v1.6.8 (26/01/2026)
 
 ### Changes
