@@ -18,6 +18,7 @@ import {
   toBase64,
 } from './utils/functions'
 import getImagesFromPDF from './utils/getImagesFromPDF'
+import getPDFPageCount from './utils/getPDFPageCount'
 import { dataURItoBlob } from './utils/image'
 
 export type {
@@ -36,6 +37,7 @@ export {
   AnnotationLens,
   AnnotationViewer,
   getImagesFromPDF,
+  getPDFPageCount,
   drawShape,
   drawLayer,
   setShapeConfig,

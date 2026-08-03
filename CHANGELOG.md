@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.7.0
+
+### Changes
+
+- expose `getPDFPageCount` to return the number of pages in a PDF without rendering
+
 ## v1.6.9 (26/01/2026)
 
 ### Fixes
