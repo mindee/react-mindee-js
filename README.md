@@ -23,7 +23,7 @@ This library was made for building frontend interfaces on top of **[Mindee](http
 
 ## Compatibility
 
-The React SDK is compatible with `React 16.8.0 +`
+The React SDK is compatible with `React 18` and `React 19`, and requires `Node.js >= 22.13` to build.
 
 ## Installation and dependencies
 
@@ -101,7 +101,7 @@ React mindee supports all recent browsers and works where React works. However, 
 Feel free to use github to submit issues, pull requests or general feedback.
 You can also visit [our website](https://mindee.com) or drop us an [email](mailto:contact@mindee.com).
 
-Please read our [Contributing section](https://github.com/publicMindee/react-mindee-js/blob/master/CONTRIBUTING.md) before contributing.
+Please read our [Contributing section](https://github.com/mindee/react-mindee-js/blob/master/CONTRIBUTING.md) before contributing.
 
 ## License
 
