@@ -16,9 +16,13 @@ jobs:
 
       - name: Download actionlint
         id: get_actionlint
-        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        # Script pinned to the v1.7.12 release commit; bump both together.
+        run: bash <(curl -fsSL "https://raw.githubusercontent.com/rhysd/actionlint/${ACTIONLINT_COMMIT}/scripts/download-actionlint.bash") "${ACTIONLINT_VERSION}"
         shell: bash
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_COMMIT: 914e7df21a07ef503a81201c76d2b11c789d3fca
 
       - name: Run actionlint
-        run: ${{ steps.get_actionlint.outputs.executable }} -color
+        run: '${{ steps.get_actionlint.outputs.executable }} -color'
         shell: bash
