@@ -11,7 +11,9 @@ export const rotateImage = async (
   image: string,
   degrees: Orientation = 0,
 ): Promise<string> => {
-  if (degrees === 0) return image;
+  if (degrees === 0) {
+    return image;
+  }
   return await applyRotation(image, EXIF_ORIENTATION[degrees]);
 };
 

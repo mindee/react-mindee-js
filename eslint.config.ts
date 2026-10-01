@@ -95,7 +95,6 @@ export default defineConfig(
 
       // --- base rules (mirrors mindee-api-nodejs where not covered by Prettier) ---
       eqeqeq: 'error',
-      curly: 'error',
       'no-eval': 'error',
       'no-else-return': 'error',
       'no-nested-ternary': 'error',
@@ -130,4 +129,7 @@ export default defineConfig(
     languageOptions: { globals: globals.node },
   },
   prettier,
+  {
+    rules: { curly: ['error', 'all'] },
+  },
 );

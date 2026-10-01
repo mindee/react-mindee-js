@@ -30,7 +30,9 @@ const AnnotationViewerWithDynamicZoom = ({
 
   const changeScale = (modifier: number) => {
     const stage = stageObject.current;
-    if (!stage) return;
+    if (!stage) {
+      return;
+    }
     setCustomZoomLevel(modifier * getZoomScale(stage));
   };
 

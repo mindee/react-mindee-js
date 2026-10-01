@@ -6,7 +6,7 @@ import type { Stage } from 'konva/lib/Stage';
 
 export type AnnotationShape<T extends object = object> = T & {
   id: string;
-  coordinates: [number, number][];
+  coordinates: number[][];
   config?: LineConfig;
 };
 

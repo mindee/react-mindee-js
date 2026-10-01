@@ -36,7 +36,9 @@ const drawLensShapes = (
   options: AnnotationLensOptions,
 ): void => {
   shapesLayer.destroyChildren();
-  if (!shapes) return;
+  if (!shapes) {
+    return;
+  }
   mapShapesToPolygons(shapesLayer, shapes, false, imageBoundingBox, options);
   shapesLayer.batchDraw();
 };
@@ -81,7 +83,9 @@ export default function AnnotationLens({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      return;
+    }
     const stage = new Konva.Stage({ container, listening: false });
     stageObject.current = stage;
     stage.add(layersObject.current.image, layersObject.current.shapes);
@@ -96,7 +100,7 @@ export default function AnnotationLens({
   const { image, orientation, shapes } = data;
 
   useEffect(() => {
-    if (image === undefined || image === null) {
+    if (image === undefined || image === null || image === '') {
       clearLayers(layersObject.current);
       imageDataObject.current.element = new Image();
       imageDataObject.current.shape.image(imageDataObject.current.element);
@@ -108,10 +112,14 @@ export default function AnnotationLens({
     void (async () => {
       try {
         const src = await rotateImage(image, orientation);
-        if (signal.aborted) return;
+        if (signal.aborted) {
+          return;
+        }
         const element = new Image();
         element.onload = () => {
-          if (signal.aborted) return;
+          if (signal.aborted) {
+            return;
+          }
           imageDataObject.current.element = element;
           imageDataObject.current.shape.image(element);
           imageBoundingBoxObject.current =
@@ -124,7 +132,9 @@ export default function AnnotationLens({
         };
         element.src = src;
       } catch (error) {
-        if (!signal.aborted) console.error(error);
+        if (!signal.aborted) {
+          console.error(error);
+        }
       }
     })();
     return () => {

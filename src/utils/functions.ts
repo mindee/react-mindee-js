@@ -35,7 +35,7 @@ export const drawShape = (
 
 export const drawShapes = (stage: Stage, config: LineConfig): void => {
   const shapes = stage.find(`.${KonvaRefs.Shape}`);
-  if (shapes.length) {
+  if (shapes.length > 0) {
     shapes.forEach((shape) => {
       shape.setAttrs(config);
     });

@@ -35,7 +35,7 @@ export const mapShapesToPolygons = (
     const polygon = new Konva.Line({
       id: shape.id,
       name: KonvaRefs.Shape,
-      points: mapCoordinatesToPoints(shape.coordinates, imageBoundingBox),
+      points: mapCoordinatesToPoints(shape, imageBoundingBox),
       closed: true,
 
       ...(options.shapeConfig ?? {}),
@@ -64,7 +64,9 @@ const bindEventToPolygon = (
 ): void => {
   const stage = polygon.getStage();
   const shape = shapeByNode.get(polygon);
-  if (!shape || !stage) return;
+  if (!shape || !stage) {
+    return;
+  }
   polygon.on('mouseup', (event) => {
     event.cancelBubble = true;
     onClick?.(shape);
@@ -95,17 +97,24 @@ export const scalePointToImage = (
   };
 };
 
+const isPoint = (coordinate: number[]): coordinate is [number, number] =>
+  coordinate.length >= 2;
+
 const mapCoordinatesToPoints = (
-  coordinates: [number, number][],
+  shape: AnnotationShape,
   imageBoundingBox: ImageBoundingBox,
-): number[] =>
-  coordinates.flatMap((element) => {
-    const { x, y } = scalePointToImage(
-      { x: element[0], y: element[1] },
-      imageBoundingBox,
+): number[] => {
+  const points = shape.coordinates.filter(isPoint);
+  if (points.length !== shape.coordinates.length) {
+    console.warn(
+      `AnnotationShape "${shape.id}": ignored ${String(shape.coordinates.length - points.length)} coordinate(s) with fewer than 2 values`,
     );
-    return [x, y];
+  }
+  return points.flatMap(([x, y]) => {
+    const scaled = scalePointToImage({ x, y }, imageBoundingBox);
+    return [scaled.x, scaled.y];
   });
+};
 
 export const getMousePosition = (
   stage: Konva.Stage | null,

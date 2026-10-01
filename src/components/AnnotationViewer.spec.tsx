@@ -4,7 +4,9 @@ import dummyImageHEIC from 'cypress/assets/demo.heic';
 import dummyImage from 'cypress/assets/demo.jpg';
 import dummyImageTIFF from 'cypress/assets/demo.tiff';
 import { dummyShapes } from 'cypress/assets/shapes';
+import Konva from 'konva';
 
+import { KonvaRefs } from '@/common/constants';
 import type { AnnotationData } from '@/common/types';
 
 import AnnotationViewer from './AnnotationViewer';
@@ -260,6 +262,7 @@ describe('AnnotationViewer', () => {
 
   it('does not select shapes when enableSelection is not set', () => {
     const onShapeMultiSelectSpy = cy.spy().as('onShapeMultiSelectSpy');
+    let stage: Konva.Stage | null = null;
 
     cy.mount(
       <AnnotationViewer
@@ -267,6 +270,9 @@ describe('AnnotationViewer', () => {
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: CONTAINER_HEIGHT, width: CONTAINER_WIDTH }}
         onShapeMultiSelect={onShapeMultiSelectSpy}
+        getStage={(s) => {
+          stage = s;
+        }}
       />,
     );
     cy.wait(1000);
@@ -279,14 +285,23 @@ describe('AnnotationViewer', () => {
       .trigger('mouseup')
       .trigger('keyup', { altKey: true, ctrlKey: true });
     cy.wait(200);
-    cy.get('@onShapeMultiSelectSpy').should('not.have.been.called');
-    // The selection rect must not have been added to the shapes layer either.
-    cy.get(`#${containerId}`).matchImageSnapshot('no-selection-by-default');
+    cy.get('@onShapeMultiSelectSpy')
+      .should('not.have.been.called')
+      .then(() => {
+        const shapesLayer = stage?.findOne(`#${KonvaRefs.ShapesLayer}`);
+        expect(shapesLayer).to.be.instanceOf(Konva.Layer);
+        expect((shapesLayer as Konva.Layer).find('Rect')).to.have.length(0);
+        expect((shapesLayer as Konva.Layer).find('Line')).to.have.length(
+          dummyShapes.length,
+        );
+      });
   });
 
   it('support custom options', () => {
     const [firstShape] = dummyShapes;
-    if (!firstShape) throw new Error('fixture has no shapes');
+    if (!firstShape) {
+      throw new Error('fixture has no shapes');
+    }
     firstShape.config = { fill: 'green', opacity: 0.2 };
     cy.mount(
       <AnnotationViewer

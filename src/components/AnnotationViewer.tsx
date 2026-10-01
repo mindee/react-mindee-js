@@ -61,7 +61,9 @@ const drawViewerShapes = (
     selectionRect.setAttrs({ ...options.selectionRectConfig });
     shapesLayer.add(selectionRect);
   }
-  if (!shapes) return;
+  if (!shapes) {
+    return;
+  }
   mapShapesToPolygons(
     shapesLayer,
     shapes,
@@ -133,7 +135,9 @@ export default function AnnotationViewer({
       containerRef.current,
       imageDataObject.current,
     );
-    if (!imageBoundingBox) return;
+    if (!imageBoundingBox) {
+      return;
+    }
     imageBoundingBoxObject.current = imageBoundingBox;
     layersObject.current.image.batchDraw();
     setImageVersion((v) => v + 1);
@@ -141,7 +145,9 @@ export default function AnnotationViewer({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      return;
+    }
     const stage = new Konva.Stage({ container });
     const layers = layersObject.current;
     stageObject.current = stage;
@@ -160,15 +166,21 @@ export default function AnnotationViewer({
     stage.on('mousemove', () => {
       const { getPointerPosition: getPointerPosCallback } =
         callbacksRef.current;
-      if (!getPointerPosCallback) return;
+      if (!getPointerPosCallback) {
+        return;
+      }
       const mousePointTo = getMousePosition(
         stage,
         imageBoundingBoxObject.current,
       );
-      if (mousePointTo) getPointerPosCallback(mousePointTo);
+      if (mousePointTo) {
+        getPointerPosCallback(mousePointTo);
+      }
     });
     stage.on('mousedown touchstart', (event) => {
-      if (optionsRef.current.enableSelection !== true) return;
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
       onSelectionStart(
         event,
         layers.shapes,
@@ -177,11 +189,15 @@ export default function AnnotationViewer({
       );
     });
     stage.on('mousemove touchmove', () => {
-      if (optionsRef.current.enableSelection !== true) return;
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
       onSelectionMove(layers.shapes, selectionRectObject.current);
     });
     stage.on('mouseup touchend', () => {
-      if (optionsRef.current.enableSelection !== true) return;
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
       onSelectionEnd(
         layers.shapes,
         selectionRectObject.current,
@@ -189,11 +205,15 @@ export default function AnnotationViewer({
       );
     });
     stage.on('dragstart', () => {
-      if (optionsRef.current.enableSelection !== true) return;
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
       stage.container().style.cursor = 'grabbing';
     });
     stage.on('dragend', () => {
-      if (optionsRef.current.enableSelection !== true) return;
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
       stage.container().style.cursor = 'pointer';
     });
 
@@ -213,7 +233,7 @@ export default function AnnotationViewer({
   const { image, orientation, shapes } = data;
 
   useEffect(() => {
-    if (image === undefined || image === null) {
+    if (image === undefined || image === null || image === '') {
       clearLayers(layersObject.current);
       imageDataObject.current.element = new Image();
       imageDataObject.current.shape.image(imageDataObject.current.element);
@@ -230,14 +250,18 @@ export default function AnnotationViewer({
         signal.throwIfAborted();
         const element = new Image();
         element.onload = () => {
-          if (signal.aborted) return;
+          if (signal.aborted) {
+            return;
+          }
           imageDataObject.current.element = element;
           imageDataObject.current.shape.image(element);
           fitImageToContainer();
         };
         element.src = src;
       } catch (error) {
-        if (!signal.aborted) console.error(error);
+        if (!signal.aborted) {
+          console.error(error);
+        }
       }
     })();
     return (): void => {
@@ -272,7 +296,9 @@ export default function AnnotationViewer({
   }, [shapes, optionsKey, imageVersion]);
 
   useEffect(() => {
-    if (customZoomLevel === undefined) return;
+    if (customZoomLevel === undefined) {
+      return;
+    }
     handleZoomScale(
       stageObject.current,
       customZoomLevel,
@@ -283,7 +309,9 @@ export default function AnnotationViewer({
   useEffect(() => {
     const stage = stageObject.current;
     const imageBoundingBox = imageBoundingBoxObject.current;
-    if (!customStagePosition || !stage || !imageBoundingBox) return;
+    if (!customStagePosition || !stage || !imageBoundingBox) {
+      return;
+    }
     const zoomScale = getZoomScale(stage);
     setStageBasedImagePosition({
       imageBoundingBox,

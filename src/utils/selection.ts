@@ -29,7 +29,9 @@ export const calculateSelectionPoint = (
   const stagePosition = stage.position();
   const pointerPosition = stage.getPointerPosition();
 
-  if (!pointerPosition) return;
+  if (!pointerPosition) {
+    return;
+  }
 
   const x = roundTo((pointerPosition.x - stagePosition.x) / stage.scaleX(), 2);
   const y = roundTo((pointerPosition.y - stagePosition.y) / stage.scaleX(), 2);
@@ -43,12 +45,16 @@ export const onSelectionStart = (
   rect?: Rect,
   selectionEnabled?: boolean,
 ): void => {
-  if (selectionEnabled !== true || !layer || !rect || !event) return;
+  if (selectionEnabled !== true || !layer || !rect || !event) {
+    return;
+  }
 
   const stage = layer.getStage();
   const firstPoint = calculateSelectionPoint(stage);
 
-  if (!firstPoint) return;
+  if (!firstPoint) {
+    return;
+  }
 
   selectionAnchor.set(rect, firstPoint);
   rect.setAttrs({ x1: firstPoint.x, y1: firstPoint.y });
@@ -61,17 +67,25 @@ export const onSelectionStart = (
 export const onSelectionMove = (layer?: Layer, rect?: Rect): void => {
   const stage = layer?.getStage();
 
-  if (!stage || !rect || !layer) return;
+  if (!stage || !rect || !layer) {
+    return;
+  }
 
   // no nothing if we didn't start selection
-  if (!rect.visible()) return;
+  if (!rect.visible()) {
+    return;
+  }
   const anchor = selectionAnchor.get(rect);
 
-  if (!anchor) return;
+  if (!anchor) {
+    return;
+  }
 
   const secondPoint = calculateSelectionPoint(stage);
 
-  if (!secondPoint) return;
+  if (!secondPoint) {
+    return;
+  }
   rect.setAttrs({
     x: Math.min(anchor.x, secondPoint.x),
     y: Math.min(anchor.y, secondPoint.y),
@@ -89,9 +103,13 @@ export const onSelectionEnd = (
 ): void => {
   const stage = layer?.getStage();
 
-  if (!stage || !rect || !layer) return;
+  if (!stage || !rect || !layer) {
+    return;
+  }
 
-  if (!rect.visible()) return;
+  if (!rect.visible()) {
+    return;
+  }
 
   // update visibility in timeout, so we can check it in click event
   setTimeout(() => {
@@ -107,7 +125,9 @@ export const onSelectionEnd = (
     .map((node) => getShapeFromNode(node))
     .filter((shape) => shape !== undefined);
 
-  if (selected.length) onShapeMultiSelect?.(selected);
+  if (selected.length > 0) {
+    onShapeMultiSelect?.(selected);
+  }
 
   layer.batchDraw();
 };
