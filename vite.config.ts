@@ -6,9 +6,7 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
   assetsInclude: ['**/*.tiff', '**/*.heic'],
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+    tsconfigPaths: true,
   },
   plugins: [
     react(),

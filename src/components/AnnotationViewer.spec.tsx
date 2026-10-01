@@ -258,23 +258,49 @@ describe('AnnotationViewer', () => {
     });
   });
 
+  it('does not select shapes when enableSelection is not set', () => {
+    const onShapeMultiSelectSpy = cy.spy().as('onShapeMultiSelectSpy');
+
+    cy.mount(
+      <AnnotationViewer
+        id={containerId}
+        data={{ image: dummyImage, shapes: dummyShapes }}
+        style={{ height: CONTAINER_HEIGHT, width: CONTAINER_WIDTH }}
+        onShapeMultiSelect={onShapeMultiSelectSpy}
+      />,
+    );
+    cy.wait(1000);
+    cy.get(`#${containerId}`)
+      .children()
+      .trigger('keydown', { altKey: true, ctrlKey: true })
+      .trigger('mousedown', { which: 1, clientX: 10, clientY: 10 })
+      .trigger('mousemove', { which: 1, clientX: 600, clientY: 300 });
+    cy.get(`#${containerId}`)
+      .trigger('mouseup')
+      .trigger('keyup', { altKey: true, ctrlKey: true });
+    cy.wait(200);
+    cy.get('@onShapeMultiSelectSpy').should('not.have.been.called');
+    // The selection rect must not have been added to the shapes layer either.
+    cy.get(`#${containerId}`).matchImageSnapshot('no-selection-by-default');
+  });
+
   it('support custom options', () => {
-    if (dummyShapes[0]) {
-      dummyShapes[0].config = { fill: 'green', opacity: 0.2 };
-      cy.mount(
-        <AnnotationViewer
-          options={{
-            shapeConfig: { fill: 'blue', opacity: 0.2 },
-          }}
-          id={containerId}
-          data={{ image: dummyImage, shapes: dummyShapes }}
-          style={{ height: CONTAINER_HEIGHT, width: CONTAINER_WIDTH }}
-        />,
-      ).then(() => {
-        cy.wait(200);
-        cy.get(`#${containerId}`).matchImageSnapshot('custom-options');
-      });
-    }
+    const [firstShape] = dummyShapes;
+    if (!firstShape) throw new Error('fixture has no shapes');
+    firstShape.config = { fill: 'green', opacity: 0.2 };
+    cy.mount(
+      <AnnotationViewer
+        options={{
+          shapeConfig: { fill: 'blue', opacity: 0.2 },
+        }}
+        id={containerId}
+        data={{ image: dummyImage, shapes: dummyShapes }}
+        style={{ height: CONTAINER_HEIGHT, width: CONTAINER_WIDTH }}
+      />,
+    ).then(() => {
+      cy.wait(200);
+      cy.get(`#${containerId}`).matchImageSnapshot('custom-options');
+    });
   });
 
   //   it.only('support custom zoom level', () => {

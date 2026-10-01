@@ -9,7 +9,7 @@ const getImageFromPage = async (
   _document: PDFDocumentProxy,
   pageNumber: number,
   resolution = PDF_RESOLUTION,
-) => {
+): Promise<string> => {
   const page: PDFPageProxy = await _document.getPage(pageNumber);
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
@@ -17,6 +17,9 @@ const getImageFromPage = async (
     throw new Error('Could not acquire a 2D canvas context');
   }
   const [, , width, height] = page.view;
+  if (width === undefined || height === undefined) {
+    throw new Error('Invalid PDF page view');
+  }
   const newScale = (resolution / (height * width)) ** (1 / 2);
   const safeScale = Math.min(newScale, MAX_PDF_SCALE);
   const viewport = page.getViewport({ scale: safeScale });

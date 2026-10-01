@@ -4,7 +4,7 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Rect } from 'konva/lib/shapes/Rect';
 import type { Stage } from 'konva/lib/Stage';
 
-import { KONVA_REFS } from '@/common/constants';
+import { KonvaRefs } from '@/common/constants';
 import type {
   AnnotationShape,
   AnnotationViewerOptions,
@@ -17,13 +17,15 @@ import { roundTo } from './roundTo';
 
 const selectionAnchor = new WeakMap<Rect, PointerPosition>();
 
-export const createSelectionRect = (options: AnnotationViewerOptions) =>
+export const createSelectionRect = (options: AnnotationViewerOptions): Rect =>
   new Konva.Rect({
     visible: false,
     ...options.selectionRectConfig,
   });
 
-export const calculateSelectionPoint = (stage: Stage) => {
+export const calculateSelectionPoint = (
+  stage: Stage,
+): PointerPosition | undefined => {
   const stagePosition = stage.position();
   const pointerPosition = stage.getPointerPosition();
 
@@ -40,8 +42,8 @@ export const onSelectionStart = (
   layer?: Layer,
   rect?: Rect,
   selectionEnabled?: boolean,
-) => {
-  if (!selectionEnabled || !layer || !rect || !event) return;
+): void => {
+  if (selectionEnabled !== true || !layer || !rect || !event) return;
 
   const stage = layer.getStage();
   const firstPoint = calculateSelectionPoint(stage);
@@ -56,7 +58,7 @@ export const onSelectionStart = (
   layer.draw();
 };
 
-export const onSelectionMove = (layer?: Layer, rect?: Rect) => {
+export const onSelectionMove = (layer?: Layer, rect?: Rect): void => {
   const stage = layer?.getStage();
 
   if (!stage || !rect || !layer) return;
@@ -84,12 +86,11 @@ export const onSelectionEnd = (
   layer?: Layer,
   rect?: Rect,
   onShapeMultiSelect?: (shapes: AnnotationShape[]) => void,
-) => {
+): void => {
   const stage = layer?.getStage();
 
   if (!stage || !rect || !layer) return;
 
-  // no nothing if we didn't start selection
   if (!rect.visible()) return;
 
   // update visibility in timeout, so we can check it in click event
@@ -98,7 +99,7 @@ export const onSelectionEnd = (
     layer.batchDraw();
   });
 
-  const shapes = stage.find(`.${KONVA_REFS.shape}`);
+  const shapes = stage.find(`.${KonvaRefs.Shape}`);
   const box = rect.getClientRect();
 
   const selected = shapes

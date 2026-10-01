@@ -11,17 +11,19 @@ import type {
 
 import { getZoomScale, setZoomScale } from '@/utils/zoom';
 
-export const dataURItoBlob = (dataURI: string) => {
+export const dataURItoBlob = (dataURI: string): Blob => {
   let byteString;
-  const splitDataURL = dataURI.split(',');
-  if (splitDataURL[0].includes('base64')) {
-    // atob decodes base64 data
-    byteString = atob(splitDataURL[1]);
+  const [meta, data] = dataURI.split(',');
+  if (meta === undefined || data === undefined) {
+    throw new Error('Invalid Data URI format');
+  }
+  if (meta.includes('base64')) {
+    byteString = atob(data);
   } else {
-    byteString = decodeURI(dataURI.split(',')[1]);
+    byteString = decodeURI(data);
   }
 
-  const mimeString = splitDataURL[0].split(':')[1].split(';')[0];
+  const mimeString = meta.split(':')[1]?.split(';')[0];
 
   // write the bytes of the string to a typed array
   const ia = new Uint8Array(byteString.length);
@@ -32,7 +34,7 @@ export const dataURItoBlob = (dataURI: string) => {
   return new Blob([ia], { type: mimeString });
 };
 
-export const prepareImage = async (image: string) => {
+export const prepareImage = async (image: string): Promise<string> => {
   const blob = await urlToBlob(image);
   if (blob.type === 'image/heic') {
     return await heicToJpg(blob);
@@ -43,16 +45,19 @@ export const prepareImage = async (image: string) => {
   return image;
 };
 
-export const urlToBlob = async (url: string) =>
+export const urlToBlob = async (url: string): Promise<Blob> =>
   await fetch(url, {
     method: 'GET',
     cache: 'no-cache',
   }).then(async (r) => await r.blob());
 
-export const tiffToJpg = async (blob: Blob) => {
+export const tiffToJpg = async (blob: Blob): Promise<string> => {
   const arrayBuffer = await blob.arrayBuffer();
   const ifds = UTIF.decode(arrayBuffer);
   const firstPageOfTif = ifds[0];
+  if (firstPageOfTif === undefined) {
+    throw new Error('Invalid TIFF format');
+  }
   UTIF.decodeImage(arrayBuffer, firstPageOfTif);
   const rgba = UTIF.toRGBA8(firstPageOfTif);
 
@@ -68,30 +73,41 @@ export const tiffToJpg = async (blob: Blob) => {
     throw new Error('Could not get 2D context');
   }
   const imageData = ctx.createImageData(imageWidth, imageHeight);
-  for (let i = 0; i < rgba.length; i++) {
-    imageData.data[i] = rgba[i];
-  }
+  imageData.data.set(rgba);
   ctx.putImageData(imageData, 0, 0);
-  return await new Promise<string>((resolve, reject) => {
-    cnv.toBlob((blob) => {
-      if (blob) {
-        resolve(URL.createObjectURL(blob));
-      } else {
-        reject(new Error('Could not encode TIFF canvas to a Blob'));
-      }
-    });
-  });
+  return cnv.toDataURL('image/jpeg');
 };
 
-export const heicToJpg = async (blob: Blob) => {
-  const result = await heic2any({ blob });
-  return URL.createObjectURL(result as Blob);
+export const heicToJpg = async (blob: Blob): Promise<string> => {
+  const result = await heic2any({ blob, toType: 'image/jpeg' });
+  // Multi-image HEIC files yield one Blob per image; only the first is shown.
+  const firstImage = Array.isArray(result) ? result[0] : result;
+  if (firstImage === undefined) {
+    throw new Error('HEIC file contains no image');
+  }
+  return await blobToDataURL(firstImage);
 };
+
+const blobToDataURL = async (blob: Blob): Promise<string> =>
+  await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new Error('Could not read Blob as a data URL'));
+      }
+    };
+    reader.onerror = () => {
+      reject(new Error('Could not read Blob as a data URL'));
+    };
+    reader.readAsDataURL(blob);
+  });
 
 export const computeImageBoundingBox = (
   { clientWidth, clientHeight }: HTMLDivElement,
   imageObj: HTMLImageElement,
-) => {
+): ImageBoundingBox => {
   const imageAspectRatio = imageObj.width / imageObj.height;
   const canvasAspectRatio = clientWidth / clientHeight;
   let renderableHeight, renderableWidth, xStart, yStart;
@@ -120,7 +136,7 @@ export const computeImageBoundingBox = (
   };
 };
 
-const resizeStage = (stage: Konva.Stage, container: HTMLDivElement) => {
+const resizeStage = (stage: Konva.Stage, container: HTMLDivElement): void => {
   stage.width(container.clientWidth);
   stage.height(container.clientHeight);
 };
@@ -129,7 +145,7 @@ export const handleResizeImage = (
   stage: Konva.Stage | null,
   container: HTMLDivElement | null,
   { element, shape }: ImageData,
-) => {
+): ImageBoundingBox | undefined => {
   if (!container || !stage) {
     return;
   }
@@ -155,7 +171,7 @@ export const setStageBasedImagePosition = ({
   imageBoundingBox: ImageBoundingBox;
   stage: Stage;
   newPosition: PointerPosition;
-}) => {
+}): void => {
   const { x, y, width, height } = imageBoundingBox;
   const zoomScale = getZoomScale(stage);
   let stageX = stage.x();

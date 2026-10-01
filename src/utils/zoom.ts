@@ -18,7 +18,7 @@ export const getZoomScale = (stage: Konva.Stage): number => {
   return typeof value === 'number' ? value : 1;
 };
 
-export const setZoomScale = (stage: Konva.Stage, zoomScale: number) => {
+export const setZoomScale = (stage: Konva.Stage, zoomScale: number): void => {
   stage.setAttr(ZOOM_SCALE_ATTR, zoomScale);
 };
 
@@ -26,7 +26,7 @@ export const calculateZoomScale = (
   stage: Konva.Stage,
   zoomScale: number,
   imageBoundingBox: ImageBoundingBox,
-) => {
+): { newScale: number; newPos: PointerPosition } => {
   const oldScale = stage.scaleX();
 
   const stagePosition = stage.position();
@@ -54,7 +54,7 @@ export const handleZoomScale = (
   stage: Konva.Stage | null,
   zoomScale: number,
   imageBoundingBox: ImageBoundingBox | null,
-) => {
+): void => {
   if (!stage || !imageBoundingBox) return;
 
   const { newScale, newPos } = calculateZoomScale(
@@ -82,7 +82,7 @@ export const calculateStageZoom = (
   stage: Konva.Stage,
   deltaY: number,
   options: AnnotationViewerOptions,
-) => {
+): { newScale: number; newPos: PointerPosition } | undefined => {
   const oldScale = stage.scaleX();
 
   const stagePosition = stage.position();
@@ -111,7 +111,7 @@ export const handleStageZoom = (
   imageBoundingBox: ImageBoundingBox | null,
   event: KonvaEventObject<WheelEvent>,
   options: AnnotationViewerOptions,
-) => {
+): void => {
   if (!stage || !imageBoundingBox || !options.zoom) return;
 
   event.evt.preventDefault();
@@ -161,7 +161,7 @@ export const handleLensZoom = (
   imageBoundingBox: ImageBoundingBox | null,
   pointerPosition: PointerPosition,
   zoomLevel = DEFAULT_LENS_ZOOM_LEVEL,
-) => {
+): void => {
   if (!stage || !imageBoundingBox) return;
 
   const newPos = calculateLensZoom(

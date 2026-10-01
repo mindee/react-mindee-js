@@ -1,4 +1,10 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactElement,
+} from 'react';
 import Konva from 'konva';
 
 import {
@@ -7,7 +13,7 @@ import {
   DEFAULT_LENS_ZOOM_LEVEL,
   DEFAULT_POINTER_POSITION,
   DEFAULT_STYLE,
-  KONVA_REFS,
+  KonvaRefs,
 } from '@/common/constants';
 import type {
   AnnotationLensOptions,
@@ -28,7 +34,7 @@ const drawLensShapes = (
   shapes: AnnotationShape[] | undefined,
   imageBoundingBox: ImageBoundingBox | null,
   options: AnnotationLensOptions,
-) => {
+): void => {
   shapesLayer.destroyChildren();
   if (!shapes) return;
   mapShapesToPolygons(shapesLayer, shapes, false, imageBoundingBox, options);
@@ -43,7 +49,7 @@ export default function AnnotationLens({
   style = {},
   options: customOptions = {},
   data = DEFAULT_DATA,
-}: AnnotationLensProps) {
+}: AnnotationLensProps): ReactElement {
   const generatedId = useId();
   const containerId = id ?? generatedId;
   const options: AnnotationLensOptions = {
@@ -61,7 +67,7 @@ export default function AnnotationLens({
   });
   const containerRef = useRef<HTMLDivElement | null>(null);
   const layersObject = useRef({
-    shapes: new Konva.Layer({ id: KONVA_REFS.shapesLayer, listening: false }),
+    shapes: new Konva.Layer({ id: KonvaRefs.ShapesLayer, listening: false }),
     image: new Konva.Layer({ listening: false }),
   });
   const stageObject = useRef<Konva.Stage | null>(null);
@@ -90,7 +96,7 @@ export default function AnnotationLens({
   const { image, orientation, shapes } = data;
 
   useEffect(() => {
-    if (!image) {
+    if (image === undefined || image === null) {
       clearLayers(layersObject.current);
       imageDataObject.current.element = new Image();
       imageDataObject.current.shape.image(imageDataObject.current.element);
@@ -101,7 +107,7 @@ export default function AnnotationLens({
     const { signal } = controller;
     void (async () => {
       try {
-        const src = orientation ? await rotateImage(image, orientation) : image;
+        const src = await rotateImage(image, orientation);
         if (signal.aborted) return;
         const element = new Image();
         element.onload = () => {

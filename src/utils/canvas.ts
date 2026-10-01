@@ -1,24 +1,22 @@
 import Konva from 'konva';
 import type { Layer } from 'konva/lib/Layer';
-import type { Line, LineConfig } from 'konva/lib/shapes/Line';
+import type { Line } from 'konva/lib/shapes/Line';
 
-
-
-import { KONVA_REFS } from '@/common/constants';
-import type { AnnotationLensOptions, AnnotationShape, AnnotationViewerOptions, ImageBoundingBox, PointerPosition } from '@/common/types';
-
-
+import { KonvaRefs } from '@/common/constants';
+import type {
+  AnnotationLensOptions,
+  AnnotationShape,
+  AnnotationViewerOptions,
+  ImageBoundingBox,
+  PointerPosition,
+} from '@/common/types';
 
 import { roundTo } from './roundTo';
 
-
 const shapeByNode = new WeakMap<Konva.Node, AnnotationShape>();
-export const getShapeFromNode: (node: Konva.Node) => (object & {
-  id: string;
-  coordinates: [number, number][];
-  config?: LineConfig
-}) | undefined = (node: Konva.Node)=>
-  shapeByNode.get(node);
+export const getShapeFromNode = (
+  node: Konva.Node,
+): AnnotationShape | undefined => shapeByNode.get(node);
 
 export const mapShapesToPolygons = (
   shapesLayer: Layer,
@@ -36,7 +34,7 @@ export const mapShapesToPolygons = (
   shapes.forEach((shape: AnnotationShape) => {
     const polygon = new Konva.Line({
       id: shape.id,
-      name: KONVA_REFS.shape,
+      name: KonvaRefs.Shape,
       points: mapCoordinatesToPoints(shape.coordinates, imageBoundingBox),
       closed: true,
 
@@ -89,7 +87,7 @@ const bindEventToPolygon = (
 export const scalePointToImage = (
   point: PointerPosition,
   imageBoundingBox: ImageBoundingBox,
-): {x: number, y: number} => {
+): PointerPosition => {
   const { width, height, scale } = imageBoundingBox;
   return {
     x: roundTo((Math.min(point.x, 1) * width) / scale, 2),
@@ -107,12 +105,12 @@ const mapCoordinatesToPoints = (
       imageBoundingBox,
     );
     return [x, y];
-  }, []);
+  });
 
 export const getMousePosition = (
   stage: Konva.Stage | null,
   imageBoundingBox: ImageBoundingBox | null,
-): {x: number, y: number} | undefined => {
+): PointerPosition | undefined => {
   if (!stage || !imageBoundingBox) {
     return;
   }

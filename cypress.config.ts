@@ -1,7 +1,6 @@
 import { addMatchImageSnapshotPlugin } from '@simonsmith/cypress-image-snapshot/plugin';
 import { defineConfig } from 'cypress';
 import { defineConfig as defineViteConfig } from 'vite';
-import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   viewportWidth: 1500,
@@ -27,7 +26,7 @@ export default defineConfig({
       bundler: 'vite',
       viteConfig: defineViteConfig({
         assetsInclude: ['**/*.tiff', '**/*.heic'],
-        plugins: [tsconfigPaths()],
+        resolve: { tsconfigPaths: true },
       }),
     },
   },

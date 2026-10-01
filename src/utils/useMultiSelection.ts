@@ -8,7 +8,7 @@ type Props = {
   isSelectionActiveRef: RefObject<boolean>;
 };
 
-const isSelectionModifier = (event: KeyboardEvent) =>
+const isSelectionModifier = (event: KeyboardEvent): boolean =>
   event.ctrlKey ||
   event.altKey ||
   event.key === 'Control' ||
@@ -17,7 +17,7 @@ const isSelectionModifier = (event: KeyboardEvent) =>
 export default function useMultiSelection({
   stageRef,
   isSelectionActiveRef,
-}: Props) {
+}: Props): void {
   useEventListener('keydown', (event) => {
     event.stopPropagation();
     if (isSelectionModifier(event)) {

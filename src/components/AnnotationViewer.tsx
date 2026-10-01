@@ -1,11 +1,17 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactElement,
+} from 'react';
 import Konva from 'konva';
 
 import {
   DEFAULT_ANNOTATION_VIEWER_OPTIONS,
   DEFAULT_DATA,
   DEFAULT_STYLE,
-  KONVA_REFS,
+  KonvaRefs,
 } from '@/common/constants';
 import type {
   AnnotationShape,
@@ -49,9 +55,9 @@ const drawViewerShapes = (
   options: AnnotationViewerOptions,
   selectionRect: Konva.Rect,
   callbacks: ShapeCallbacks,
-) => {
+): void => {
   shapesLayer.destroyChildren();
-  if (options.enableSelection) {
+  if (options.enableSelection === true) {
     selectionRect.setAttrs({ ...options.selectionRectConfig });
     shapesLayer.add(selectionRect);
   }
@@ -82,7 +88,7 @@ export default function AnnotationViewer({
   onShapeClick,
   options: customOptions = {},
   data = DEFAULT_DATA,
-}: AnnotationViewerProps) {
+}: AnnotationViewerProps): ReactElement {
   const generatedId = useId();
   const containerId = id ?? generatedId;
   const options: AnnotationViewerOptions = {
@@ -98,7 +104,7 @@ export default function AnnotationViewer({
     shape: new Konva.Image({ image: new Image() }),
   });
   const layersObject = useRef({
-    shapes: new Konva.Layer({ id: KONVA_REFS.shapesLayer }),
+    shapes: new Konva.Layer({ id: KonvaRefs.ShapesLayer }),
     image: new Konva.Layer({ listening: false }),
   });
   const stageObject = useRef<Konva.Stage | null>(null);
@@ -121,7 +127,7 @@ export default function AnnotationViewer({
 
   useMultiSelection({ stageRef: stageObject, isSelectionActiveRef });
 
-  const fitImageToContainer = () => {
+  const fitImageToContainer = (): void => {
     const imageBoundingBox = handleResizeImage(
       stageObject.current,
       containerRef.current,
@@ -152,16 +158,17 @@ export default function AnnotationViewer({
       );
     });
     stage.on('mousemove', () => {
-      const { getPointerPosition } = callbacksRef.current;
-      if (!getPointerPosition) return;
+      const { getPointerPosition: getPointerPosCallback } =
+        callbacksRef.current;
+      if (!getPointerPosCallback) return;
       const mousePointTo = getMousePosition(
         stage,
         imageBoundingBoxObject.current,
       );
-      if (mousePointTo) getPointerPosition(mousePointTo);
+      if (mousePointTo) getPointerPosCallback(mousePointTo);
     });
     stage.on('mousedown touchstart', (event) => {
-      if (!optionsRef.current.enableSelection) return;
+      if (optionsRef.current.enableSelection !== true) return;
       onSelectionStart(
         event,
         layers.shapes,
@@ -170,11 +177,11 @@ export default function AnnotationViewer({
       );
     });
     stage.on('mousemove touchmove', () => {
-      if (!optionsRef.current.enableSelection) return;
+      if (optionsRef.current.enableSelection !== true) return;
       onSelectionMove(layers.shapes, selectionRectObject.current);
     });
     stage.on('mouseup touchend', () => {
-      if (!optionsRef.current.enableSelection) return;
+      if (optionsRef.current.enableSelection !== true) return;
       onSelectionEnd(
         layers.shapes,
         selectionRectObject.current,
@@ -182,11 +189,11 @@ export default function AnnotationViewer({
       );
     });
     stage.on('dragstart', () => {
-      if (!optionsRef.current.enableSelection) return;
+      if (optionsRef.current.enableSelection !== true) return;
       stage.container().style.cursor = 'grabbing';
     });
     stage.on('dragend', () => {
-      if (!optionsRef.current.enableSelection) return;
+      if (optionsRef.current.enableSelection !== true) return;
       stage.container().style.cursor = 'pointer';
     });
 
@@ -206,7 +213,7 @@ export default function AnnotationViewer({
   const { image, orientation, shapes } = data;
 
   useEffect(() => {
-    if (!image) {
+    if (image === undefined || image === null) {
       clearLayers(layersObject.current);
       imageDataObject.current.element = new Image();
       imageDataObject.current.shape.image(imageDataObject.current.element);
@@ -219,9 +226,7 @@ export default function AnnotationViewer({
       try {
         const prepared = await prepareImage(image);
         signal.throwIfAborted();
-        const src = orientation
-          ? await rotateImage(prepared, orientation)
-          : prepared;
+        const src = await rotateImage(prepared, orientation);
         signal.throwIfAborted();
         const element = new Image();
         element.onload = () => {
@@ -235,7 +240,7 @@ export default function AnnotationViewer({
         if (!signal.aborted) console.error(error);
       }
     })();
-    return () => {
+    return (): void => {
       controller.abort();
     };
   }, [image, orientation]);
@@ -267,7 +272,7 @@ export default function AnnotationViewer({
   }, [shapes, optionsKey, imageVersion]);
 
   useEffect(() => {
-    if (!customZoomLevel) return;
+    if (customZoomLevel === undefined) return;
     handleZoomScale(
       stageObject.current,
       customZoomLevel,

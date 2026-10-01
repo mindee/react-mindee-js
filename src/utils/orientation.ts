@@ -7,10 +7,18 @@ const EXIF_ORIENTATION: Record<Orientation, number> = {
   270: 8,
 };
 
-export const rotateImage = async (image: string, degrees: Orientation = 0) =>
-  await applyRotation(image, EXIF_ORIENTATION[degrees]);
+export const rotateImage = async (
+  image: string,
+  degrees: Orientation = 0,
+): Promise<string> => {
+  if (degrees === 0) return image;
+  return await applyRotation(image, EXIF_ORIENTATION[degrees]);
+};
 
-const applyRotation = async (file: string, orientation: number) =>
+const applyRotation = async (
+  file: string,
+  orientation: number,
+): Promise<string> =>
   await new Promise<string>((resolve, reject) => {
     const image = new Image();
     image.crossOrigin = '';

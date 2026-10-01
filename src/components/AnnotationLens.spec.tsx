@@ -3,12 +3,12 @@ import anotherDummyImage from 'cypress/assets/another-demo.jpg';
 import dummyImage from 'cypress/assets/demo.jpg';
 import { dummyShapes } from 'cypress/assets/shapes';
 
-import type { AnnotationData } from '@/common/types';
+import type { AnnotationData, PointerPosition } from '@/common/types';
 
 import AnnotationLens from './AnnotationLens';
 
-const containerHeight = 600;
-const containerWidth = 600;
+const CONTAINER_HEIGHT = 600;
+const CONTAINER_WIDTH = 600;
 
 type TesterProps = {
   containerWidth: number;
@@ -24,9 +24,9 @@ export const AnnotationLensPointerPositionTester = ({
   const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
 
   const onMove = () => {
-    setPointerPosition((pointerPosition) => ({
-      x: pointerPosition.x + 0.2,
-      y: pointerPosition.y + 0.2,
+    setPointerPosition((pp: PointerPosition) => ({
+      x: pp.x + 0.2,
+      y: pp.y + 0.2,
     }));
   };
   return (
@@ -104,8 +104,8 @@ describe('AnnotationLens', () => {
   it('mount correctly', () => {
     cy.mount(
       <AnnotationLensPointerPositionTester
-        containerHeight={containerHeight}
-        containerWidth={containerWidth}
+        containerHeight={CONTAINER_HEIGHT}
+        containerWidth={CONTAINER_WIDTH}
         id={componentId}
       />,
     ).then(() => {
@@ -116,8 +116,8 @@ describe('AnnotationLens', () => {
         .each(($canvas) => {
           const canvasWidth = $canvas.width();
           const canvasHeight = $canvas.height();
-          cy.wrap(canvasWidth).should('equal', containerWidth);
-          cy.wrap(canvasHeight).should('equal', containerHeight);
+          cy.wrap(canvasWidth).should('equal', CONTAINER_WIDTH);
+          cy.wrap(canvasHeight).should('equal', CONTAINER_HEIGHT);
         });
       cy.get(`#${componentId}`).matchImageSnapshot(`${componentId}.default`);
       cy.get('[data-cy="move-pointer"]')
@@ -149,8 +149,8 @@ describe('AnnotationLens', () => {
     cy.mount(
       <AnnotationLensStateTester
         id={componentId}
-        containerHeight={containerHeight}
-        containerWidth={containerWidth}
+        containerHeight={CONTAINER_HEIGHT}
+        containerWidth={CONTAINER_WIDTH}
       />,
     ).then(() => {
       cy.get('[data-cy="same-data"]').click();

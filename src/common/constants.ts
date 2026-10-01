@@ -9,9 +9,9 @@ export const DEFAULT_STYLE = {
   backgroundColor: '#001429',
 };
 
-export enum KONVA_REFS {
-  shapesLayer = 'shapes-layer',
-  shape = 'shape',
+export enum KonvaRefs {
+  ShapesLayer = 'shapes-layer',
+  Shape = 'shape',
 }
 
 const STROKE_COLOR = '#FF0000';
@@ -31,12 +31,12 @@ export const DEFAULT_ANNOTATION_VIEWER_OPTIONS = {
   selectionRectConfig: {
     fill: SELECTION_FILL_COLOR,
   },
-  onMouseLeave: (polygon: Line) => {
+  onMouseLeave: (polygon: Line): void => {
     const layer = polygon.getLayer();
     polygon.setAttr('fill', 'transparent');
     layer?.batchDraw();
   },
-  onMouseEnter: (polygon: Line) => {
+  onMouseEnter: (polygon: Line): void => {
     const stroke = polygon.stroke();
     polygon.setAttr('fill', `${stroke}40`);
     polygon.draw();
