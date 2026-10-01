@@ -1,14 +1,26 @@
-import Konva from 'konva'
-import { KonvaEventObject } from 'konva/lib/Node'
+import type Konva from 'konva'
+import type { KonvaEventObject } from 'konva/lib/Node'
 
 import { DEFAULT_LENS_ZOOM_LEVEL } from '@/common/constants'
-import {
+import type {
   AnnotationViewerOptions,
   ImageBoundingBox,
   PointerPosition,
 } from '@/common/types'
 
 import { roundTo } from '@/utils/roundTo'
+
+const ZOOM_SCALE_ATTR = 'zoomScale'
+
+/** Zoom factor relative to the fitted image (1 = fit to container). */
+export const getZoomScale = (stage: Konva.Stage): number => {
+  const value: unknown = stage.getAttr(ZOOM_SCALE_ATTR)
+  return typeof value === 'number' ? value : 1
+}
+
+export const setZoomScale = (stage: Konva.Stage, zoomScale: number) => {
+  stage.setAttr(ZOOM_SCALE_ATTR, zoomScale)
+}
 
 export const calculateZoomScale = (
   stage: Konva.Stage,
@@ -55,11 +67,11 @@ export const handleZoomScale = (
     stage.draggable(false)
     stage.scale({ x: imageBoundingBox.scale, y: imageBoundingBox.scale })
     stage.position({ x: imageBoundingBox.x, y: imageBoundingBox.y })
-    stage.setAttr('zoomScale', 1)
+    setZoomScale(stage, 1)
   } else {
     stage.draggable(true)
     stage.scale({ x: newScale, y: newScale })
-    stage.setAttr('zoomScale', newScale / imageBoundingBox.scale)
+    setZoomScale(stage, newScale / imageBoundingBox.scale)
     stage.position(newPos)
   }
 
@@ -74,14 +86,15 @@ export const calculateStageZoom = (
   const oldScale = stage.scaleX()
 
   const stagePosition = stage.position()
-  const pointerPosition = stage.getPointerPosition() || { x: 0, y: 0 }
+  const pointerPosition = stage.getPointerPosition() ?? { x: 0, y: 0 }
 
   const mousePointTo = {
     x: (pointerPosition.x - stagePosition.x) / oldScale,
     y: (pointerPosition.y - stagePosition.y) / oldScale,
   }
 
-  const { modifier } = options.zoom!
+  if (!options.zoom) return
+  const { modifier } = options.zoom
 
   const newScale = deltaY < 0 ? oldScale * modifier : oldScale / modifier
 
@@ -99,17 +112,15 @@ export const handleStageZoom = (
   event: KonvaEventObject<WheelEvent>,
   options: AnnotationViewerOptions,
 ) => {
-  if (!stage || !imageBoundingBox) return
+  if (!stage || !imageBoundingBox || !options.zoom) return
 
   event.evt.preventDefault()
 
-  const { max } = options.zoom!
+  const { max } = options.zoom
 
-  const { newScale, newPos } = calculateStageZoom(
-    stage,
-    event.evt.deltaY,
-    options,
-  )
+  const stageZoom = calculateStageZoom(stage, event.evt.deltaY, options)
+  if (!stageZoom) return
+  const { newScale, newPos } = stageZoom
 
   if (newScale > max) return
 
@@ -117,11 +128,11 @@ export const handleStageZoom = (
     stage.draggable(false)
     stage.scale({ x: imageBoundingBox.scale, y: imageBoundingBox.scale })
     stage.position({ x: imageBoundingBox.x, y: imageBoundingBox.y })
-    stage.setAttr('zoomScale', 1)
+    setZoomScale(stage, 1)
   } else {
     stage.draggable(true)
     stage.scale({ x: newScale, y: newScale })
-    stage.setAttr('zoomScale', newScale / imageBoundingBox.scale)
+    setZoomScale(stage, newScale / imageBoundingBox.scale)
     stage.position(newPos)
   }
 

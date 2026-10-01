@@ -1,5 +1,5 @@
-import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command'
-import { mount } from 'cypress/react18'
+import { addMatchImageSnapshotCommand } from '@simonsmith/cypress-image-snapshot/command'
+import { mount } from 'cypress/react'
 
 addMatchImageSnapshotCommand({
   failureThreshold: 0.2,

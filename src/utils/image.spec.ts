@@ -1,6 +1,6 @@
-import { Stage } from 'konva/lib/Stage'
+import type { Stage } from 'konva/lib/Stage'
 
-import { ImageBoundingBox } from '@/common/types'
+import type { ImageBoundingBox } from '@/common/types'
 
 import {
   computeImageBoundingBox,

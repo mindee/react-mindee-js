@@ -1,4 +1,4 @@
-import { AnnotationLayers } from '@/common/types'
+import type { AnnotationLayers } from '@/common/types'
 
 export const clearLayers = (layers: AnnotationLayers) => {
   layers.shapes.destroyChildren()

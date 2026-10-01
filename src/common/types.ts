@@ -1,11 +1,10 @@
-import { CSSProperties } from 'react'
-import Konva from 'konva'
-import { Line, LineConfig } from 'konva/lib/shapes/Line'
-import { RectConfig } from 'konva/lib/shapes/Rect'
+import type { CSSProperties } from 'react'
+import type Konva from 'konva'
+import type { Line, LineConfig } from 'konva/lib/shapes/Line'
+import type { RectConfig } from 'konva/lib/shapes/Rect'
+import type { Stage } from 'konva/lib/Stage'
 
-import { Stage } from '..'
-
-export type AnnotationShape<T = any> = T & {
+export type AnnotationShape<T extends object = object> = T & {
   id: string
   coordinates: number[][]
   config?: LineConfig
@@ -13,11 +12,11 @@ export type AnnotationShape<T = any> = T & {
 
 export type Orientation = 0 | 90 | 180 | 270
 
-export type BaseOptions = {
+export interface BaseOptions {
   shapeConfig?: LineConfig
 }
 
-export type AnnotationLayers = {
+export interface AnnotationLayers {
   shapes: Konva.Layer
   image: Konva.Layer
 }
@@ -37,7 +36,7 @@ export type AnnotationViewerOptions = BaseOptions & {
   }
 }
 
-export type ImageBoundingBox = {
+export interface ImageBoundingBox {
   x: number
   y: number
   width: number
@@ -45,23 +44,23 @@ export type ImageBoundingBox = {
   scale: number
 }
 
-export type PointerPosition = {
+export interface PointerPosition {
   x: number
   y: number
 }
 
-export type AnnotationData = {
+export interface AnnotationData {
   image?: string | null
   shapes?: AnnotationShape[]
   orientation?: Orientation
 }
 
-export type ImageData = {
+export interface ImageData {
   element: HTMLImageElement
   shape: Konva.Image
 }
 
-export type ZoomOptions = {
+export interface ZoomOptions {
   scale?: number
   position?: PointerPosition
 }

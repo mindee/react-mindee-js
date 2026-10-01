@@ -1,39 +1,31 @@
-import { AnnotationData } from '@/common/types'
+import type { Orientation } from '@/common/types'
 
-export const rotateImage = ({
-  image,
-  orientation: degrees,
-}: AnnotationData) => {
-  let orientation = 1
-  switch (degrees) {
-    case 0:
-      orientation = 1
-      break
-    case 90:
-      orientation = 6
-      break
-    case 180:
-      orientation = 3
-      break
-    case 270:
-      orientation = 8
-      break
-    default:
-      break
-  }
-  return applyRotation(image as string, orientation)
+const EXIF_ORIENTATION: Record<Orientation, number> = {
+  0: 1,
+  90: 6,
+  180: 3,
+  270: 8,
 }
 
+export const rotateImage = (image: string, degrees: Orientation = 0) =>
+  applyRotation(image, EXIF_ORIENTATION[degrees])
+
 const applyRotation = (file: string, orientation: number) =>
-  new Promise<string>((resolve) => {
+  new Promise<string>((resolve, reject) => {
     const image = new Image()
     image.crossOrigin = ''
+    image.onerror = () => {
+      reject(new Error('Failed to load image for rotation'))
+    }
     image.onload = () => {
-      // Create canvas (off screen) to render image and apply transformations
       const canvas = document.createElement('canvas')
       const context = canvas.getContext('2d', {
         alpha: false,
-      }) as CanvasRenderingContext2D
+      })
+      if (!context) {
+        reject(new Error('Could not acquire a 2D canvas context'))
+        return
+      }
       const { width, height } = image
 
       const [outputWidth, outputHeight] =
@@ -90,9 +82,13 @@ const applyRotation = (file: string, orientation: number) =>
       outputCanvas.width = outputWidth
       outputCanvas.height = outputHeight
       const outputContext = outputCanvas.getContext('2d', { alpha: false })
+      if (!outputContext) {
+        reject(new Error('Could not acquire a 2D canvas context'))
+        return
+      }
       const sx = rightAligned ? canvas.width - outputCanvas.width : 0
       const sy = bottomAligned ? canvas.height - outputCanvas.height : 0
-      outputContext!.drawImage(
+      outputContext.drawImage(
         canvas,
         sx,
         sy,

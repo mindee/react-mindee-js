@@ -11,8 +11,8 @@ describe('getPDFPageCount', () => {
   })
 
   it('should catch error when the PDF is broken', () => {
-    getPDFPageCount(brokenPDF).catch((error) => {
-      expect(error.name).to.equal('InvalidPDFException')
+    getPDFPageCount(brokenPDF).catch((error: unknown) => {
+      expect((error as Error).name).to.equal('InvalidPDFException')
     })
   })
 })

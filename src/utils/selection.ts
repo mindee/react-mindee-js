@@ -1,14 +1,21 @@
 import Konva from 'konva'
-import { Layer } from 'konva/lib/Layer'
-import { KonvaEventObject } from 'konva/lib/Node'
-import { Line } from 'konva/lib/shapes/Line'
-import { Rect } from 'konva/lib/shapes/Rect'
-import { Stage } from 'konva/lib/Stage'
+import type { Layer } from 'konva/lib/Layer'
+import type { KonvaEventObject } from 'konva/lib/Node'
+import type { Rect } from 'konva/lib/shapes/Rect'
+import type { Stage } from 'konva/lib/Stage'
 
 import { KONVA_REFS } from '@/common/constants'
-import { AnnotationShape, AnnotationViewerOptions } from '@/common/types'
+import type {
+  AnnotationShape,
+  AnnotationViewerOptions,
+  PointerPosition,
+} from '@/common/types'
+
+import { getShapeFromNode } from '@/utils/canvas'
 
 import { roundTo } from './roundTo'
+
+const selectionAnchor = new WeakMap<Rect, PointerPosition>()
 
 export const createSelectionRect = (options: AnnotationViewerOptions) =>
   new Konva.Rect({
@@ -41,6 +48,7 @@ export const onSelectionStart = (
 
   if (!firstPoint) return
 
+  selectionAnchor.set(rect, firstPoint)
   rect.setAttrs({ x1: firstPoint.x, y1: firstPoint.y })
   rect.visible(true)
   rect.width(0)
@@ -55,17 +63,18 @@ export const onSelectionMove = (layer?: Layer, rect?: Rect) => {
 
   // no nothing if we didn't start selection
   if (!rect.visible()) return
+  const anchor = selectionAnchor.get(rect)
 
-  const { x1, y1 } = rect.getAttrs()
+  if (!anchor) return
+
   const secondPoint = calculateSelectionPoint(stage)
 
   if (!secondPoint) return
-
   rect.setAttrs({
-    x: Math.min(x1, secondPoint.x),
-    y: Math.min(y1, secondPoint.y),
-    width: Math.abs(secondPoint.x - x1),
-    height: Math.abs(secondPoint.y - y1),
+    x: Math.min(anchor.x, secondPoint.x),
+    y: Math.min(anchor.y, secondPoint.y),
+    width: Math.abs(secondPoint.x - anchor.x),
+    height: Math.abs(secondPoint.y - anchor.y),
   })
 
   layer.batchDraw()
@@ -89,12 +98,13 @@ export const onSelectionEnd = (
     layer.batchDraw()
   })
 
-  const shapes = (stage.find(`.${KONVA_REFS.shape}`) || []) as Line[]
+  const shapes = stage.find(`.${KONVA_REFS.shape}`)
   const box = rect.getClientRect()
 
   const selected = shapes
     .filter((shape) => Konva.Util.haveIntersection(box, shape.getClientRect()))
-    .map((shape) => shape.getAttr('shape'))
+    .map((node) => getShapeFromNode(node))
+    .filter((shape) => shape !== undefined)
 
   if (selected.length) onShapeMultiSelect?.(selected)
 

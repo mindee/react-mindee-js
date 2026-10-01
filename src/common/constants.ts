@@ -1,6 +1,6 @@
-import { Line } from 'konva/lib/shapes/Line'
+import type { Line } from 'konva/lib/shapes/Line'
 
-import { AnnotationData } from '..'
+import type { AnnotationData } from '@/common/types'
 
 export const DEFAULT_STYLE = {
   height: 300,
@@ -37,7 +37,7 @@ export const DEFAULT_ANNOTATION_VIEWER_OPTIONS = {
     layer?.batchDraw()
   },
   onMouseEnter: (polygon: Line) => {
-    const stroke = polygon.getAttr('stroke')
+    const stroke = polygon.stroke()
     polygon.setAttr('fill', `${stroke}40`)
     polygon.draw()
   },

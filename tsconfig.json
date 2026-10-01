@@ -1,20 +1,22 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "target": "ES2020",
-    "module": "ES6",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["node", "cypress"],
+    "strict": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
     "declaration": true,
     "outDir": "dist",
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "cypress/*": ["./cypress/*"]
     },
     "skipLibCheck": true
   },
-  "include": ["src", "cypress"],
+  "include": ["src", "cypress", "*.config.ts"],
   "exclude": ["node_modules", "dist", "docs"]
 }

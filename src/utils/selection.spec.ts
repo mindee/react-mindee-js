@@ -1,4 +1,4 @@
-import { Stage } from 'konva/lib/Stage'
+import type { Stage } from 'konva/lib/Stage'
 
 import { calculateSelectionPoint } from '@/utils/selection'
 

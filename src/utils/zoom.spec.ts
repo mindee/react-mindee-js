@@ -1,12 +1,12 @@
-import Konva from 'konva'
+import type Konva from 'konva'
+
+import type { AnnotationViewerOptions } from '@/common/types'
 
 import {
   calculateLensZoom,
   calculateStageZoom,
   calculateZoomScale,
 } from '@/utils/zoom'
-
-import { AnnotationViewerOptions } from '..'
 
 describe('zoom', () => {
   describe('calculateLensZoom', () => {

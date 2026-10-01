@@ -1,16 +1,20 @@
 import heic2any from 'heic2any'
-import Konva from 'konva'
+import type Konva from 'konva'
+import type { Stage } from 'konva/lib/Stage'
 import UTIF from 'utif'
 
-import { ImageData } from '@/common/types'
+import type {
+  ImageBoundingBox,
+  ImageData,
+  PointerPosition,
+} from '@/common/types'
 
-import { Stage } from '..'
-import { ImageBoundingBox, PointerPosition } from './../common/types'
+import { getZoomScale, setZoomScale } from '@/utils/zoom'
 
 export const dataURItoBlob = (dataURI: string) => {
   let byteString
   const splitDataURL = dataURI.split(',')
-  if (splitDataURL[0].indexOf('base64') >= 0) {
+  if (splitDataURL[0].includes('base64')) {
     // atob decodes base64 data
     byteString = atob(splitDataURL[1])
   } else {
@@ -59,7 +63,10 @@ export const tiffToJpg = async (blob: Blob) => {
   cnv.width = imageWidth
   cnv.height = imageHeight
 
-  const ctx = cnv.getContext('2d')!
+  const ctx = cnv.getContext('2d')
+  if (!ctx) {
+    throw new Error('Could not get 2D context')
+  }
   const imageData = ctx.createImageData(imageWidth, imageHeight)
   for (let i = 0; i < rgba.length; i++) {
     imageData.data[i] = rgba[i]
@@ -70,7 +77,7 @@ export const tiffToJpg = async (blob: Blob) => {
       if (blob) {
         resolve(URL.createObjectURL(blob))
       } else {
-        reject('Error getting Blob')
+        reject(new Error('Could not encode TIFF canvas to a Blob'))
       }
     })
   })
@@ -103,7 +110,9 @@ export const computeImageBoundingBox = (
   }
 
   return {
-    scale: Number(Number(renderableWidth / imageObj.width).toFixed(3)),
+    scale: Number(
+      ((renderableWidth / imageObj.width) satisfies number).toFixed(3),
+    ),
     x: xStart,
     y: yStart,
     width: Math.round(renderableWidth),
@@ -127,11 +136,11 @@ export const handleResizeImage = (
   resizeStage(stage, container)
   const imageBoundingBox = computeImageBoundingBox(container, element)
   const { x, y, width, height, scale } = imageBoundingBox
-  stage?.scale({
+  stage.scale({
     x: scale,
     y: scale,
   })
-  stage.setAttr('zoomScale', 1)
+  setZoomScale(stage, 1)
   stage.position({ x, y })
   shape.width(width / scale)
   shape.height(height / scale)
@@ -148,7 +157,7 @@ export const setStageBasedImagePosition = ({
   newPosition: PointerPosition
 }) => {
   const { x, y, width, height } = imageBoundingBox
-  const zoomScale = stage.getAttr('zoomScale')
+  const zoomScale = getZoomScale(stage)
   let stageX = stage.x()
   let stageY = stage.y()
   const { x: newStageX, y: newStageY } = newPosition

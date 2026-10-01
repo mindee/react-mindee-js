@@ -11,14 +11,14 @@ describe('getImageFromPDF', () => {
   })
 
   it('should catch error when the PDF is broken', () => {
-    getImagesFromPDF(brokenPDF).catch((error) => {
-      expect(error.name).to.equal('InvalidPDFException')
+    getImagesFromPDF(brokenPDF).catch((error: unknown) => {
+      expect((error as Error).name).to.equal('InvalidPDFException')
     })
   })
 
   it('should catch error when the PDF has too many Pages', () => {
-    getImagesFromPDF(multiPage, 3).catch((error) => {
-      expect(error.name).to.equal('TooManyPagesError')
+    getImagesFromPDF(multiPage, 3).catch((error: unknown) => {
+      expect((error as Error).name).to.equal('TooManyPagesError')
     })
   })
 })

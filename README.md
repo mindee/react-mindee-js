@@ -45,9 +45,8 @@ You only need an image and a list of shapes to get started.
 
 ```jsx
 import React from 'react'
-import { AnnotationViewer } from 'react-mindee-js'
-
 import dummyImage from 'path-to-your/file.jpg'
+import { AnnotationViewer } from 'react-mindee-js'
 
 const dummyShapes = [
   {

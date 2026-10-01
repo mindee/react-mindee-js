@@ -3,14 +3,14 @@ import anotherDummyImage from 'cypress/assets/another-demo.jpg'
 import dummyImage from 'cypress/assets/demo.jpg'
 import { dummyShapes } from 'cypress/assets/shapes'
 
-import { AnnotationData } from '@/common/types'
+import type { AnnotationData } from '@/common/types'
 
 import AnnotationLens from './AnnotationLens'
 
 const containerHeight = 600
 const containerWidth = 600
 
-type TesterProps = {
+interface TesterProps {
   containerWidth: number
   containerHeight: number
   id?: string

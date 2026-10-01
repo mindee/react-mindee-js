@@ -1,6 +1,6 @@
-import { Stage } from 'konva/lib/Stage'
+import type { Stage } from 'konva/lib/Stage'
 
-import {
+import type {
   AnnotationData,
   AnnotationLensOptions,
   AnnotationShape,
@@ -20,6 +20,7 @@ import {
 import getImagesFromPDF from './utils/getImagesFromPDF'
 import getPDFPageCount from './utils/getPDFPageCount'
 import { dataURItoBlob } from './utils/image'
+import { getZoomScale } from './utils/zoom'
 
 export type {
   Stage,
@@ -38,6 +39,7 @@ export {
   AnnotationViewer,
   getImagesFromPDF,
   getPDFPageCount,
+  getZoomScale,
   drawShape,
   drawLayer,
   setShapeConfig,

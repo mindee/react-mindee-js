@@ -1,9 +1,9 @@
 import Konva from 'konva'
-import { Layer } from 'konva/lib/Layer'
-import { Line } from 'konva/lib/shapes/Line'
+import type { Layer } from 'konva/lib/Layer'
+import type { Line } from 'konva/lib/shapes/Line'
 
 import { KONVA_REFS } from '@/common/constants'
-import {
+import type {
   AnnotationLensOptions,
   AnnotationShape,
   AnnotationViewerOptions,
@@ -12,6 +12,9 @@ import {
 } from '@/common/types'
 
 import { roundTo } from './roundTo'
+
+const shapeByNode = new WeakMap<Konva.Node, AnnotationShape>()
+export const getShapeFromNode = (node: Konva.Node) => shapeByNode.get(node)
 
 export const mapShapesToPolygons = (
   shapesLayer: Layer,
@@ -33,15 +36,15 @@ export const mapShapesToPolygons = (
       points: mapCoordinatesToPoints(shape.coordinates, imageBoundingBox),
       closed: true,
 
-      ...(options?.shapeConfig || {}),
+      ...(options.shapeConfig ?? {}),
       ...shape.config,
-      shape,
     })
+    shapeByNode.set(polygon, shape)
     shapesLayer.add(polygon)
     if (useEvents) {
       bindEventToPolygon(
         polygon,
-        options as AnnotationViewerOptions,
+        options,
         onClick,
         onShapeMouseEnter,
         onShapeMouseLeave,
@@ -58,22 +61,23 @@ const bindEventToPolygon = (
   onShapeMouseLeave?: (shape: AnnotationShape) => void,
 ) => {
   const stage = polygon.getStage()
-  const shape = polygon.getAttr('shape')
+  const shape = shapeByNode.get(polygon)
+  if (!shape || !stage) return
   polygon.on('mouseup', (event) => {
     event.cancelBubble = true
     onClick?.(shape)
-    options?.onClick?.(polygon)
+    options.onClick?.(polygon)
   })
   polygon.on('mouseleave', function (event) {
     event.cancelBubble = true
-    stage!.container().style.cursor = 'inherit'
-    options?.onMouseLeave?.(polygon)
+    stage.container().style.cursor = 'inherit'
+    options.onMouseLeave?.(polygon)
     onShapeMouseLeave?.(shape)
   })
   polygon.on('mouseenter', function (event) {
     event.cancelBubble = true
-    options?.onMouseEnter?.(polygon)
-    stage!.container().style.cursor = 'pointer'
+    options.onMouseEnter?.(polygon)
+    stage.container().style.cursor = 'pointer'
     onShapeMouseEnter?.(shape)
   })
 }
@@ -109,7 +113,7 @@ export const getMousePosition = (
   if (!stage || !imageBoundingBox) {
     return
   }
-  const { x: pointerX, y: pointerY } = stage.getPointerPosition() || {
+  const { x: pointerX, y: pointerY } = stage.getPointerPosition() ?? {
     x: 0,
     y: 0,
   }

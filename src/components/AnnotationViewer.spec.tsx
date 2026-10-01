@@ -3,10 +3,10 @@ import anotherDummyImage from 'cypress/assets/another-demo.jpg'
 import dummyImageHEIC from 'cypress/assets/demo.heic'
 import dummyImage from 'cypress/assets/demo.jpg'
 import dummyImageTIFF from 'cypress/assets/demo.tiff'
+import { dummyShapes } from 'cypress/assets/shapes'
 
-import { AnnotationData, AnnotationShape } from '@/common/types'
+import type { AnnotationData } from '@/common/types'
 
-import { dummyShapes } from '../../cypress/assets/shapes'
 import AnnotationViewer from './AnnotationViewer'
 
 const dummyImageURL =
@@ -86,7 +86,6 @@ describe('AnnotationViewer', () => {
   it('shows an JPG image in the canvas', () => {
     cy.mount(
       <AnnotationViewer
-        onShapeClick={console.log}
         id={containerId}
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
@@ -107,7 +106,6 @@ describe('AnnotationViewer', () => {
   it('shows a TIFF image in the canvas', () => {
     cy.mount(
       <AnnotationViewer
-        onShapeClick={console.log}
         id={containerId}
         data={{ image: dummyImageTIFF, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
@@ -128,7 +126,6 @@ describe('AnnotationViewer', () => {
   it('shows a HEIC image in the canvas', () => {
     cy.mount(
       <AnnotationViewer
-        onShapeClick={console.log}
         id={containerId}
         data={{ image: dummyImageHEIC, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
@@ -150,7 +147,6 @@ describe('AnnotationViewer', () => {
   it('shows a remote image in the canvas', () => {
     cy.mount(
       <AnnotationViewer
-        onShapeClick={console.log}
         id={containerId}
         data={{ image: dummyImageURL, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
@@ -193,75 +189,37 @@ describe('AnnotationViewer', () => {
   })
 
   it('handle events correctly', () => {
-    const events = {
-      onShapeClick: (shape: AnnotationShape) => {
-        console.log(shape)
-      },
-      onShapeMouseEnter: (shape: AnnotationShape) => {
-        console.log(shape)
-      },
-      onShapeMouseLeave: (shape: AnnotationShape) => {
-        console.log(shape)
-      },
-    }
-    const clickSpy = cy.spy(events, 'onShapeClick').withArgs(dummyShapes[1])
-    const mouseEnterSpy = cy
-      .spy(events, 'onShapeMouseEnter')
-      .withArgs(dummyShapes[1])
-    const mouseLeaveSpy = cy
-      .spy(events, 'onShapeMouseLeave')
-      .withArgs(dummyShapes[1])
-
+    const onShapeClick = cy.spy().as('onShapeClick')
+    const onShapeMouseEnter = cy.spy().as('onShapeMouseEnter')
+    const onShapeMouseLeave = cy.spy().as('onShapeMouseLeave')
     cy.mount(
       <AnnotationViewer
         id={containerId}
         data={{ image: dummyImage, shapes: dummyShapes }}
         style={{ height: containerHeight, width: containerWidth }}
-        {...events}
+        onShapeClick={onShapeClick}
+        onShapeMouseEnter={onShapeMouseEnter}
+        onShapeMouseLeave={onShapeMouseLeave}
       />,
-      {
-        log: true,
-      },
     )
     cy.wait(1000)
-    cy.get(`#${containerId}`)
-      .click(350, 50)
-      .then(($container) => {
-        cy.wait(200)
-        cy.wrap($container).matchImageSnapshot('shapeClicked')
-        expect(clickSpy).to.be.calledOnce
-      })
 
-    it('should handle click event', () => {
-      cy.get(`#${containerId}`)
-        .click(350, 50)
-        .then(($container) => {
-          cy.wait(200)
-          cy.wrap($container).matchImageSnapshot('shapeClicked')
-          expect(clickSpy).to.be.calledOnce
-        })
-    })
-    it('should handle mouse enter event', () => {
-      cy.get(`#${containerId}`)
-        .trigger('mouseenter', {
-          clientX: 350,
-          clientY: 50,
-        })
-        .then(($container) => {
-          cy.wait(200)
-          cy.wrap($container).matchImageSnapshot('shapeMouseEnter')
-          expect(mouseEnterSpy).to.be.calledOnce
-        })
-    })
-    it('should handle mouse leave event', () => {
-      cy.get(`#${containerId}`)
-        .trigger('mouseleave', 350, 50)
-        .then(($container) => {
-          cy.wait(200)
-          cy.wrap($container).matchImageSnapshot('shapeMouseLeave')
-          expect(mouseLeaveSpy).to.be.calledOnce
-        })
-    })
+    cy.get(`#${containerId} .konvajs-content`).trigger('mousemove', 350, 50)
+    cy.get('@onShapeMouseEnter').should(
+      'have.been.calledOnceWith',
+      dummyShapes[1],
+    )
+
+    cy.get(`#${containerId}`).click(350, 50)
+    cy.get('@onShapeClick').should('have.been.calledOnceWith', dummyShapes[1])
+
+    cy.get(`#${containerId} .konvajs-content`).trigger('mousemove', 10, 10)
+    cy.get('@onShapeMouseLeave').should(
+      'have.been.calledOnceWith',
+      dummyShapes[1],
+    )
+    cy.get('@onShapeMouseEnter').should('have.been.calledOnce')
+    cy.get(`#${containerId}`).matchImageSnapshot('shapeClicked')
   })
 
   it('support multi selection', () => {

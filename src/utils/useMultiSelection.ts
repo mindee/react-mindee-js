@@ -1,44 +1,35 @@
-import { MutableRefObject } from 'react'
-import Konva from 'konva'
+import type { RefObject } from 'react'
+import type Konva from 'konva'
 
 import useEventListener from './useEventListener'
 
 interface Props {
-  stage: Konva.Stage | null
-  isSelectionActiveRef: MutableRefObject<boolean>
+  stageRef: RefObject<Konva.Stage | null>
+  isSelectionActiveRef: RefObject<boolean>
 }
+
+const isSelectionModifier = (event: KeyboardEvent) =>
+  event.ctrlKey ||
+  event.altKey ||
+  event.key === 'Control' ||
+  event.key === 'Alt'
+
 export default function useMultiSelection({
-  stage,
+  stageRef,
   isSelectionActiveRef,
 }: Props) {
-  useEventListener<HTMLDivElement, KeyboardEvent>(
-    'keydown',
-    (event: KeyboardEvent) => {
-      event.stopPropagation()
-      if (
-        event.ctrlKey ||
-        event.altKey ||
-        event.key === 'Control' ||
-        event.key === 'Alt'
-      ) {
-        stage?.draggable(false)
-        isSelectionActiveRef.current = true
-      }
-    },
-  )
-  useEventListener<HTMLDivElement, KeyboardEvent>(
-    'keyup',
-    (event: KeyboardEvent) => {
-      event.stopPropagation()
-      if (
-        event.ctrlKey ||
-        event.altKey ||
-        event.key === 'Control' ||
-        event.key === 'Alt'
-      ) {
-        stage?.draggable(true)
-        isSelectionActiveRef.current = false
-      }
-    },
-  )
+  useEventListener('keydown', (event) => {
+    event.stopPropagation()
+    if (isSelectionModifier(event)) {
+      stageRef.current?.draggable(false)
+      isSelectionActiveRef.current = true
+    }
+  })
+  useEventListener('keyup', (event) => {
+    event.stopPropagation()
+    if (isSelectionModifier(event)) {
+      stageRef.current?.draggable(true)
+      isSelectionActiveRef.current = false
+    }
+  })
 }

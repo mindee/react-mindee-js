@@ -1,6 +1,6 @@
-import { Stage } from 'konva/lib/Stage'
+import type { Stage } from 'konva/lib/Stage'
 
-import { ImageBoundingBox } from '@/common/types'
+import type { ImageBoundingBox } from '@/common/types'
 
 import { getMousePosition, scalePointToImage } from '@/utils/canvas'
 
@@ -45,7 +45,7 @@ describe('canvas', () => {
 
       const actual = getMousePosition(
         stage as unknown as Stage,
-        imageBoundingBox as ImageBoundingBox,
+        imageBoundingBox,
       )
 
       expect(actual).to.deep.equal(expected)
