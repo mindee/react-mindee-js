@@ -1,20 +1,24 @@
-import Konva from 'konva'
-import type { Layer } from 'konva/lib/Layer'
-import type { Line } from 'konva/lib/shapes/Line'
+import Konva from 'konva';
+import type { Layer } from 'konva/lib/Layer';
+import type { Line, LineConfig } from 'konva/lib/shapes/Line';
 
-import { KONVA_REFS } from '@/common/constants'
-import type {
-  AnnotationLensOptions,
-  AnnotationShape,
-  AnnotationViewerOptions,
-  ImageBoundingBox,
-  PointerPosition,
-} from '@/common/types'
 
-import { roundTo } from './roundTo'
 
-const shapeByNode = new WeakMap<Konva.Node, AnnotationShape>()
-export const getShapeFromNode = (node: Konva.Node) => shapeByNode.get(node)
+import { KONVA_REFS } from '@/common/constants';
+import type { AnnotationLensOptions, AnnotationShape, AnnotationViewerOptions, ImageBoundingBox, PointerPosition } from '@/common/types';
+
+
+
+import { roundTo } from './roundTo';
+
+
+const shapeByNode = new WeakMap<Konva.Node, AnnotationShape>();
+export const getShapeFromNode: (node: Konva.Node) => (object & {
+  id: string;
+  coordinates: [number, number][];
+  config?: LineConfig
+}) | undefined = (node: Konva.Node)=>
+  shapeByNode.get(node);
 
 export const mapShapesToPolygons = (
   shapesLayer: Layer,
@@ -25,9 +29,9 @@ export const mapShapesToPolygons = (
   onClick?: (shape: AnnotationShape) => void,
   onShapeMouseEnter?: (shape: AnnotationShape) => void,
   onShapeMouseLeave?: (shape: AnnotationShape) => void,
-) => {
+): void => {
   if (!imageBoundingBox) {
-    return
+    return;
   }
   shapes.forEach((shape: AnnotationShape) => {
     const polygon = new Konva.Line({
@@ -38,9 +42,9 @@ export const mapShapesToPolygons = (
 
       ...(options.shapeConfig ?? {}),
       ...shape.config,
-    })
-    shapeByNode.set(polygon, shape)
-    shapesLayer.add(polygon)
+    });
+    shapeByNode.set(polygon, shape);
+    shapesLayer.add(polygon);
     if (useEvents) {
       bindEventToPolygon(
         polygon,
@@ -48,10 +52,10 @@ export const mapShapesToPolygons = (
         onClick,
         onShapeMouseEnter,
         onShapeMouseLeave,
-      )
+      );
     }
-  })
-}
+  });
+};
 
 const bindEventToPolygon = (
   polygon: Line,
@@ -59,67 +63,66 @@ const bindEventToPolygon = (
   onClick?: (shape: AnnotationShape) => void,
   onShapeMouseEnter?: (shape: AnnotationShape) => void,
   onShapeMouseLeave?: (shape: AnnotationShape) => void,
-) => {
-  const stage = polygon.getStage()
-  const shape = shapeByNode.get(polygon)
-  if (!shape || !stage) return
+): void => {
+  const stage = polygon.getStage();
+  const shape = shapeByNode.get(polygon);
+  if (!shape || !stage) return;
   polygon.on('mouseup', (event) => {
-    event.cancelBubble = true
-    onClick?.(shape)
-    options.onClick?.(polygon)
-  })
+    event.cancelBubble = true;
+    onClick?.(shape);
+    options.onClick?.(polygon);
+  });
   polygon.on('mouseleave', function (event) {
-    event.cancelBubble = true
-    stage.container().style.cursor = 'inherit'
-    options.onMouseLeave?.(polygon)
-    onShapeMouseLeave?.(shape)
-  })
+    event.cancelBubble = true;
+    stage.container().style.cursor = 'inherit';
+    options.onMouseLeave?.(polygon);
+    onShapeMouseLeave?.(shape);
+  });
   polygon.on('mouseenter', function (event) {
-    event.cancelBubble = true
-    options.onMouseEnter?.(polygon)
-    stage.container().style.cursor = 'pointer'
-    onShapeMouseEnter?.(shape)
-  })
-}
+    event.cancelBubble = true;
+    options.onMouseEnter?.(polygon);
+    stage.container().style.cursor = 'pointer';
+    onShapeMouseEnter?.(shape);
+  });
+};
 
 export const scalePointToImage = (
   point: PointerPosition,
   imageBoundingBox: ImageBoundingBox,
-) => {
-  const { width, height, scale } = imageBoundingBox
+): {x: number, y: number} => {
+  const { width, height, scale } = imageBoundingBox;
   return {
     x: roundTo((Math.min(point.x, 1) * width) / scale, 2),
     y: roundTo((Math.min(point.y, 1) * height) / scale, 2),
-  }
-}
+  };
+};
 
 const mapCoordinatesToPoints = (
-  coordinates: number[][],
+  coordinates: [number, number][],
   imageBoundingBox: ImageBoundingBox,
 ): number[] =>
-  coordinates.reduce((accumulator, element) => {
+  coordinates.flatMap((element) => {
     const { x, y } = scalePointToImage(
       { x: element[0], y: element[1] },
       imageBoundingBox,
-    )
-    accumulator = accumulator.concat([x, y])
-    return accumulator
-  }, [])
+    );
+    return [x, y];
+  }, []);
 
 export const getMousePosition = (
   stage: Konva.Stage | null,
   imageBoundingBox: ImageBoundingBox | null,
-) => {
+): {x: number, y: number} | undefined => {
   if (!stage || !imageBoundingBox) {
-    return
+    return;
   }
   const { x: pointerX, y: pointerY } = stage.getPointerPosition() ?? {
     x: 0,
     y: 0,
-  }
-  const oldScale = stage.scaleX()
-  const stageX = stage.x()
-  const stageY = stage.y()
+  };
+  const oldScale = stage.scaleX();
+  const stageX = stage.x();
+  const stageY = stage.y();
   return {
     x: roundTo(
       ((pointerX - stageX) * imageBoundingBox.scale) /
@@ -131,5 +134,5 @@ export const getMousePosition = (
         (oldScale * imageBoundingBox.height),
       2,
     ),
-  }
-}
+  };
+};

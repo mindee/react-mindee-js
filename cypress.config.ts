@@ -1,7 +1,7 @@
-import { addMatchImageSnapshotPlugin } from '@simonsmith/cypress-image-snapshot/plugin'
-import { defineConfig } from 'cypress'
-import { defineConfig as defineViteConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { addMatchImageSnapshotPlugin } from '@simonsmith/cypress-image-snapshot/plugin';
+import { defineConfig } from 'cypress';
+import { defineConfig as defineViteConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   viewportWidth: 1500,
@@ -17,9 +17,9 @@ export default defineConfig({
       //   if (config.testingType === 'component')
       //     on('dev-server:start', async (options) => startDevServer({ options }))
 
-      addMatchImageSnapshotPlugin(on)
+      addMatchImageSnapshotPlugin(on);
 
-      return config
+      return config;
     },
     specPattern: 'src/**/*.spec.{js,ts,jsx,tsx}',
     devServer: {
@@ -31,4 +31,4 @@ export default defineConfig({
       }),
     },
   },
-})
+});

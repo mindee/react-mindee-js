@@ -1,7 +1,7 @@
-import { fileURLToPath } from 'node:url'
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
+import { fileURLToPath } from 'node:url';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
   assetsInclude: ['**/*.tiff', '**/*.heic'],
@@ -29,4 +29,4 @@ export default defineConfig({
       external: ['react', 'react-dom', 'react/jsx-runtime'],
     },
   },
-})
+});

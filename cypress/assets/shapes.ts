@@ -1,4 +1,4 @@
-import type { AnnotationShape } from '@/index'
+import type { AnnotationShape } from '@/index';
 
 export const dummyShapes: AnnotationShape[] = [
   {
@@ -46,4 +46,4 @@ export const dummyShapes: AnnotationShape[] = [
       [0.625, 0.706],
     ],
   },
-]
+];

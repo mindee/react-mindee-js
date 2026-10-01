@@ -82,7 +82,7 @@
     "docs:deploy": "pnpm --dir ./docs deploy",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "lint": "tsc --noEmit && eslint . && prettier --check .",
+    "lint": "tsc --noEmit && eslint --max-warnings 0 . && prettier --check .",
     "lint:fix": "eslint --fix . && prettier --write ."
   },
   "keywords": [

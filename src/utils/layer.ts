@@ -1,7 +1,7 @@
-import type { AnnotationLayers } from '@/common/types'
+import type { AnnotationLayers } from '@/common/types';
 
 export const clearLayers = (layers: AnnotationLayers) => {
-  layers.shapes.destroyChildren()
-  layers.image.batchDraw()
-  layers.shapes.batchDraw()
-}
+  layers.shapes.destroyChildren();
+  layers.image.batchDraw();
+  layers.shapes.batchDraw();
+};

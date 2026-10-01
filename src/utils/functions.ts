@@ -1,58 +1,58 @@
-import Konva from 'konva'
-import type { LineConfig } from 'konva/lib/shapes/Line'
-import type { Stage } from 'konva/lib/Stage'
+import Konva from 'konva';
+import type { LineConfig } from 'konva/lib/shapes/Line';
+import type { Stage } from 'konva/lib/Stage';
 
-import { KONVA_REFS } from '@/common/constants'
+import { KONVA_REFS } from '@/common/constants';
 
 /** Konva 8 types `findOne` as non-optional although it returns undefined on miss. */
 const findOne = (stage: Konva.Stage, selector: string) =>
-  stage.findOne(selector) as Konva.Node | undefined
+  stage.findOne(selector) as Konva.Node | undefined;
 
 export const drawLayer = (stage: Konva.Stage) => {
-  const shapesLayer = findOne(stage, `#${KONVA_REFS.shapesLayer}`)
+  const shapesLayer = findOne(stage, `#${KONVA_REFS.shapesLayer}`);
   if (shapesLayer instanceof Konva.Layer) {
-    shapesLayer.batchDraw()
+    shapesLayer.batchDraw();
   } else {
-    console.error('drawLayer : the layer is not found')
+    console.error('drawLayer : the layer is not found');
   }
-}
+};
 
 export const drawShape = (
   stage: Konva.Stage,
   id: string | number,
   config: LineConfig,
 ) => {
-  const shape = findOne(stage, `#${id.toString()}`)
+  const shape = findOne(stage, `#${id.toString()}`);
   if (shape instanceof Konva.Shape) {
-    shape.setAttrs(config)
-    shape.draw()
+    shape.setAttrs(config);
+    shape.draw();
   } else {
-    console.error('drawShape : The provided shape id is not valid')
+    console.error('drawShape : The provided shape id is not valid');
   }
-}
+};
 
 export const drawShapes = (stage: Stage, config: LineConfig) => {
-  const shapes = stage.find(`.${KONVA_REFS.shape}`)
+  const shapes = stage.find(`.${KONVA_REFS.shape}`);
   if (shapes.length) {
     shapes.forEach((shape) => {
-      shape.setAttrs(config)
-    })
-    drawLayer(stage)
+      shape.setAttrs(config);
+    });
+    drawLayer(stage);
   }
-}
+};
 
 export const setShapeConfig = (
   stage: Konva.Stage,
   id: string | number,
   config: LineConfig,
 ) => {
-  const shape = findOne(stage, `#${id.toString()}`)
+  const shape = findOne(stage, `#${id.toString()}`);
   if (shape) {
-    shape.setAttrs(config)
+    shape.setAttrs(config);
   } else {
-    console.error('setShapeConfig : The provided shape id is not valid')
+    console.error('setShapeConfig : The provided shape id is not valid');
   }
-}
+};
 
 export const toBase64 = (
   base64: string,
@@ -61,4 +61,4 @@ export const toBase64 = (
     | 'image/jpeg'
     | 'image/png'
     | 'image/svg+xml' = 'image/jpeg',
-) => `data:${type};base64,${base64}`
+) => `data:${type};base64,${base64}`;
