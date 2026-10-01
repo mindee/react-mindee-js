@@ -44,9 +44,9 @@ yarn add react-mindee-js
 You only need an image and a list of shapes to get started.
 
 ```jsx
-import React from 'react'
-import dummyImage from 'path-to-your/file.jpg'
-import { AnnotationViewer } from 'react-mindee-js'
+import React from 'react';
+import dummyImage from 'path-to-your/file.jpg';
+import { AnnotationViewer } from 'react-mindee-js';
 
 const dummyShapes = [
   {
@@ -67,15 +67,15 @@ const dummyShapes = [
       [0.394, 0.087],
     ],
   },
-]
+];
 
 const data = {
   image: dummyImage,
   shapes: dummyShapes,
-}
+};
 
 function App() {
-  return <AnnotationViewer data={data} />
+  return <AnnotationViewer data={data} />;
 }
 ```
 

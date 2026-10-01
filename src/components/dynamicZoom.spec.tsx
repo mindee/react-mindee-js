@@ -1,39 +1,44 @@
-import React, { useRef, useState } from 'react'
-import dummyImage from 'cypress/assets/demo.jpg'
-import { dummyShapes } from 'cypress/assets/shapes'
-import type { Stage } from 'konva/lib/Stage'
+import React, { useRef, useState } from 'react';
+import dummyImage from 'cypress/assets/demo.jpg';
+import { dummyShapes } from 'cypress/assets/shapes';
+import type { Stage } from 'konva/lib/Stage';
 
-import type { AnnotationViewerProps, PointerPosition } from '@/common/types'
+import type { AnnotationViewerProps, PointerPosition } from '@/common/types';
 
-import { getZoomScale } from '@/utils/zoom'
+import { getZoomScale } from '@/utils/zoom';
 
-import AnnotationViewer from './AnnotationViewer'
+import AnnotationViewer from './AnnotationViewer';
 
-const containerHeight = 700
-const containerWidth = 700
+const containerHeight = 700;
+const containerWidth = 700;
 
-interface AnnotationViewerWithDynamicZoomProps {
-  id: AnnotationViewerProps['id']
-  data: AnnotationViewerProps['data']
-}
+type AnnotationViewerWithDynamicZoomProps = {
+  id: AnnotationViewerProps['id'];
+  data: AnnotationViewerProps['data'];
+};
 
 const AnnotationViewerWithDynamicZoom = ({
   id,
   data,
 }: AnnotationViewerWithDynamicZoomProps) => {
-  const [customStagePosition, setCustomStagePosition] = useState({ x: 0, y: 0 })
-  const stageObject = useRef<Stage | null>(null)
-  const [customZoomLevel, setCustomZoomLevel] = useState(1)
+  const [customStagePosition, setCustomStagePosition] = useState({
+    x: 0,
+    y: 0,
+  });
+  const stageObject = useRef<Stage | null>(null);
+  const [customZoomLevel, setCustomZoomLevel] = useState(1);
 
   const changeScale = (modifier: number) => {
-    const stage = stageObject.current
-    if (!stage) return
-    setCustomZoomLevel(modifier * getZoomScale(stage))
-  }
+    const stage = stageObject.current;
+    if (!stage) {
+      return;
+    }
+    setCustomZoomLevel(modifier * getZoomScale(stage));
+  };
 
   const changePosition = (newPosition: PointerPosition) => {
-    setCustomStagePosition(newPosition)
-  }
+    setCustomStagePosition(newPosition);
+  };
 
   return (
     <div
@@ -43,7 +48,7 @@ const AnnotationViewerWithDynamicZoom = ({
       <button
         data-cy="same-data"
         onClick={() => {
-          changeScale(1.2)
+          changeScale(1.2);
         }}
       >
         Zoom in
@@ -51,7 +56,7 @@ const AnnotationViewerWithDynamicZoom = ({
       <button
         data-cy="different-image"
         onClick={() => {
-          changeScale(0.8)
+          changeScale(0.8);
         }}
       >
         Zoom out
@@ -59,7 +64,7 @@ const AnnotationViewerWithDynamicZoom = ({
       <button
         data-cy="different-shapes"
         onClick={() => {
-          changePosition({ x: 0, y: 20 })
+          changePosition({ x: 0, y: 20 });
         }}
       >
         Up
@@ -67,7 +72,7 @@ const AnnotationViewerWithDynamicZoom = ({
       <button
         data-cy="different-shapes"
         onClick={() => {
-          changePosition({ x: 0, y: -20 })
+          changePosition({ x: 0, y: -20 });
         }}
       >
         Down
@@ -75,7 +80,7 @@ const AnnotationViewerWithDynamicZoom = ({
       <button
         data-cy="different-shapes"
         onClick={() => {
-          changePosition({ x: -20, y: 0 })
+          changePosition({ x: -20, y: 0 });
         }}
       >
         Right
@@ -83,7 +88,7 @@ const AnnotationViewerWithDynamicZoom = ({
       <button
         data-cy="different-shapes"
         onClick={() => {
-          changePosition({ x: 20, y: 0 })
+          changePosition({ x: 20, y: 0 });
         }}
       >
         Left
@@ -101,8 +106,8 @@ const AnnotationViewerWithDynamicZoom = ({
         }}
       />
     </div>
-  )
-}
+  );
+};
 
 describe('AnnotationViewer', () => {
   it('mount correctly', () => {
@@ -111,6 +116,6 @@ describe('AnnotationViewer', () => {
         id="annotationViewer"
         data={{ image: dummyImage, shapes: dummyShapes }}
       />,
-    )
-  })
-})
+    );
+  });
+});
