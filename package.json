@@ -40,6 +40,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@j178/prek": "^0.5.4",
     "@microsoft/api-extractor": "^7.59.3",
     "@simonsmith/cypress-image-snapshot": "^11.0.0",
     "@types/node": "^24.19.0",
