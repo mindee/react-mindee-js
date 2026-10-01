@@ -25,7 +25,7 @@ jobs:
           cache: pnpm
 
       - name: Cypress run
-        uses: cypress-io/github-action@v7
+        uses: cypress-io/github-action@c541a95ea92d9239347a2355f2e895cd4b3f8060 # v7.4.6
         with:
           install-command: pnpm install --frozen-lockfile
           build: pnpm cy:prepare
