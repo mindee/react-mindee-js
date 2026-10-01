@@ -1,0 +1,4 @@
+allowBuilds:
+  canvas: false
+  cypress: true
+  esbuild: true

@@ -9,3 +9,5 @@ cypress/screenshots
 cypress/snapshots/*
 !cypress/snapshots/components
 cypress/**/__diff_output__
+.idea
+.DS_Store

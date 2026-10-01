@@ -7,12 +7,15 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          version: 8.x
-      - name: Checkout
-        uses: actions/checkout@v3
+          node-version-file: .nvmrc
+          cache: pnpm
       - name: install dependencies
         run: pnpm install
       - name: run lint
@@ -21,15 +24,18 @@ jobs:
   cypress-run:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          version: 8.x
-      - name: Checkout
-        uses: actions/checkout@v3
+          node-version-file: .nvmrc
+          cache: pnpm
       - name: Cypress run
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
-          config-file: cypress.json
+          install-command: pnpm install --frozen-lockfile
           build: pnpm cy:prepare
           command: pnpm cy:run
