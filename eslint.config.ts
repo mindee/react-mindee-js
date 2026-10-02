@@ -112,6 +112,7 @@ export default defineConfig(
       globals: { ...globals.mocha, cy: 'readonly', Cypress: 'readonly' },
     },
     rules: {
+      '@typescript-eslint/no-deprecated': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',

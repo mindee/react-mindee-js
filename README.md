@@ -91,6 +91,84 @@ function App() {
 - **`style`** : style object to change container css properties
 - **`className`** : apply a className to the control
 
+## PDF documents
+
+PDF pages are rendered in the browser with [pdf.js](https://mozilla.github.io/pdf.js/) (loaded lazily, in a Web Worker, the first time a PDF is processed). Pages are rendered **on demand**, so large documents can be displayed progressively instead of being rasterized up front.
+
+### `usePDFDocument` hook
+
+The simplest way to display a PDF in a React component:
+
+```jsx
+import { AnnotationViewer, usePDFDocument } from 'react-mindee-js';
+
+function Document({ file }) {
+  const { status, numPages, pages, loading, loadPage, error } = usePDFDocument(
+    file,
+    { prefetch: 5, batch: 3 },
+  );
+  const [current, setCurrent] = useState(0);
+
+  if (status === 'error') return <p>{error.message}</p>;
+  if (status !== 'ready') return <p>Opening…</p>;
+
+  return (
+    <>
+      <nav>
+        {pages.map((image, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setCurrent(index);
+              loadPage(index);
+            }}
+          >
+            {loading.has(index) ? '…' : index + 1}
+          </button>
+        ))}
+      </nav>
+      {pages[current] && (
+        <AnnotationViewer data={{ image: pages[current], shapes: [] }} />
+      )}
+    </>
+  );
+}
+```
+
+- **`source`** : a URL / data URL string, `Blob`/`File`, `ArrayBuffer` or `Uint8Array`. Keep it referentially stable between renders; a new value closes the previous document and opens the new one.
+- **`options.prefetch`** (default `5`) : pages rendered as soon as the document opens.
+- **`options.batch`** (default `3`) : pages rendered together when `loadPage` asks for one that is not rendered yet.
+- **`options.resolution`** : target pixel count of each render (default 1.5 Mpx; use ~50 000 for thumbnails).
+- **`options.maxPages`** : reject documents with more pages (`TooManyPagesError`).
+
+The hook returns `status` (`idle` | `opening` | `ready` | `error`), `numPages`, `pages` (a **0-based** array with `undefined` for pages not rendered yet), `loading` (set of page indexes being rendered), `loadPage(index)`, `loadRange(from, to)`, `error` and the underlying `document` handle. Call `loadPage(index)` whenever a page comes into view: it is idempotent, renders that page with high priority and queues the rest of its batch. The document and every image URL it produced are released automatically when `source` changes or the component unmounts.
+
+### `openPDF` (framework-agnostic)
+
+For custom scheduling, use the handle directly. Page numbers are **1-based**, like pdf.js.
+
+```js
+import { openPDF } from 'react-mindee-js';
+
+const doc = await openPDF(file, { maxPages: 100 });
+doc.numPages; // 5
+
+const first = await doc.getPage(1, { priority: 'high' }); // blob: URL
+for await (const { pageNumber, image } of doc.getPages(2, 4)) {
+  // inclusive range, yielded as soon as each page is ready
+}
+
+await doc.destroy(); // revokes every blob: URL handed out by this handle
+```
+
+`getPage` / `getPages` options: `resolution`, `output` (`'object-url'` default, or `'data-url'` for a base64 string), `priority` (`'high'` jumps ahead of pending renders, `'low'` appends) and `signal` (`AbortSignal`; rejects with an `AbortError`). Renders are cached per page and resolution for the lifetime of the handle.
+
+Images are `blob:` object URLs by default: they only live in the current tab until `destroy()`. To upload one, read it back first (`await fetch(url).then((r) => r.blob())`), or request `{ output: 'data-url' }`.
+
+### `getPDFPageCount` / `getImagesFromPDF`
+
+`getPDFPageCount(source)` returns the page count without rendering. `getImagesFromPDF` still works but is **deprecated**: it renders and holds every page in memory at once. Prefer `usePDFDocument` or `openPDF`.
+
 ## Browser support
 
 React mindee supports all recent browsers and works where React works. However, you may need check the [SSR](/docs/ssr) section.

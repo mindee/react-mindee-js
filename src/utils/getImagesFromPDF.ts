@@ -1,49 +1,29 @@
-import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+import { openPDF, type PDFSource } from './pdf';
 
-import { MAX_PDF_SCALE, PDF_RESOLUTION } from '@/common/constants';
-
-import { loadPdfDocument } from './pdf';
-
-const getImageFromPage = async (
-  _document: PDFDocumentProxy,
-  pageNumber: number,
-  resolution = PDF_RESOLUTION,
-): Promise<string> => {
-  const page: PDFPageProxy = await _document.getPage(pageNumber);
-  const canvas = document.createElement('canvas');
-  const [, , width, height] = page.view;
-  if (width === undefined || height === undefined) {
-    throw new Error('Invalid PDF page view');
-  }
-  const newScale = (resolution / (height * width)) ** (1 / 2);
-  const safeScale = Math.min(newScale, MAX_PDF_SCALE);
-  const viewport = page.getViewport({ scale: safeScale });
-  canvas.height = viewport.height;
-  canvas.width = viewport.width;
-  await page.render({ canvas, viewport }).promise;
-  return canvas.toDataURL();
-};
-
+/**
+ * Renders every page of a PDF to a PNG data URL.
+ *
+ * @deprecated Renders and holds all pages in memory at once. Use `openPDF`
+ * (or the `usePDFDocument` hook) to render pages progressively instead.
+ */
 export default async function getImagesFromPDF(
-  file: string,
+  file: PDFSource,
   maxPages = Infinity,
   onSuccess?: () => void,
   resolution?: number,
 ): Promise<string[]> {
-  const pdf = await loadPdfDocument(file);
-  if (pdf.numPages > maxPages) {
-    const error = new Error('Too many pages');
-    error.name = 'TooManyPagesError';
-    throw error;
+  const pdf = await openPDF(file, { maxPages });
+  try {
+    onSuccess?.();
+    const images: string[] = [];
+    for await (const { image } of pdf.getPages(1, pdf.numPages, {
+      resolution,
+      output: 'data-url',
+    })) {
+      images.push(image);
+    }
+    return images;
+  } finally {
+    await pdf.destroy();
   }
-  onSuccess?.();
-  const results = await Promise.allSettled(
-    Array.from(
-      { length: pdf.numPages },
-      async (_, index) => await getImageFromPage(pdf, index + 1, resolution),
-    ),
-  );
-  return results.flatMap((result) =>
-    result.status === 'fulfilled' ? [result.value] : [],
-  );
 }
