@@ -94,14 +94,24 @@ export type OpenPDFOptions = {
   maxPages?: number;
 };
 
+/** One awaiting caller of a render; several callers can share a request. */
+type Caller = {
+  resolve: (image: string) => void;
+  reject: (error: unknown) => void;
+  signal: AbortSignal | undefined;
+  onAbort: (() => void) | undefined;
+};
+
+/**
+ * A page render shared by every caller that asked for the same page at the
+ * same resolution and output. It is cancelled only once all of them aborted.
+ */
 type RenderRequest = {
   key: string;
   pageNumber: number;
   resolution: number;
   output: PDFPageOutput;
-  signal: AbortSignal | undefined;
-  resolve: (image: string) => void;
-  reject: (error: unknown) => void;
+  callers: Caller[];
 };
 
 const abortError = (): Error => {
@@ -153,7 +163,7 @@ const canvasToBlob = async (canvas: HTMLCanvasElement): Promise<Blob> =>
 class PDFRenderQueue {
   private readonly queue: RenderRequest[] = [];
   private readonly cache = new Map<string, string>();
-  private readonly inFlight = new Map<string, Promise<string>>();
+  private readonly inFlight = new Map<string, RenderRequest>();
   private readonly objectUrls = new Set<string>();
   private current: { request: RenderRequest; task?: RenderTask } | undefined;
   private destroyed = false;
@@ -189,42 +199,20 @@ class PDFRenderQueue {
     if (cached !== undefined) {
       return cached;
     }
-    const pending = this.inFlight.get(key);
-    if (pending !== undefined) {
-      return await this.promoteIfNeeded(pending, key, options, defaultPriority);
-    }
 
-    const promise = new Promise<string>((resolve, reject) => {
-      const request: RenderRequest = {
-        key,
-        pageNumber,
-        resolution,
-        output,
-        signal: options.signal,
-        resolve,
-        reject,
-      };
-      if ((options.priority ?? defaultPriority) === 'high') {
-        this.queue.unshift(request);
-      } else {
-        this.queue.push(request);
-      }
-      options.signal?.addEventListener(
-        'abort',
-        () => {
-          this.abort(request);
-        },
-        { once: true },
-      );
-    });
-    this.inFlight.set(key, promise);
-    promise
-      .finally(() => {
-        this.inFlight.delete(key);
-      })
-      .catch(() => undefined);
+    const priority = options.priority ?? defaultPriority;
+    let request = this.inFlight.get(key);
+    if (request === undefined) {
+      request = { key, pageNumber, resolution, output, callers: [] };
+      this.inFlight.set(key, request);
+      this.queue.push(request);
+    }
+    if (priority === 'high') {
+      this.promote(request);
+    }
+    const image = this.attach(request, options.signal);
     void this.drain();
-    return await promise;
+    return await image;
   }
 
   public async destroy(): Promise<void> {
@@ -233,7 +221,9 @@ class PDFRenderQueue {
     }
     this.destroyed = true;
     this.queue.splice(0).forEach((request) => {
-      request.reject(destroyedError());
+      this.settle(request, (caller) => {
+        caller.reject(destroyedError());
+      });
     });
     this.current?.task?.cancel();
     this.objectUrls.forEach((url) => {
@@ -244,38 +234,73 @@ class PDFRenderQueue {
     await this.document.loadingTask.destroy();
   }
 
-  /**
-   * A duplicate request for a page that is already queued with low priority
-   * moves it to the front instead of rendering it twice.
-   */
-  private async promoteIfNeeded(
-    pending: Promise<string>,
-    key: string,
-    options: PDFPageOptions,
-    defaultPriority: PDFPagePriority,
-  ): Promise<string> {
-    if ((options.priority ?? defaultPriority) === 'high') {
-      const index = this.queue.findIndex((request) => request.key === key);
-      if (index > 0) {
-        const [request] = this.queue.splice(index, 1);
-        if (request !== undefined) {
-          this.queue.unshift(request);
-        }
-      }
+  /** Moves a queued request to the front; no-op if it is already rendering. */
+  private promote(request: RenderRequest): void {
+    const index = this.queue.indexOf(request);
+    if (index > 0) {
+      this.queue.splice(index, 1);
+      this.queue.unshift(request);
     }
-    return await pending;
   }
 
-  private abort(request: RenderRequest): void {
-    const index = this.queue.indexOf(request);
-    if (index !== -1) {
-      this.queue.splice(index, 1);
-      request.reject(abortError());
+  /**
+   * Registers a caller on a request and returns its own promise, which
+   * rejects with an `AbortError` as soon as *its* signal aborts without
+   * affecting the other callers.
+   */
+  private async attach(
+    request: RenderRequest,
+    signal: AbortSignal | undefined,
+  ): Promise<string> {
+    return await new Promise<string>((resolve, reject) => {
+      const caller: Caller = { resolve, reject, signal, onAbort: undefined };
+      if (signal !== undefined) {
+        caller.onAbort = () => {
+          this.detach(request, caller);
+        };
+        signal.addEventListener('abort', caller.onAbort, { once: true });
+      }
+      request.callers.push(caller);
+    });
+  }
+
+  /**
+   * Removes an aborting caller. The shared render is dropped (or cancelled
+   * if in progress) only when nobody is waiting for it anymore.
+   */
+  private detach(request: RenderRequest, caller: Caller): void {
+    const index = request.callers.indexOf(caller);
+    if (index === -1) {
+      return;
+    }
+    request.callers.splice(index, 1);
+    caller.reject(abortError());
+    if (request.callers.length > 0) {
+      return;
+    }
+    const queued = this.queue.indexOf(request);
+    if (queued !== -1) {
+      this.queue.splice(queued, 1);
+      this.inFlight.delete(request.key);
       return;
     }
     if (this.current?.request === request) {
       this.current.task?.cancel();
     }
+  }
+
+  /** Settles every remaining caller and releases the request. */
+  private settle(
+    request: RenderRequest,
+    settleCaller: (caller: Caller) => void,
+  ): void {
+    this.inFlight.delete(request.key);
+    request.callers.splice(0).forEach((caller) => {
+      if (caller.signal !== undefined && caller.onAbort !== undefined) {
+        caller.signal.removeEventListener('abort', caller.onAbort);
+      }
+      settleCaller(caller);
+    });
   }
 
   private async drain(): Promise<void> {
@@ -287,14 +312,17 @@ class PDFRenderQueue {
       this.current = { request };
       try {
         const image = await this.render(request);
-        this.cache.set(request.key, image);
-        request.resolve(image);
+        if (!this.destroyed) {
+          this.cache.set(request.key, image);
+        }
+        this.settle(request, (caller) => {
+          caller.resolve(image);
+        });
       } catch (error: unknown) {
-        request.reject(
-          request.signal?.aborted === true || this.destroyed
-            ? abortError()
-            : error,
-        );
+        const reason = this.destroyed ? destroyedError() : error;
+        this.settle(request, (caller) => {
+          caller.reject(reason);
+        });
       } finally {
         this.current = undefined;
       }
@@ -321,7 +349,7 @@ class PDFRenderQueue {
     if (this.current?.request === request) {
       this.current.task = task;
     }
-    if (request.signal?.aborted === true || this.destroyed) {
+    if (request.callers.length === 0 || this.destroyed) {
       task.cancel();
     }
     await task.promise;

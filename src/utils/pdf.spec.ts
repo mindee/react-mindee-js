@@ -148,6 +148,69 @@ describe('openPDF', () => {
     }).should('equal', 'AbortError');
   });
 
+  it('lets one caller abort without affecting another waiting on the same page', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      const controller = new AbortController();
+      const blocker = opened.getPage(1);
+      const kept = opened.getPage(3);
+      const aborted = errorName(
+        opened.getPage(3, { signal: controller.signal }),
+      );
+      controller.abort();
+      await blocker;
+      return { aborted: await aborted, kept: await kept };
+    }).should(({ aborted, kept }) => {
+      expect(aborted).to.equal('AbortError');
+      expect(kept).to.match(/^blob:/);
+    });
+  });
+
+  it('cancels a shared render only once every caller has aborted', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      const first = new AbortController();
+      const second = new AbortController();
+      const blocker = opened.getPage(1);
+      const a = errorName(opened.getPage(4, { signal: first.signal }));
+      const b = errorName(opened.getPage(4, { signal: second.signal }));
+      first.abort();
+      second.abort();
+      await blocker;
+      const fresh = opened.getPage(4);
+      return { a: await a, b: await b, fresh: await fresh };
+    }).should(({ a, b, fresh }) => {
+      expect(a).to.equal('AbortError');
+      expect(b).to.equal('AbortError');
+      expect(fresh).to.match(/^blob:/);
+    });
+  });
+
+  it('promotes an already queued low priority page when requested again with high priority', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      const order: number[] = [];
+      const track = async (promise: Promise<string>, page: number) => {
+        await promise;
+        order.push(page);
+      };
+      const tasks = [
+        track(opened.getPage(1, { priority: 'low' }), 1),
+        track(opened.getPage(2, { priority: 'low' }), 2),
+        track(opened.getPage(3, { priority: 'low' }), 3),
+        track(opened.getPage(4, { priority: 'low' }), 4),
+      ];
+      tasks.push(track(opened.getPage(4, { priority: 'high' }), 44));
+      await Promise.all(tasks);
+      return order;
+    }).should((order) => {
+      expect(order.slice(0, 2)).to.deep.equal([1, 4]);
+    });
+  });
+
   it('rejects immediately when the signal is already aborted', () => {
     run(async () => {
       const opened = await openPDF(multiPage);

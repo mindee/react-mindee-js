@@ -134,6 +134,50 @@ describe('usePDFDocument', () => {
     });
   });
 
+  it('promotes a page still queued behind the prefetch when loadPage asks for it', () => {
+    const harness = mountHarness(multiPage, { prefetch: 5, batch: 1 });
+    cy.wrap(null).should(() => {
+      expect(harness.latest().status).to.equal('ready');
+      expect(harness.latest().loading.size).to.be.greaterThan(0);
+    });
+    cy.then(() => {
+      harness.latest().loadPage(4);
+    });
+    cy.wrap(null).should(() => {
+      const result = harness.latest();
+      expect(result.pages[4]).to.be.a('string');
+      expect(result.pages[2]).to.equal(undefined);
+    });
+  });
+
+  it('resets to an error without exposing the previous document when maxPages tightens', () => {
+    const Limiter = (): JSX.Element => {
+      const [maxPages, setMaxPages] = useState<number | undefined>(undefined);
+      const result = usePDFDocument(multiPage, { prefetch: 1, maxPages });
+      return (
+        <div>
+          <span data-cy="status">{result.status}</span>
+          <span data-cy="doc">{result.document === null ? 'null' : 'set'}</span>
+          <span data-cy="count">{String(result.numPages)}</span>
+          <button
+            data-cy="limit"
+            onClick={() => {
+              setMaxPages(2);
+            }}
+          >
+            limit
+          </button>
+        </div>
+      );
+    };
+    cy.mount(<Limiter />);
+    cy.get('[data-cy=status]').should('have.text', 'ready');
+    cy.get('[data-cy=limit]').click();
+    cy.get('[data-cy=status]').should('have.text', 'error');
+    cy.get('[data-cy=doc]').should('have.text', 'null');
+    cy.get('[data-cy=count]').should('have.text', '0');
+  });
+
   it('reports an error status for an unreadable source', () => {
     const harness = mountHarness('data:application/pdf;base64,AAAA');
     cy.wrap(null).should(() => {

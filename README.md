@@ -100,6 +100,7 @@ PDF pages are rendered in the browser with [pdf.js](https://mozilla.github.io/pd
 The simplest way to display a PDF in a React component:
 
 ```jsx
+import { useState } from 'react';
 import { AnnotationViewer, usePDFDocument } from 'react-mindee-js';
 
 function Document({ file }) {

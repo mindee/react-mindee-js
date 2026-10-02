@@ -33,9 +33,9 @@ export type UsePDFDocumentResult = {
   loading: ReadonlySet<number>;
   /**
    * Ensures the page at `index` (0-based) and the rest of its batch are
-   * rendered. Safe to call repeatedly: already rendered or queued pages are
-   * skipped. The page itself is requested with high priority so it is drawn
-   * before any pending prefetch.
+   * rendered. Safe to call repeatedly: already rendered pages are skipped and
+   * a page still waiting in the queue is promoted. The page itself is
+   * requested with high priority so it is drawn before any pending prefetch.
    */
   loadPage: (index: number) => void;
   /** Renders every page in `[from, to)` (0-based, `to` exclusive). */
@@ -51,6 +51,7 @@ const EMPTY_SET: ReadonlySet<number> = new Set();
 
 type State = {
   source: PDFSource | null | undefined;
+  maxPages: number | undefined;
   status: UsePDFDocumentStatus;
   error: Error | null;
   document: PDFDocumentHandle | null;
@@ -58,8 +59,12 @@ type State = {
   loading: ReadonlySet<number>;
 };
 
-const initialState = (source: PDFSource | null | undefined): State => ({
+const initialState = (
+  source: PDFSource | null | undefined,
+  maxPages: number | undefined,
+): State => ({
   source,
+  maxPages,
   status: source === null || source === undefined ? 'idle' : 'opening',
   error: null,
   document: null,
@@ -110,11 +115,13 @@ export const usePDFDocument = (
     maxPages,
   } = options;
 
-  const [state, setState] = useState<State>(() => initialState(source));
+  const [state, setState] = useState<State>(() =>
+    initialState(source, maxPages),
+  );
   const requested = useRef(new Set<number>());
 
-  if (state.source !== source) {
-    setState(initialState(source));
+  if (state.source !== source || state.maxPages !== maxPages) {
+    setState(initialState(source, maxPages));
   }
 
   useEffect(() => {
@@ -212,10 +219,16 @@ export const usePDFDocument = (
       if (document === null || index < 0 || index >= document.numPages) {
         return;
       }
-      render(index, { priority: 'high' });
+      if (requested.current.has(index)) {
+        void document
+          .getPage(index + 1, { priority: 'high', resolution })
+          .catch(() => undefined);
+      } else {
+        render(index, { priority: 'high' });
+      }
       loadRange(...batchBounds(index, document.numPages, prefetch, batch));
     },
-    [document, render, loadRange, prefetch, batch],
+    [document, render, loadRange, prefetch, batch, resolution],
   );
 
   useEffect(() => {
