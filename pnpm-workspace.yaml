@@ -1,4 +1,9 @@
 allowBuilds:
+  # optional dep of pdfjs-dist 3.x (Node only); not needed in the browser
   canvas: false
   cypress: true
   esbuild: true
+overrides:
+  pdfjs-dist@<=4.1.392: ^4.2.67
+  tar@<=7.5.20: ^7.5.21
+  uuid@<11.1.1: ^11.1.1

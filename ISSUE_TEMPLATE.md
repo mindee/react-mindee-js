@@ -10,8 +10,8 @@ Do you want to ask a question? Are you looking for enterprise support? Get in to
 
 Put an X between the brackets on this line if you have done all of the following:
 
-* [ ] Reproduced the problem or exposed a new need
-* [ ] Checked the github existing issues
+- [ ] Reproduced the problem or exposed a new need
+- [ ] Checked the github existing issues
 
 ### Description
 

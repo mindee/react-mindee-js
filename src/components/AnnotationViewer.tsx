@@ -1,39 +1,84 @@
-import React, { useEffect, useRef } from 'react'
-import Konva from 'konva'
-import { KonvaEventObject } from 'konva/lib/Node'
-import { v4 as uuidv4 } from 'uuid'
+import React, {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactElement,
+} from 'react';
+import Konva from 'konva';
 
 import {
   DEFAULT_ANNOTATION_VIEWER_OPTIONS,
   DEFAULT_DATA,
   DEFAULT_STYLE,
-  KONVA_REFS,
-} from '@/common/constants'
-import {
+  KonvaRefs,
+} from '@/common/constants';
+import type {
+  AnnotationShape,
+  AnnotationViewerOptions,
   AnnotationViewerProps,
   ImageBoundingBox,
   ImageData,
-} from '@/common/types'
+} from '@/common/types';
 
-import { getMousePosition, mapShapesToPolygons } from '@/utils/canvas'
+import { getMousePosition, mapShapesToPolygons } from '@/utils/canvas';
 import {
   handleResizeImage,
   prepareImage,
   setStageBasedImagePosition,
-} from '@/utils/image'
-import { clearLayers } from '@/utils/layer'
-import { rotateImage } from '@/utils/orientation'
+} from '@/utils/image';
+import { clearLayers } from '@/utils/layer';
+import { rotateImage } from '@/utils/orientation';
 import {
   createSelectionRect,
   onSelectionEnd,
   onSelectionMove,
   onSelectionStart,
-} from '@/utils/selection'
-import useMultiSelection from '@/utils/useMultiSelection'
-import { handleStageZoom, handleZoomScale } from '@/utils/zoom'
+} from '@/utils/selection';
+import useMultiSelection from '@/utils/useMultiSelection';
+import { getZoomScale, handleStageZoom, handleZoomScale } from '@/utils/zoom';
+
+type ShapeCallbacks = Pick<
+  AnnotationViewerProps,
+  | 'getPointerPosition'
+  | 'getStage'
+  | 'onShapeClick'
+  | 'onShapeMouseEnter'
+  | 'onShapeMouseLeave'
+  | 'onShapeMultiSelect'
+>;
+
+const drawViewerShapes = (
+  shapesLayer: Konva.Layer,
+  shapes: AnnotationShape[] | undefined,
+  imageBoundingBox: ImageBoundingBox | null,
+  options: AnnotationViewerOptions,
+  selectionRect: Konva.Rect,
+  callbacks: ShapeCallbacks,
+): void => {
+  shapesLayer.destroyChildren();
+  if (options.enableSelection === true) {
+    selectionRect.setAttrs({ ...options.selectionRectConfig });
+    shapesLayer.add(selectionRect);
+  }
+  if (!shapes) {
+    return;
+  }
+  mapShapesToPolygons(
+    shapesLayer,
+    shapes,
+    true,
+    imageBoundingBox,
+    options,
+    callbacks.onShapeClick,
+    callbacks.onShapeMouseEnter,
+    callbacks.onShapeMouseLeave,
+  );
+  shapesLayer.batchDraw();
+};
 
 export default function AnnotationViewer({
-  id: containerId = uuidv4(),
+  id,
   getPointerPosition,
   onShapeMouseEnter,
   onShapeMultiSelect,
@@ -45,220 +90,244 @@ export default function AnnotationViewer({
   onShapeClick,
   options: customOptions = {},
   data = DEFAULT_DATA,
-}: AnnotationViewerProps) {
-  const options = {
+}: AnnotationViewerProps): ReactElement {
+  const generatedId = useId();
+  const containerId = id ?? generatedId;
+  const options: AnnotationViewerOptions = {
     ...DEFAULT_ANNOTATION_VIEWER_OPTIONS,
     ...customOptions,
-  }
-  const annotationData = useRef(DEFAULT_DATA)
-  const isSelectionActiveRef = useRef(false)
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const selectionRectObject = useRef(createSelectionRect(options))
+  };
+  const optionsKey = JSON.stringify(options);
+  const isSelectionActiveRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const selectionRectObject = useRef(createSelectionRect(options));
   const imageDataObject = useRef<ImageData>({
     element: new Image(),
     shape: new Konva.Image({ image: new Image() }),
-  })
+  });
   const layersObject = useRef({
-    shapes: new Konva.Layer({ id: KONVA_REFS.shapesLayer }),
+    shapes: new Konva.Layer({ id: KonvaRefs.ShapesLayer }),
     image: new Konva.Layer({ listening: false }),
-  })
-  const stageObject = useRef<Konva.Stage | null>(null)
-  const imageBoundingBoxObject = useRef<ImageBoundingBox | null>(null)
+  });
+  const stageObject = useRef<Konva.Stage | null>(null);
+  const imageBoundingBoxObject = useRef<ImageBoundingBox | null>(null);
+  const [imageVersion, setImageVersion] = useState(0);
 
-  useMultiSelection({ stage: stageObject.current, isSelectionActiveRef })
-
+  const optionsRef = useRef(options);
+  const callbacksRef = useRef<ShapeCallbacks>({});
   useEffect(() => {
-    initCanvas()
-  }, [])
-
-  useEffect(() => {
-    window.addEventListener('resize', resizeImage)
-    return () => {
-      window.removeEventListener('resize', resizeImage)
-    }
-  }, [data])
-
-  useEffect(() => {
-    if (
-      customStagePosition &&
-      stageObject.current &&
-      imageBoundingBoxObject.current
-    ) {
-      const stageX = stageObject.current.x()
-      const stageY = stageObject.current.y()
-      const zoomScale = stageObject.current.getAttr('zoomScale')
-      const newPosition = {
-        x: stageX + customStagePosition.x * zoomScale,
-        y: stageY + customStagePosition.y * zoomScale,
-      }
-      setStageBasedImagePosition({
-        imageBoundingBox: imageBoundingBoxObject.current,
-        stage: stageObject.current,
-        newPosition,
-      })
-    }
-  }, [customStagePosition])
-
-  const applyCustomZoomLevel = () => {
-    if (!customZoomLevel) return
-
-    handleZoomScale(
-      stageObject.current,
-      customZoomLevel,
-      imageBoundingBoxObject.current,
-    )
-  }
-
-  useEffect(() => applyCustomZoomLevel(), [customZoomLevel])
-
-  useEffect(() => {
-    // if image is null or undefined, we should clear everything and wait for the next state change
-    if (!data.image) {
-      clearLayers(layersObject.current)
-      imageDataObject.current.element = new Image()
-      imageDataObject.current.shape.image(imageDataObject.current.element)
-      annotationData.current = data
-      return
-    }
-    if (
-      annotationData.current.image !== data.image ||
-      data.orientation !== annotationData.current.orientation
-    ) {
-      annotationData.current = data
-      loadImage()
-    } else {
-      annotationData.current = data
-      drawShapes()
-    }
-  }, [data])
-
-  const initCanvas = () => {
-    stageObject.current = new Konva.Stage({
-      container: containerId,
-    })
-    getStage?.(stageObject.current)
-    stageObject.current.add(
-      layersObject.current.image,
-      layersObject.current.shapes,
-    )
-    stageObject.current.on('wheel', onZoom)
-    layersObject.current.image.add(imageDataObject.current.shape)
-    getPointerPosition &&
-      stageObject.current.on('mousemove', () => {
-        const mousePointTo = getMousePosition(
-          stageObject.current,
-          imageBoundingBoxObject.current,
-        )
-        mousePointTo && getPointerPosition(mousePointTo)
-      })
-    if (options.enableSelection) {
-      layersObject.current.shapes.add(selectionRectObject.current)
-      stageObject.current.on('mousedown touchstart', (event) =>
-        onSelectionStart(
-          event,
-          layersObject.current.shapes,
-          selectionRectObject.current,
-          isSelectionActiveRef.current,
-        ),
-      )
-      stageObject.current.on('mousemove touchmove', () =>
-        onSelectionMove(
-          layersObject.current.shapes,
-          selectionRectObject.current,
-        ),
-      )
-      stageObject.current.on('mouseup touchend', () =>
-        onSelectionEnd(
-          layersObject.current.shapes,
-          selectionRectObject.current,
-          onShapeMultiSelect,
-        ),
-      )
-
-      stageObject.current.on('dragstart', () => {
-        if (stageObject.current?.container()) {
-          stageObject.current.container().style.cursor = 'grabbing'
-        }
-      })
-      stageObject.current.on('dragend', () => {
-        if (stageObject.current?.container()) {
-          stageObject.current.container().style.cursor = 'pointer'
-        }
-      })
-    }
-  }
-
-  const loadImage = async () => {
-    annotationData.current.image = await prepareImage(
-      annotationData.current.image!,
-    )
-    imageDataObject.current.element.onload = () => {
-      imageDataObject.current.shape.image(imageDataObject.current.element)
-      resizeImage()
-      applyCustomZoomLevel()
-    }
-
-    if (annotationData.current.orientation) {
-      try {
-        const image = await rotateImage(annotationData.current)
-
-        imageDataObject.current.element.src = image
-      } catch (error) {
-        console.error(error)
-      }
-    } else {
-      imageDataObject.current.element.src = annotationData.current.image!
-    }
-  }
-
-  const drawShapes = () => {
-    layersObject.current.shapes.destroyChildren()
-    if (options.enableSelection) {
-      layersObject.current.shapes.add(selectionRectObject.current)
-    }
-    if (!annotationData.current.shapes) {
-      return
-    }
-
-    mapShapesToPolygons(
-      layersObject.current.shapes,
-      annotationData.current.shapes,
-      true,
-      imageBoundingBoxObject.current,
-      options,
+    optionsRef.current = options;
+    callbacksRef.current = {
+      getPointerPosition,
+      getStage,
       onShapeClick,
       onShapeMouseEnter,
       onShapeMouseLeave,
-    )
-    layersObject.current.shapes.batchDraw()
-  }
+      onShapeMultiSelect,
+    };
+  });
 
-  const resizeImage = () => {
+  useMultiSelection({ stageRef: stageObject, isSelectionActiveRef });
+
+  const fitImageToContainer = (): void => {
     const imageBoundingBox = handleResizeImage(
       stageObject.current,
       containerRef.current,
       imageDataObject.current,
-    )
-    if (imageBoundingBox) {
-      imageBoundingBoxObject.current = imageBoundingBox
-      layersObject.current.image.batchDraw()
-      drawShapes()
+    );
+    if (!imageBoundingBox) {
+      return;
     }
-  }
+    imageBoundingBoxObject.current = imageBoundingBox;
+    layersObject.current.image.batchDraw();
+    setImageVersion((v) => v + 1);
+  };
 
-  const onZoom = (event: KonvaEventObject<WheelEvent>) => {
-    handleStageZoom(
-      stageObject.current,
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+    const stage = new Konva.Stage({ container });
+    const layers = layersObject.current;
+    stageObject.current = stage;
+    stage.add(layers.image, layers.shapes);
+    layers.image.add(imageDataObject.current.shape);
+    callbacksRef.current.getStage?.(stage);
+
+    stage.on('wheel', (event) => {
+      handleStageZoom(
+        stage,
+        imageBoundingBoxObject.current,
+        event,
+        optionsRef.current,
+      );
+    });
+    stage.on('mousemove', () => {
+      const { getPointerPosition: getPointerPosCallback } =
+        callbacksRef.current;
+      if (!getPointerPosCallback) {
+        return;
+      }
+      const mousePointTo = getMousePosition(
+        stage,
+        imageBoundingBoxObject.current,
+      );
+      if (mousePointTo) {
+        getPointerPosCallback(mousePointTo);
+      }
+    });
+    stage.on('mousedown touchstart', (event) => {
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
+      onSelectionStart(
+        event,
+        layers.shapes,
+        selectionRectObject.current,
+        isSelectionActiveRef.current,
+      );
+    });
+    stage.on('mousemove touchmove', () => {
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
+      onSelectionMove(layers.shapes, selectionRectObject.current);
+    });
+    stage.on('mouseup touchend', () => {
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
+      onSelectionEnd(
+        layers.shapes,
+        selectionRectObject.current,
+        callbacksRef.current.onShapeMultiSelect,
+      );
+    });
+    stage.on('dragstart', () => {
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
+      stage.container().style.cursor = 'grabbing';
+    });
+    stage.on('dragend', () => {
+      if (optionsRef.current.enableSelection !== true) {
+        return;
+      }
+      stage.container().style.cursor = 'pointer';
+    });
+
+    return () => {
+      stage.destroy();
+      stageObject.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('resize', fitImageToContainer);
+    return () => {
+      window.removeEventListener('resize', fitImageToContainer);
+    };
+  }, []);
+
+  const { image, orientation, shapes } = data;
+
+  useEffect(() => {
+    if (image === undefined || image === null || image === '') {
+      clearLayers(layersObject.current);
+      imageDataObject.current.element = new Image();
+      imageDataObject.current.shape.image(imageDataObject.current.element);
+      imageBoundingBoxObject.current = null;
+      return;
+    }
+    const controller = new AbortController();
+    const { signal } = controller;
+    void (async () => {
+      try {
+        const prepared = await prepareImage(image);
+        signal.throwIfAborted();
+        const src = await rotateImage(prepared, orientation);
+        signal.throwIfAborted();
+        const element = new Image();
+        element.onload = () => {
+          if (signal.aborted) {
+            return;
+          }
+          imageDataObject.current.element = element;
+          imageDataObject.current.shape.image(element);
+          fitImageToContainer();
+        };
+        element.src = src;
+      } catch (error) {
+        if (!signal.aborted) {
+          console.error(error);
+        }
+      }
+    })();
+    return (): void => {
+      controller.abort();
+    };
+  }, [image, orientation]);
+
+  useEffect(() => {
+    drawViewerShapes(
+      layersObject.current.shapes,
+      shapes,
       imageBoundingBoxObject.current,
-      event,
-      options,
-    )
-  }
+      {
+        ...optionsRef.current,
+        onClick: (polygon) => optionsRef.current.onClick?.(polygon),
+        onMouseEnter: (polygon) => {
+          optionsRef.current.onMouseEnter?.(polygon);
+        },
+        onMouseLeave: (polygon) => {
+          optionsRef.current.onMouseLeave?.(polygon);
+        },
+      },
+      selectionRectObject.current,
+      {
+        onShapeClick: (shape) => callbacksRef.current.onShapeClick?.(shape),
+        onShapeMouseEnter: (shape) =>
+          callbacksRef.current.onShapeMouseEnter?.(shape),
+        onShapeMouseLeave: (shape) =>
+          callbacksRef.current.onShapeMouseLeave?.(shape),
+      },
+    );
+  }, [shapes, optionsKey, imageVersion]);
+
+  useEffect(() => {
+    if (customZoomLevel === undefined) {
+      return;
+    }
+    handleZoomScale(
+      stageObject.current,
+      customZoomLevel,
+      imageBoundingBoxObject.current,
+    );
+  }, [customZoomLevel, imageVersion]);
+
+  useEffect(() => {
+    const stage = stageObject.current;
+    const imageBoundingBox = imageBoundingBoxObject.current;
+    if (!customStagePosition || !stage || !imageBoundingBox) {
+      return;
+    }
+    const zoomScale = getZoomScale(stage);
+    setStageBasedImagePosition({
+      imageBoundingBox,
+      stage,
+      newPosition: {
+        x: stage.x() + customStagePosition.x * zoomScale,
+        y: stage.y() + customStagePosition.y * zoomScale,
+      },
+    });
+  }, [customStagePosition]);
+
   return (
     <div
       style={{ ...DEFAULT_STYLE, ...style }}
       id={containerId}
       ref={containerRef}
     ></div>
-  )
+  );
 }
