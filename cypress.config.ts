@@ -20,13 +20,24 @@ export default defineConfig({
 
       return config;
     },
-    specPattern: 'src/**/*.spec.{js,ts,jsx,tsx}',
+    specPattern: [
+      'src/**/*.spec.{js,ts,jsx,tsx}',
+      'cypress/integration/**/*.spec.{ts,tsx}',
+    ],
     devServer: {
       framework: 'react',
       bundler: 'vite',
       viteConfig: defineViteConfig({
         assetsInclude: ['**/*.tiff', '**/*.heic'],
         resolve: { tsconfigPaths: true },
+        optimizeDeps: {
+          include: [
+            'react',
+            'react-dom',
+            'react-dom/client',
+            'react/jsx-runtime',
+          ],
+        },
       }),
     },
   },
