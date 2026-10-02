@@ -27,15 +27,14 @@
     "CHANGELOG.md"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   },
   "packageManager": "pnpm@12.8.1",
   "dependencies": {
     "heic2any": "^0.0.4",
-    "konva": "^8.1.3",
-    "pdfjs-dist": "3.11.174",
-    "utif": "^3.1.0",
-    "uuid": "^8.3.2"
+    "konva": "^10.7.0",
+    "pdfjs-dist": "^6.3.289",
+    "utif": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -46,8 +45,7 @@
     "@types/node": "^24.19.0",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
-    "@types/utif": "^3.0.1",
-    "@types/uuid": "^8.3.1",
+    "@types/utif": "^3.0.6",
     "@vitejs/plugin-react": "^6.1.1",
     "cypress": "^16.1.0",
     "eslint": "^10.11.0",
@@ -73,7 +71,8 @@
     "cy:prepare": "pnpm build",
     "build": "vite build",
     "cy:open": "cypress open --component --browser chrome",
-    "cy:run": "cypress run --component --browser chrome",
+    "cy:run": "cypress run --component --browser chrome --spec 'src/**/*.spec.{ts,tsx}'",
+    "cy:run:integration": "cypress run --component --browser chrome --spec 'cypress/integration/**/*.spec.{ts,tsx}'",
     "docs:start": "pnpm --dir ./docs start",
     "docs:install": "pnpm --dir ./docs install",
     "docs:prepare": "pnpm build && pnpm docs:install",

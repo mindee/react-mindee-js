@@ -130,7 +130,7 @@ export const handleStageZoom = (
   }
   const { newScale, newPos } = stageZoom;
 
-  if (newScale > max) {
+  if (newScale / imageBoundingBox.scale > max) {
     return;
   }
 

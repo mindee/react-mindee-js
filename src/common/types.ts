@@ -29,8 +29,14 @@ export type AnnotationViewerOptions = BaseOptions & {
   onMouseEnter?: (polygon: Line) => void;
   onMouseLeave?: (polygon: Line) => void;
   onClick?: (polygon: Line) => void;
+  /**
+   * Wheel zoom settings. All factors are relative to the fitted image
+   * (1 = image fits the container), independently of its pixel size.
+   */
   zoom?: {
+    /** Multiplier applied per wheel step. */
     modifier: number;
+    /** Highest magnification reachable through the wheel. */
     max: number;
     defaultZoom: number;
   };

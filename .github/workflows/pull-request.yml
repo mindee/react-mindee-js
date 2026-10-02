@@ -17,3 +17,7 @@ jobs:
     uses: ./.github/workflows/_test-components.yml
     needs: static_analysis
     secrets: inherit
+  test_integration:
+    uses: ./.github/workflows/_test-integration.yml
+    needs: static_analysis
+    secrets: inherit

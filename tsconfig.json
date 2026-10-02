@@ -5,7 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "types": ["node", "cypress"],
+    "types": ["node", "cypress", "vite/client"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitReturns": true,
