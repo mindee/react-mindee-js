@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { AnnotationShape, AnnotationViewerOptions } from '@/index';
 import dummyImage from 'cypress/assets/demo.jpg';
 import { dummyShapes } from 'cypress/assets/shapes';
@@ -78,15 +79,53 @@ describe('built library AnnotationViewer', () => {
     });
   });
 
-  it('redraws when the shapes prop changes', () => {
+  it('redraws the existing stage when the shapes prop changes after mount', () => {
     loadDist().then((lib) => {
-      mountViewer(lib, { shapes: dummyShapes.slice(0, 2) }).then(
-        ({ stage }) => {
-          waitForShapes(stage, 2);
-        },
-      );
-      mountViewer(lib, { shapes: dummyShapes }).then(({ stage }) => {
-        waitForShapes(stage, dummyShapes.length);
+      let stage: Stage | undefined;
+      const stageOrThrow = (): Stage => {
+        if (stage === undefined) {
+          throw new Error('getStage was never called');
+        }
+        return stage;
+      };
+
+      /**
+       * Harness owning the shapes as React state so that the test can push a
+       * new prop value into the same mounted viewer instead of remounting.
+       */
+      const ShapesHarness = (): React.JSX.Element => {
+        const [shapes, setShapes] = useState(dummyShapes.slice(0, 2));
+        return (
+          <>
+            <button
+              data-cy="add-shapes"
+              onClick={() => {
+                setShapes(dummyShapes);
+              }}
+            >
+              add shapes
+            </button>
+            <lib.AnnotationViewer
+              id={containerId}
+              data={{ image: dummyImage, shapes }}
+              style={CONTAINER_STYLE}
+              getStage={(value) => {
+                stage = value;
+              }}
+            />
+          </>
+        );
+      };
+
+      cy.mount(<ShapesHarness />);
+      waitForShapes(stageOrThrow, 2);
+      cy.wrap(null).then(() => {
+        const initialStage = stageOrThrow();
+        cy.get('[data-cy="add-shapes"]').click();
+        waitForShapes(stageOrThrow, dummyShapes.length);
+        cy.wrap(null).should(() => {
+          expect(stageOrThrow()).to.equal(initialStage);
+        });
       });
     });
   });

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import dummyImage from 'cypress/assets/demo.jpg';
 import { dummyShapes } from 'cypress/assets/shapes';
 import type { Stage } from 'konva/lib/Stage';
@@ -60,17 +61,59 @@ describe('built library AnnotationLens', () => {
     });
   });
 
-  it('moves the stage when the pointer position changes', () => {
+  it('moves the already mounted stage when the pointer position prop changes', () => {
     loadDist().then((lib) => {
-      let initialPosition = { x: 0, y: 0 };
-      mountLens(lib, { pointerPosition: { x: 0.2, y: 0.2 } }).then((stage) => {
-        cy.wrap(null).should(() => {
-          initialPosition = stage().position();
+      let stage: Stage | undefined;
+      const stageOrThrow = (): Stage => {
+        if (stage === undefined) {
+          throw new Error('getStage was never called');
+        }
+        return stage;
+      };
+
+      /**
+       * Harness owning the pointer position as React state so that the test
+       * updates the prop of the same mounted lens instead of remounting it.
+       */
+      const PointerHarness = (): React.JSX.Element => {
+        const [pointerPosition, setPointerPosition] = useState({
+          x: 0.2,
+          y: 0.2,
         });
+        return (
+          <>
+            <button
+              data-cy="move-pointer"
+              onClick={() => {
+                setPointerPosition({ x: 0.8, y: 0.8 });
+              }}
+            >
+              move pointer
+            </button>
+            <lib.AnnotationLens
+              id={containerId}
+              data={{ image: dummyImage, shapes: dummyShapes }}
+              style={CONTAINER_STYLE}
+              pointerPosition={pointerPosition}
+              getStage={(value) => {
+                stage = value;
+              }}
+            />
+          </>
+        );
+      };
+
+      cy.mount(<PointerHarness />);
+      cy.wrap(null).should(() => {
+        expect(stageOrThrow().findOne('Image')).to.not.equal(undefined);
       });
-      mountLens(lib, { pointerPosition: { x: 0.8, y: 0.8 } }).then((stage) => {
+      cy.wrap(null).then(() => {
+        const initialStage = stageOrThrow();
+        const initialPosition = initialStage.position();
+        cy.get('[data-cy="move-pointer"]').click();
         cy.wrap(null).should(() => {
-          const position = stage().position();
+          expect(stageOrThrow()).to.equal(initialStage);
+          const position = stageOrThrow().position();
           expect(position.x).to.not.equal(initialPosition.x);
           expect(position.y).to.not.equal(initialPosition.y);
         });
