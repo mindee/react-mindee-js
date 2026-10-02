@@ -38,7 +38,8 @@ export const DEFAULT_ANNOTATION_VIEWER_OPTIONS = {
   },
   onMouseEnter: (polygon: Line): void => {
     const stroke = polygon.stroke();
-    polygon.setAttr('fill', `${stroke}40`);
+    const fill = typeof stroke === 'string' ? `${stroke}40` : stroke;
+    polygon.setAttr('fill', fill);
     polygon.draw();
   },
   shapeConfig: {

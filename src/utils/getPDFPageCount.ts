@@ -1,8 +1,6 @@
-import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist';
-
-GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.js`;
+import { loadPdfDocument } from './pdf';
 
 export default async function getPDFPageCount(file: string): Promise<number> {
-  const pdf = await getDocument(file).promise;
+  const pdf = await loadPdfDocument(file);
   return pdf.numPages;
 }

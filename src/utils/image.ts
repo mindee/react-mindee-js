@@ -1,4 +1,3 @@
-import heic2any from 'heic2any';
 import type Konva from 'konva';
 import type { Stage } from 'konva/lib/Stage';
 import UTIF from 'utif';
@@ -79,8 +78,8 @@ export const tiffToJpg = async (blob: Blob): Promise<string> => {
 };
 
 export const heicToJpg = async (blob: Blob): Promise<string> => {
+  const { default: heic2any } = await import('heic2any');
   const result = await heic2any({ blob, toType: 'image/jpeg' });
-  // Multi-image HEIC files yield one Blob per image; only the first is shown.
   const firstImage = Array.isArray(result) ? result[0] : result;
   if (firstImage === undefined) {
     throw new Error('HEIC file contains no image');
