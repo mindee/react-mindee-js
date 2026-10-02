@@ -33,9 +33,16 @@ export const dataURItoBlob = (dataURI: string): Blob => {
   return new Blob([ia], { type: mimeString });
 };
 
+const HEIF_MIME_TYPES = new Set([
+  'image/heic',
+  'image/heif',
+  'image/heic-sequence',
+  'image/heif-sequence',
+]);
+
 export const prepareImage = async (image: string): Promise<string> => {
   const blob = await urlToBlob(image);
-  if (blob.type === 'image/heic') {
+  if (HEIF_MIME_TYPES.has(blob.type)) {
     return await heicToJpg(blob);
   }
   if (blob.type === 'image/tiff') {
