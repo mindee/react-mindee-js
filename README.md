@@ -93,7 +93,8 @@ function App() {
 
 ## PDF documents
 
-PDF pages are rendered in the browser with [pdf.js](https://mozilla.github.io/pdf.js/) (loaded lazily, in a Web Worker, the first time a PDF is processed). Pages are rendered **on demand**, so large documents can be displayed progressively instead of being rasterized up front.
+PDF pages are rendered in the browser with [pdf.js](https://mozilla.github.io/pdf.js/) (the first time a PDF is processed, it's loaded lazily in a Web Worker).
+Pages are now loaded by batches (5 initial pre-fetched pages, then 3 by 3 by default) to accomodate for very large documents.
 
 ### `usePDFDocument` hook
 
@@ -136,14 +137,6 @@ function Document({ file }) {
 }
 ```
 
-- **`source`** : a URL / data URL string, `Blob`/`File`, `ArrayBuffer` or `Uint8Array`. Keep it referentially stable between renders; a new value closes the previous document and opens the new one.
-- **`options.prefetch`** (default `5`) : pages rendered as soon as the document opens.
-- **`options.batch`** (default `3`) : pages rendered together when `loadPage` asks for one that is not rendered yet.
-- **`options.resolution`** : target pixel count of each render (default 1.5 Mpx; use ~50 000 for thumbnails).
-- **`options.maxPages`** : reject documents with more pages (`TooManyPagesError`).
-
-The hook returns `status` (`idle` | `opening` | `ready` | `error`), `numPages`, `pages` (a **0-based** array with `undefined` for pages not rendered yet), `loading` (set of page indexes being rendered), `loadPage(index)`, `loadRange(from, to)`, `error` and the underlying `document` handle. Call `loadPage(index)` whenever a page comes into view: it is idempotent, renders that page with high priority and queues the rest of its batch. The document and every image URL it produced are released automatically when `source` changes or the component unmounts.
-
 ### `openPDF` (framework-agnostic)
 
 For custom scheduling, use the handle directly. Page numbers are **1-based**, like pdf.js.
@@ -161,10 +154,6 @@ for await (const { pageNumber, image } of doc.getPages(2, 4)) {
 
 await doc.destroy(); // revokes every blob: URL handed out by this handle
 ```
-
-`getPage` / `getPages` options: `resolution`, `output` (`'object-url'` default, or `'data-url'` for a base64 string), `priority` (`'high'` jumps ahead of pending renders, `'low'` appends) and `signal` (`AbortSignal`; rejects with an `AbortError`). Renders are cached per page and resolution for the lifetime of the handle.
-
-Images are `blob:` object URLs by default: they only live in the current tab until `destroy()`. To upload one, read it back first (`await fetch(url).then((r) => r.blob())`), or request `{ output: 'data-url' }`.
 
 ### `getPDFPageCount` / `getImagesFromPDF`
 

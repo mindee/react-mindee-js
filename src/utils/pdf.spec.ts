@@ -94,6 +94,23 @@ describe('openPDF', () => {
     }).should('deep.equal', ['RangeError', 'RangeError']);
   });
 
+  it('rejects an invalid range as a whole instead of rendering the valid part', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      const rejected = await Promise.all([
+        errorName(collect(opened.getPages(0, PAGE_COUNT))),
+        errorName(collect(opened.getPages(1, PAGE_COUNT + 1))),
+        errorName(collect(opened.getPages(1, Number.MAX_SAFE_INTEGER))),
+        errorName(collect(opened.getPages(3, 2))),
+      ]);
+      return rejected;
+    }).should(
+      'deep.equal',
+      Array.from({ length: 4 }, () => 'RangeError'),
+    );
+  });
+
   it('yields an inclusive 1-based range in order', () => {
     run(async () => {
       const opened = await openPDF(multiPage);

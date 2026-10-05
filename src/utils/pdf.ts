@@ -129,6 +129,18 @@ const tooManyPagesError = (): Error => {
 const destroyedError = (): Error =>
   new Error('This PDF document handle has been destroyed');
 
+const assertPageInRange = (pageNumber: number, numPages: number): void => {
+  if (
+    !Number.isInteger(pageNumber) ||
+    pageNumber < 1 ||
+    pageNumber > numPages
+  ) {
+    throw new RangeError(
+      `Page ${String(pageNumber)} is out of range (1-${String(numPages)})`,
+    );
+  }
+};
+
 const toDocumentParameters = async (
   source: PDFSource,
 ): Promise<{ url: string } | { data: Uint8Array }> => {
@@ -178,15 +190,7 @@ class PDFRenderQueue {
     if (this.destroyed) {
       throw destroyedError();
     }
-    if (
-      !Number.isInteger(pageNumber) ||
-      pageNumber < 1 ||
-      pageNumber > this.document.numPages
-    ) {
-      throw new RangeError(
-        `Page ${String(pageNumber)} is out of range (1-${String(this.document.numPages)})`,
-      );
-    }
+    assertPageInRange(pageNumber, this.document.numPages);
     if (options.signal?.aborted === true) {
       throw abortError();
     }
@@ -395,6 +399,13 @@ export const openPDF = async (
       await queue.request(pageNumber, pageOptions, 'high'),
     getPages: (from, to, pageOptions = {}) => ({
       async *[Symbol.asyncIterator]() {
+        assertPageInRange(from, pdf.numPages);
+        assertPageInRange(to, pdf.numPages);
+        if (to < from) {
+          throw new RangeError(
+            `Invalid page range: ${String(from)}-${String(to)}`,
+          );
+        }
         const requests = Array.from({ length: to - from + 1 }, (_, index) => {
           const pageNumber = from + index;
           return {
