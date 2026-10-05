@@ -248,22 +248,30 @@ export const usePDFDocument = (
 
   const document = state.document;
 
+  /** Current generation for `document` at `resolution`, started if needed. */
+  const generation = useCallback(
+    (handle: PDFDocumentHandle): Requested => {
+      if (
+        requested.current.document !== handle ||
+        requested.current.resolution !== resolution
+      ) {
+        requested.current = nextGeneration(
+          requested.current,
+          handle,
+          resolution,
+        );
+      }
+      return requested.current;
+    },
+    [resolution],
+  );
+
   const render = useCallback(
     (index: number, pageOptions: PDFPageOptions) => {
       if (document === null) {
         return;
       }
-      if (
-        requested.current.document !== document ||
-        requested.current.resolution !== resolution
-      ) {
-        requested.current = nextGeneration(
-          requested.current,
-          document,
-          resolution,
-        );
-      }
-      const tracker = requested.current;
+      const tracker = generation(document);
       if (tracker.indexes.has(index)) {
         return;
       }
@@ -309,7 +317,7 @@ export const usePDFDocument = (
           });
         });
     },
-    [document, resolution],
+    [document, generation, resolution],
   );
 
   const loadRange = useCallback(
@@ -340,12 +348,9 @@ export const usePDFDocument = (
       ) {
         return;
       }
-      const tracker = requested.current;
-      if (
-        tracker.document === document &&
-        tracker.resolution === resolution &&
-        tracker.indexes.has(index)
-      ) {
+      const tracker = generation(document);
+      if (tracker.indexes.has(index)) {
+        // Already queued: a second high-priority caller promotes the render.
         void document
           .getPage(index + 1, {
             priority: 'high',
@@ -358,7 +363,7 @@ export const usePDFDocument = (
       }
       loadRange(...batchBounds(index, document.numPages, prefetch, batch));
     },
-    [document, render, loadRange, prefetch, batch, resolution],
+    [document, generation, render, loadRange, prefetch, batch, resolution],
   );
 
   useEffect(() => {
