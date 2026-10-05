@@ -204,6 +204,30 @@ describe('openPDF', () => {
     });
   });
 
+  it('rejects opening with an AbortError when the signal fires while loading', () => {
+    run(async () => {
+      const controller = new AbortController();
+      const opening = openPDF(multiPage, { signal: controller.signal });
+      controller.abort();
+      const name = await errorName(opening);
+      // The shared worker stays usable for the next document.
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      return { name, numPages: opened.numPages };
+    }).should(({ name, numPages }) => {
+      expect(name).to.equal('AbortError');
+      expect(numPages).to.equal(PAGE_COUNT);
+    });
+  });
+
+  it('rejects opening immediately with an already aborted signal', () => {
+    run(async () => {
+      const controller = new AbortController();
+      controller.abort();
+      return await errorName(openPDF(multiPage, { signal: controller.signal }));
+    }).should('equal', 'AbortError');
+  });
+
   it('rejects with an AbortError when a queued request is aborted', () => {
     run(async () => {
       const opened = await openPDF(multiPage);

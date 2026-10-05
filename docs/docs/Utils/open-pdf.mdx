@@ -36,6 +36,8 @@ A URL or data URL string, a [File](https://developer.mozilla.org/docs/Web/API/Fi
 interface OpenPDFOptions {
   /** Rejects with a `TooManyPagesError` when the document has more pages. */
   maxPages?: number
+  /** Aborting stops the download/parse and rejects with an `AbortError`. */
+  signal?: AbortSignal
 }
 ```
 

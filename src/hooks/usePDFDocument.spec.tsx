@@ -281,6 +281,36 @@ describe('usePDFDocument', () => {
       });
   });
 
+  it('aborts pending renders of the previous resolution', () => {
+    const Resizer = (): JSX.Element => {
+      const [resolution, setResolution] = useState(100_000);
+      const result = usePDFDocument(multiPage, { prefetch: 5, resolution });
+      return (
+        <div>
+          <span data-cy="status">{result.status}</span>
+          <span data-cy="loading">{String(result.loading.size)}</span>
+          <span data-cy="ready">{String(readyCount(result))}</span>
+          <span data-cy="error">{result.error?.message ?? 'none'}</span>
+          <button
+            data-cy="grow"
+            onClick={() => {
+              setResolution(400_000);
+            }}
+          >
+            grow
+          </button>
+        </div>
+      );
+    };
+    cy.mount(<Resizer />);
+    // Switch while the 5-page prefetch is still rendering.
+    cy.get('[data-cy=status]').should('have.text', 'ready');
+    cy.get('[data-cy=grow]').click();
+    cy.get('[data-cy=ready]').should('have.text', String(PAGE_COUNT));
+    cy.get('[data-cy=loading]').should('have.text', '0');
+    cy.get('[data-cy=error]').should('have.text', 'none');
+  });
+
   it('ignores renders of the previous document after a source swap mid-prefetch', () => {
     const Swapper = (): JSX.Element => {
       const [source, setSource] = useState<string | Blob>(multiPage);

@@ -75,14 +75,29 @@ type State = {
 
 /**
  * Pages requested so far, tagged with the document and resolution they were
- * requested for. A change of either starts a new generation; callbacks from
- * an older generation are ignored so a closed document cannot touch the
- * state of its replacement.
+ * requested for. A change of either starts a new generation: the previous
+ * generation's pending renders are aborted and its callbacks ignored, so a
+ * closed document cannot touch the state of its replacement.
  */
 type Requested = {
   document: PDFDocumentHandle | null;
   resolution: number | undefined;
   indexes: Set<number>;
+  controller: AbortController;
+};
+
+const nextGeneration = (
+  previous: Requested,
+  document: PDFDocumentHandle | null,
+  resolution: number | undefined,
+): Requested => {
+  previous.controller.abort();
+  return {
+    document,
+    resolution,
+    indexes: new Set(),
+    controller: new AbortController(),
+  };
 };
 
 const initialState = (
@@ -161,6 +176,7 @@ export const usePDFDocument = (
     document: null,
     resolution,
     indexes: new Set(),
+    controller: new AbortController(),
   });
 
   if (state.source !== source || state.maxPages !== maxPages) {
@@ -191,18 +207,14 @@ export const usePDFDocument = (
     }
 
     let handle: PDFDocumentHandle | undefined;
-    let cancelled = false;
-    requested.current = {
-      ...requested.current,
-      document: null,
-      indexes: new Set(),
-    };
-    openPDF(source, { maxPages })
-      .then(async (opened) => {
-        if (cancelled) {
-          await opened.destroy();
-          return;
-        }
+    const opening = new AbortController();
+    requested.current = nextGeneration(
+      requested.current,
+      null,
+      requested.current.resolution,
+    );
+    openPDF(source, { maxPages, signal: opening.signal })
+      .then((opened) => {
         handle = opened;
         setState((previous) => ({
           ...previous,
@@ -212,7 +224,7 @@ export const usePDFDocument = (
         }));
       })
       .catch((reason: unknown) => {
-        if (!cancelled) {
+        if (!opening.signal.aborted) {
           setState((previous) => ({
             ...previous,
             status: 'error',
@@ -222,7 +234,7 @@ export const usePDFDocument = (
       });
 
     return () => {
-      cancelled = true;
+      opening.abort();
       void handle?.destroy();
     };
   }, [source, maxPages]);
@@ -234,25 +246,32 @@ export const usePDFDocument = (
       if (document === null) {
         return;
       }
-      const tracker = requested.current;
-      if (tracker.document !== document || tracker.resolution !== resolution) {
-        tracker.document = document;
-        tracker.resolution = resolution;
-        tracker.indexes = new Set();
+      if (
+        requested.current.document !== document ||
+        requested.current.resolution !== resolution
+      ) {
+        requested.current = nextGeneration(
+          requested.current,
+          document,
+          resolution,
+        );
       }
+      const tracker = requested.current;
       if (tracker.indexes.has(index)) {
         return;
       }
       tracker.indexes.add(index);
-      const stale = (): boolean =>
-        requested.current.document !== document ||
-        requested.current.resolution !== resolution;
+      const stale = (): boolean => requested.current !== tracker;
       setState((previous) => ({
         ...previous,
         loading: new Set(previous.loading).add(index),
       }));
       document
-        .getPage(index + 1, { ...pageOptions, resolution })
+        .getPage(index + 1, {
+          ...pageOptions,
+          resolution,
+          signal: tracker.controller.signal,
+        })
         .then((image) => {
           if (stale()) {
             return;

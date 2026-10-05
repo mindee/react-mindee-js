@@ -101,6 +101,11 @@ export type PDFDocumentHandle = {
 export type OpenPDFOptions = {
   /** Rejects with a `TooManyPagesError` when the document has more pages. */
   maxPages?: number;
+  /**
+   * Aborting stops the download/parse, releases the partial document and
+   * rejects with an `AbortError`.
+   */
+  signal?: AbortSignal;
 };
 
 /** One awaiting caller of a render; several callers can share a request. */
@@ -419,13 +424,35 @@ export const openPDF = async (
   source: PDFSource,
   options: OpenPDFOptions = {},
 ): Promise<PDFDocumentHandle> => {
+  const { signal } = options;
+  const isAborted = (): boolean => signal?.aborted === true;
+  if (isAborted()) {
+    throw abortError();
+  }
   const { pdfjs, worker } = await loadPdfjs();
-  const pdf = await pdfjs.getDocument({
-    ...(await toDocumentParameters(source)),
-    worker,
-  }).promise;
+  const parameters = await toDocumentParameters(source);
+  if (isAborted()) {
+    throw abortError();
+  }
+  const loadingTask = pdfjs.getDocument({ ...parameters, worker });
+  const onAbort = (): void => {
+    void loadingTask.destroy();
+  };
+  signal?.addEventListener('abort', onAbort, { once: true });
+  let pdf: PDFDocumentProxy;
+  try {
+    pdf = await loadingTask.promise;
+  } catch (error: unknown) {
+    throw isAborted() ? abortError() : error;
+  } finally {
+    signal?.removeEventListener('abort', onAbort);
+  }
+  if (isAborted()) {
+    await loadingTask.destroy();
+    throw abortError();
+  }
   if (options.maxPages !== undefined && pdf.numPages > options.maxPages) {
-    await pdf.loadingTask.destroy();
+    await loadingTask.destroy();
     throw tooManyPagesError();
   }
 
