@@ -1,25 +1,33 @@
 import type * as Pdfjs from 'pdfjs-dist';
-import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
+import type { PDFDocumentProxy, PDFWorker, RenderTask } from 'pdfjs-dist';
 
 import { MAX_PDF_SCALE, PDF_RESOLUTION } from '@/common/constants';
 
-let pdfjsModule: Promise<typeof Pdfjs> | undefined;
+type PdfjsRuntime = { pdfjs: typeof Pdfjs; worker: PDFWorker };
+
+let runtime: Promise<PdfjsRuntime> | undefined;
 
 /**
  * Loads pdf.js and its worker on first use, so consumers need no CDN access or
  * manual worker configuration. Both live in lazy chunks outside the main bundle.
+ *
+ * The worker is wrapped in one long-lived `PDFWorker` handed explicitly to
+ * every `getDocument` call. Documents therefore never own the worker: pdf.js
+ * only flags a worker as "being destroyed" (making the next `getDocument`
+ * throw until the destroy settles) when it created the wrapper itself, which
+ * would otherwise break opening a document right after closing another.
  */
-const loadPdfjs = async (): Promise<typeof Pdfjs> => {
-  pdfjsModule ??= Promise.all([import('pdfjs-dist'), import('./pdfWorker')])
-    .then(([pdfjs, { createPdfWorker }]) => {
-      pdfjs.GlobalWorkerOptions.workerPort = createPdfWorker();
-      return pdfjs;
-    })
+const loadPdfjs = async (): Promise<PdfjsRuntime> => {
+  runtime ??= Promise.all([import('pdfjs-dist'), import('./pdfWorker')])
+    .then(([pdfjs, { createPdfWorker }]) => ({
+      pdfjs,
+      worker: pdfjs.PDFWorker.create({ port: createPdfWorker() }),
+    }))
     .catch((error: unknown) => {
-      pdfjsModule = undefined;
+      runtime = undefined;
       throw error;
     });
-  return await pdfjsModule;
+  return await runtime;
 };
 
 export type PDFSource = string | Blob | ArrayBuffer | Uint8Array;
@@ -396,8 +404,11 @@ export const openPDF = async (
   source: PDFSource,
   options: OpenPDFOptions = {},
 ): Promise<PDFDocumentHandle> => {
-  const { getDocument } = await loadPdfjs();
-  const pdf = await getDocument(await toDocumentParameters(source)).promise;
+  const { pdfjs, worker } = await loadPdfjs();
+  const pdf = await pdfjs.getDocument({
+    ...(await toDocumentParameters(source)),
+    worker,
+  }).promise;
   if (options.maxPages !== undefined && pdf.numPages > options.maxPages) {
     await pdf.loadingTask.destroy();
     throw tooManyPagesError();

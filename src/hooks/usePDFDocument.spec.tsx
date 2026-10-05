@@ -232,6 +232,41 @@ describe('usePDFDocument', () => {
       });
   });
 
+  it('switches directly from one source to another without erroring', () => {
+    const Switcher = (): JSX.Element => {
+      const [source, setSource] = useState<string | Blob>(multiPage);
+      const result = usePDFDocument(source, { prefetch: 1 });
+      return (
+        <div>
+          <span data-cy="status">{result.status}</span>
+          <span data-cy="first">{result.pages[0] ?? ''}</span>
+          <button
+            data-cy="swap"
+            onClick={() => {
+              void fetch(multiPage)
+                .then(async (response) => await response.blob())
+                .then(setSource);
+            }}
+          >
+            swap
+          </button>
+        </div>
+      );
+    };
+    cy.mount(<Switcher />);
+    cy.get('[data-cy=first]')
+      .should('not.have.text', '')
+      .invoke('text')
+      .then((before) => {
+        cy.get('[data-cy=swap]').click();
+        cy.get('[data-cy=status]').should('have.text', 'ready');
+        cy.get('[data-cy=first]')
+          .should('not.have.text', '')
+          .should('not.have.text', before);
+        cy.get('[data-cy=status]').should('have.text', 'ready');
+      });
+  });
+
   it('reports an error status for an unreadable source', () => {
     const harness = mountHarness('data:application/pdf;base64,AAAA');
     cy.wrap(null).should(() => {

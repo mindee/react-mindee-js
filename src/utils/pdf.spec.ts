@@ -283,6 +283,17 @@ describe('openPDF', () => {
     }).should('deep.equal', [5, 2]);
   });
 
+  it('opens a new document while the previous one is still being destroyed', () => {
+    run(async () => {
+      const previous = await openPDF(multiPage);
+      const destroying = previous.destroy();
+      const next = await openPDF(multiPage);
+      handle = next;
+      await destroying;
+      return next.numPages;
+    }).should('equal', PAGE_COUNT);
+  });
+
   it('rejects documents above maxPages with a TooManyPagesError', () => {
     cy.wrap(errorName(openPDF(multiPage, { maxPages: 3 }))).should(
       'equal',
