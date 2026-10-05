@@ -211,11 +211,6 @@ export const usePDFDocument = (
 
     let handle: PDFDocumentHandle | undefined;
     const opening = new AbortController();
-    requested.current = nextGeneration(
-      requested.current,
-      null,
-      requested.current.resolution,
-    );
     openPDF(source, { maxPages, signal: opening.signal })
       .then(async (opened) => {
         if (opening.signal.aborted) {
@@ -242,6 +237,11 @@ export const usePDFDocument = (
 
     return () => {
       opening.abort();
+      requested.current = nextGeneration(
+        requested.current,
+        null,
+        requested.current.resolution,
+      );
       void handle?.destroy();
     };
   }, [source, maxPages]);

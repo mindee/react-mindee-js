@@ -343,6 +343,35 @@ describe('usePDFDocument', () => {
     cy.get('[data-cy=status]').should('have.text', 'ready');
   });
 
+  it('returns to idle without error when the source is cleared mid-prefetch', () => {
+    const Clearer = (): JSX.Element => {
+      const [source, setSource] = useState<string | null>(multiPage);
+      const result = usePDFDocument(source, { prefetch: 5 });
+      return (
+        <div>
+          <span data-cy="status">{result.status}</span>
+          <span data-cy="error">{result.error?.message ?? 'none'}</span>
+          <span data-cy="loading">{String(result.loading.size)}</span>
+          <button
+            data-cy="clear"
+            onClick={() => {
+              setSource(null);
+            }}
+          >
+            clear
+          </button>
+        </div>
+      );
+    };
+    cy.mount(<Clearer />);
+    cy.get('[data-cy=status]').should('have.text', 'ready');
+    cy.get('[data-cy=clear]').click();
+    cy.get('[data-cy=status]').should('have.text', 'idle');
+    cy.wait(300);
+    cy.get('[data-cy=error]').should('have.text', 'none');
+    cy.get('[data-cy=loading]').should('have.text', '0');
+  });
+
   it('ignores non-integer indexes in loadPage and loadRange', () => {
     const Probe = (): JSX.Element => {
       const result = usePDFDocument(multiPage, { prefetch: 0 });
