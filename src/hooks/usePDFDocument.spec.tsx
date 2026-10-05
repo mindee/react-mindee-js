@@ -59,6 +59,18 @@ const mountHarness = (
   };
 };
 
+const imageSize = async (url: string): Promise<number> =>
+  await new Promise<number>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      resolve(image.naturalWidth * image.naturalHeight);
+    };
+    image.onerror = () => {
+      reject(new Error(`Could not decode ${url}`));
+    };
+    image.src = url;
+  });
+
 const readyCount = (result: UsePDFDocumentResult): number =>
   result.pages.filter((page) => page !== undefined).length;
 
@@ -176,6 +188,48 @@ describe('usePDFDocument', () => {
     cy.get('[data-cy=status]').should('have.text', 'error');
     cy.get('[data-cy=doc]').should('have.text', 'null');
     cy.get('[data-cy=count]').should('have.text', '0');
+  });
+
+  it('re-renders every page at the new resolution when the option changes', () => {
+    const Resizer = (): JSX.Element => {
+      const [resolution, setResolution] = useState(100_000);
+      const result = usePDFDocument(multiPage, { prefetch: 2, resolution });
+      return (
+        <div>
+          <span data-cy="status">{result.status}</span>
+          <span data-cy="ready">
+            {String(result.pages.filter((page) => page !== undefined).length)}
+          </span>
+          <span data-cy="first">{result.pages[0] ?? ''}</span>
+          <button
+            data-cy="grow"
+            onClick={() => {
+              setResolution(400_000);
+            }}
+          >
+            grow
+          </button>
+        </div>
+      );
+    };
+    cy.mount(<Resizer />);
+    cy.get('[data-cy=ready]').should('have.text', '2');
+    cy.get('[data-cy=first]')
+      .invoke('text')
+      .then((before) => {
+        cy.get('[data-cy=grow]').click();
+        cy.get('[data-cy=ready]').should('have.text', '2');
+        cy.get('[data-cy=first]')
+          .invoke('text')
+          .should('not.equal', before)
+          .then(async (after) => {
+            const [small, large] = await Promise.all([
+              imageSize(before),
+              imageSize(after),
+            ]);
+            expect(large).to.be.greaterThan(small);
+          });
+      });
   });
 
   it('reports an error status for an unreadable source', () => {

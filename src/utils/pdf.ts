@@ -74,8 +74,9 @@ export type PDFDocumentHandle = {
   /** Renders a single page. `pageNumber` is 1-based, like pdf.js. */
   getPage: (pageNumber: number, options?: PDFPageOptions) => Promise<string>;
   /**
-   * Renders pages `from` to `to` inclusive (1-based), yielding each page as
-   * soon as it is ready. Iterate with `for await`.
+   * Renders pages `from` to `to` inclusive (1-based) one after the other,
+   * yielding each page as soon as it is ready. Iterate with `for await`;
+   * stopping early leaves no pending render behind.
    */
   getPages: (
     from: number,
@@ -293,6 +294,14 @@ class PDFRenderQueue {
     }
   }
 
+  /** Releases an image produced after `destroy()` so it does not leak. */
+  private discard(request: RenderRequest, image: string): void {
+    if (request.output === 'object-url') {
+      this.objectUrls.delete(image);
+      URL.revokeObjectURL(image);
+    }
+  }
+
   /** Settles every remaining caller and releases the request. */
   private settle(
     request: RenderRequest,
@@ -316,9 +325,11 @@ class PDFRenderQueue {
       this.current = { request };
       try {
         const image = await this.render(request);
-        if (!this.destroyed) {
-          this.cache.set(request.key, image);
+        if (this.destroyed) {
+          this.discard(request, image);
+          throw destroyedError();
         }
+        this.cache.set(request.key, image);
         this.settle(request, (caller) => {
           caller.resolve(image);
         });
@@ -406,15 +417,11 @@ export const openPDF = async (
             `Invalid page range: ${String(from)}-${String(to)}`,
           );
         }
-        const requests = Array.from({ length: to - from + 1 }, (_, index) => {
-          const pageNumber = from + index;
-          return {
+        for (let pageNumber = from; pageNumber <= to; pageNumber += 1) {
+          yield {
             pageNumber,
-            image: queue.request(pageNumber, pageOptions, 'low'),
+            image: await queue.request(pageNumber, pageOptions, 'low'),
           };
-        });
-        for (const { pageNumber, image } of requests) {
-          yield { pageNumber, image: await image };
         }
       },
     }),

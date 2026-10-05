@@ -16,7 +16,12 @@ describe('image', () => {
       return URL.createObjectURL(new Blob([blob], { type }));
     };
 
-    ['image/heic', 'image/heif', 'image/heif-sequence'].forEach((type) => {
+    [
+      'image/heic',
+      'image/heif',
+      'image/heif-sequence',
+      'image/heic-sequence',
+    ].forEach((type) => {
       it(`converts a ${type} blob to a JPEG data URL`, () => {
         cy.then(
           async () => await prepareImage(await withMimeType(type)),

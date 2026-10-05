@@ -12,7 +12,11 @@ export type UsePDFDocumentOptions = {
   prefetch?: number;
   /** Pages rendered together when one of them is requested. Defaults to 3. */
   batch?: number;
-  /** Rendering resolution in pixels, see `PDFPageOptions.resolution`. */
+  /**
+   * Rendering resolution in pixels, see `PDFPageOptions.resolution`.
+   * Changing it clears `pages` and re-renders them at the new value; renders
+   * are cached per resolution, so switching back is instant.
+   */
   resolution?: number;
   /** Rejects documents with more pages, see `OpenPDFOptions.maxPages`. */
   maxPages?: number;
@@ -52,6 +56,7 @@ const EMPTY_SET: ReadonlySet<number> = new Set();
 type State = {
   source: PDFSource | null | undefined;
   maxPages: number | undefined;
+  resolution: number | undefined;
   status: UsePDFDocumentStatus;
   error: Error | null;
   document: PDFDocumentHandle | null;
@@ -59,12 +64,23 @@ type State = {
   loading: ReadonlySet<number>;
 };
 
+/**
+ * Pages requested so far, tagged with the resolution they were requested at
+ * so that a resolution change starts over without re-rendering twice.
+ */
+type Requested = {
+  resolution: number | undefined;
+  indexes: Set<number>;
+};
+
 const initialState = (
   source: PDFSource | null | undefined,
   maxPages: number | undefined,
+  resolution: number | undefined,
 ): State => ({
   source,
   maxPages,
+  resolution,
   status: source === null || source === undefined ? 'idle' : 'opening',
   error: null,
   document: null,
@@ -116,16 +132,25 @@ export const usePDFDocument = (
   } = options;
 
   const [state, setState] = useState<State>(() =>
-    initialState(source, maxPages),
+    initialState(source, maxPages, resolution),
   );
-  const requested = useRef(new Set<number>());
+  const requested = useRef<Requested>({ resolution, indexes: new Set() });
 
   if (state.source !== source || state.maxPages !== maxPages) {
-    setState(initialState(source, maxPages));
+    setState(initialState(source, maxPages, resolution));
+  } else if (state.resolution !== resolution) {
+    setState((previous) => ({
+      ...previous,
+      resolution,
+      pages: new Array<string | undefined>(previous.pages.length).fill(
+        undefined,
+      ),
+      loading: EMPTY_SET,
+    }));
   }
 
   useEffect(() => {
-    requested.current = new Set();
+    requested.current.indexes = new Set();
     if (source === null || source === undefined) {
       return undefined;
     }
@@ -166,10 +191,15 @@ export const usePDFDocument = (
 
   const render = useCallback(
     (index: number, pageOptions: PDFPageOptions) => {
-      if (document === null || requested.current.has(index)) {
+      const tracker = requested.current;
+      if (tracker.resolution !== resolution) {
+        tracker.resolution = resolution;
+        tracker.indexes = new Set();
+      }
+      if (document === null || tracker.indexes.has(index)) {
         return;
       }
-      requested.current.add(index);
+      tracker.indexes.add(index);
       setState((previous) => ({
         ...previous,
         loading: new Set(previous.loading).add(index),
@@ -177,6 +207,9 @@ export const usePDFDocument = (
       document
         .getPage(index + 1, { ...pageOptions, resolution })
         .then((image) => {
+          if (requested.current.resolution !== resolution) {
+            return;
+          }
           setState((previous) => {
             const pages = [...previous.pages];
             pages[index] = image;
@@ -184,7 +217,7 @@ export const usePDFDocument = (
           });
         })
         .catch((reason: unknown) => {
-          requested.current.delete(index);
+          tracker.indexes.delete(index);
           if (toError(reason).name !== 'AbortError') {
             setState((previous) => ({ ...previous, error: toError(reason) }));
           }
@@ -219,7 +252,10 @@ export const usePDFDocument = (
       if (document === null || index < 0 || index >= document.numPages) {
         return;
       }
-      if (requested.current.has(index)) {
+      if (
+        requested.current.resolution === resolution &&
+        requested.current.indexes.has(index)
+      ) {
         void document
           .getPage(index + 1, { priority: 'high', resolution })
           .catch(() => undefined);

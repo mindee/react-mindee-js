@@ -254,6 +254,35 @@ describe('openPDF', () => {
     });
   });
 
+  it('rejects a render that completes after destroy instead of resolving it', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      const pending = errorName(opened.getPage(1));
+      await opened.destroy();
+      return await pending;
+    }).should('not.equal', 'resolved');
+  });
+
+  it('renders getPages lazily so stopping early leaves nothing queued', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      for await (const page of opened.getPages(1, PAGE_COUNT)) {
+        if (page.pageNumber === 1) {
+          break;
+        }
+      }
+      const order: number[] = [];
+      await Promise.all(
+        [5, 2].map(async (pageNumber) => {
+          await opened.getPage(pageNumber, { priority: 'low' });
+          order.push(pageNumber);
+        }),
+      );
+      return order;
+    }).should('deep.equal', [5, 2]);
+  });
+
   it('rejects documents above maxPages with a TooManyPagesError', () => {
     cy.wrap(errorName(openPDF(multiPage, { maxPages: 3 }))).should(
       'equal',

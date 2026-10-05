@@ -46,7 +46,7 @@ interface PDFDocumentHandle {
   readonly numPages: number
   /** Renders a single page. `pageNumber` is 1-based, like pdf.js. */
   getPage: (pageNumber: number, options?: PDFPageOptions) => Promise<string>
-  /** Renders pages `from` to `to` inclusive (1-based), yielding each page as soon as it is ready. */
+  /** Renders pages `from` to `to` inclusive (1-based) one after the other, yielding each as soon as it is ready. */
   getPages: (from: number, to: number, options?: PDFPageOptions) => AsyncIterable<PDFRenderedPage>
   /** Cancels pending renders, revokes every object URL and releases the pdf.js document. */
   destroy: () => Promise<void>
@@ -82,7 +82,8 @@ interface PDFPageOptions {
 
 - Pages render one at a time per document, in priority order. Every successful render is cached per page, resolution and output for the lifetime of the handle.
 - Several calls for the same page share one render.
-- After `destroy()`, every pending call rejects and the handle is unusable.
+- `getPages` requests one page at a time, so breaking out of the `for await` loop leaves nothing pending.
+- After `destroy()`, every pending call rejects (even a render that was about to complete) and the handle is unusable.
 
 :::caution
 Images are `blob:` object URLs by default: they only exist in the current tab and only until `destroy()`. To upload one, read it back first (`await fetch(url).then((r) => r.blob())`) or request `{ output: 'data-url' }`.
