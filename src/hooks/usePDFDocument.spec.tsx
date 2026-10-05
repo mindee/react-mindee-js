@@ -313,6 +313,30 @@ describe('usePDFDocument', () => {
     cy.get('[data-cy=status]').should('have.text', 'ready');
   });
 
+  it('throws a RangeError for invalid prefetch or batch options', () => {
+    const Probe = ({
+      options,
+    }: {
+      options: { prefetch?: number; batch?: number };
+    }): JSX.Element => {
+      let message = 'ok';
+      try {
+        usePDFDocument(null, options);
+      } catch (error: unknown) {
+        message = error instanceof RangeError ? error.name : 'other';
+      }
+      return <span data-cy="probe">{message}</span>;
+    };
+    cy.mount(<Probe options={{ batch: 0 }} />);
+    cy.get('[data-cy=probe]').should('have.text', 'RangeError');
+    cy.mount(<Probe options={{ prefetch: 1.5 }} />);
+    cy.get('[data-cy=probe]').should('have.text', 'RangeError');
+    cy.mount(<Probe options={{ prefetch: -1 }} />);
+    cy.get('[data-cy=probe]').should('have.text', 'RangeError');
+    cy.mount(<Probe options={{ prefetch: 0, batch: 1 }} />);
+    cy.get('[data-cy=probe]').should('have.text', 'ok');
+  });
+
   it('reports an error status for an unreadable source', () => {
     const harness = mountHarness('data:application/pdf;base64,AAAA');
     cy.wrap(null).should(() => {

@@ -66,7 +66,7 @@ Page numbers are **1-based**. `getPage(0)`, a page above `numPages` or an invert
 
 ```ts
 interface PDFPageOptions {
-  resolution?: number // default 1 500 000 px (width × height)
+  resolution?: number // default 1 500 000 px (width × height), must be > 0
   output?: 'object-url' | 'data-url' // default 'object-url'
   priority?: 'high' | 'low' // default 'high' for getPage, 'low' for getPages
   signal?: AbortSignal

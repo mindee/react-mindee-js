@@ -41,7 +41,7 @@ export type PDFPageOptions = {
    * Target pixel count of the rendered page (width × height). Defaults to
    * 1.5 Mpx, which is what the viewer displays; use a much lower value such
    * as 50 000 for thumbnails. Renders at different resolutions are cached
-   * independently.
+   * independently. Must be a finite positive number.
    */
   resolution?: number;
   /**
@@ -138,6 +138,14 @@ const tooManyPagesError = (): Error => {
 const destroyedError = (): Error =>
   new Error('This PDF document handle has been destroyed');
 
+const assertResolution = (resolution: number): void => {
+  if (!Number.isFinite(resolution) || resolution <= 0) {
+    throw new RangeError(
+      `resolution must be a positive number, got ${String(resolution)}`,
+    );
+  }
+};
+
 const assertPageInRange = (pageNumber: number, numPages: number): void => {
   if (
     !Number.isInteger(pageNumber) ||
@@ -204,11 +212,12 @@ class PDFRenderQueue {
       throw destroyedError();
     }
     assertPageInRange(pageNumber, this.document.numPages);
+    const resolution = options.resolution ?? PDF_RESOLUTION;
+    assertResolution(resolution);
     if (options.signal?.aborted === true) {
       throw abortError();
     }
 
-    const resolution = options.resolution ?? PDF_RESOLUTION;
     const output = options.output ?? 'object-url';
     const key = `${String(pageNumber)}@${String(resolution)}:${output}`;
 

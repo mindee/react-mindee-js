@@ -74,6 +74,21 @@ describe('openPDF', () => {
     });
   });
 
+  it('rejects an invalid resolution with a RangeError', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      return await Promise.all(
+        [0, -1, Number.NaN, Number.POSITIVE_INFINITY].map(
+          async (resolution) =>
+            await errorName(opened.getPage(1, { resolution })),
+        ),
+      );
+    }).should((names) => {
+      expect(names).to.deep.equal(Array<string>(4).fill('RangeError'));
+    });
+  });
+
   it('renders close to the requested pixel resolution', () => {
     run(async () => {
       const opened = await openPDF(multiPage);

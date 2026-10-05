@@ -8,9 +8,15 @@ import {
 } from '@/utils/pdf';
 
 export type UsePDFDocumentOptions = {
-  /** Pages rendered as soon as the document opens. Defaults to 5. */
+  /**
+   * Pages rendered as soon as the document opens. Defaults to 5. Must be a
+   * non-negative integer.
+   */
   prefetch?: number;
-  /** Pages rendered together when one of them is requested. Defaults to 3. */
+  /**
+   * Pages rendered together when one of them is requested. Defaults to 3.
+   * Must be a positive integer.
+   */
   batch?: number;
   /**
    * Rendering resolution in pixels, see `PDFPageOptions.resolution`.
@@ -115,6 +121,14 @@ const batchBounds = (
   return [from, Math.min(from + batch, numPages)];
 };
 
+const assertInteger = (name: string, value: number, min: number): void => {
+  if (!Number.isInteger(value) || value < min) {
+    throw new RangeError(
+      `${name} must be an integer >= ${String(min)}, got ${String(value)}`,
+    );
+  }
+};
+
 /**
  * Opens a PDF and renders its pages progressively: the first `prefetch`
  * pages right away, then `batch` pages at a time whenever `loadPage` is
@@ -137,6 +151,8 @@ export const usePDFDocument = (
     resolution,
     maxPages,
   } = options;
+  assertInteger('prefetch', prefetch, 0);
+  assertInteger('batch', batch, 1);
 
   const [state, setState] = useState<State>(() =>
     initialState(source, maxPages, resolution),

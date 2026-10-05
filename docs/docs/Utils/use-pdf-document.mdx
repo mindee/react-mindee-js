@@ -49,8 +49,8 @@ function Document({ file }: { file: File }) {
 
 ```ts
 interface UsePDFDocumentOptions {
-  prefetch?: number // default 5
-  batch?: number // default 3
+  prefetch?: number // default 5, integer >= 0
+  batch?: number // default 3, integer >= 1
   resolution?: number // see PDFPageOptions.resolution
   maxPages?: number // see OpenPDFOptions.maxPages
 }
