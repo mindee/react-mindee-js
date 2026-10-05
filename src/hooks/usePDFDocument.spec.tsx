@@ -1,4 +1,10 @@
-import { useEffect, useState, type JSX } from 'react';
+import {
+  Component,
+  useEffect,
+  useState,
+  type JSX,
+  type ReactNode,
+} from 'react';
 import multiPage from 'cypress/assets/multi-page.pdf';
 
 import {
@@ -73,6 +79,24 @@ const imageSize = async (url: string): Promise<number> =>
 
 const readyCount = (result: UsePDFDocumentResult): number =>
   result.pages.filter((page) => page !== undefined).length;
+
+class RenderErrorBoundary extends Component<
+  { children: ReactNode },
+  { error: Error | null }
+> {
+  override state: { error: Error | null } = { error: null };
+
+  static getDerivedStateFromError(error: Error): { error: Error } {
+    return { error };
+  }
+
+  override render(): ReactNode {
+    if (this.state.error !== null) {
+      return <span data-cy="probe">{this.state.error.name}</span>;
+    }
+    return this.props.children;
+  }
+}
 
 describe('usePDFDocument', () => {
   it('stays idle without a source', () => {
@@ -405,21 +429,24 @@ describe('usePDFDocument', () => {
     }: {
       options: { prefetch?: number; batch?: number };
     }): JSX.Element => {
-      let message = 'ok';
-      try {
-        usePDFDocument(null, options);
-      } catch (error: unknown) {
-        message = error instanceof RangeError ? error.name : 'other';
-      }
-      return <span data-cy="probe">{message}</span>;
+      usePDFDocument(null, options);
+      return <span data-cy="probe">ok</span>;
     };
-    cy.mount(<Probe options={{ batch: 0 }} />);
+    const mountProbe = (options: { prefetch?: number; batch?: number }) => {
+      cy.mount(
+        <RenderErrorBoundary>
+          <Probe options={options} />
+        </RenderErrorBoundary>,
+      );
+    };
+    cy.on('uncaught:exception', () => false);
+    mountProbe({ batch: 0 });
     cy.get('[data-cy=probe]').should('have.text', 'RangeError');
-    cy.mount(<Probe options={{ prefetch: 1.5 }} />);
+    mountProbe({ prefetch: 1.5 });
     cy.get('[data-cy=probe]').should('have.text', 'RangeError');
-    cy.mount(<Probe options={{ prefetch: -1 }} />);
+    mountProbe({ prefetch: -1 });
     cy.get('[data-cy=probe]').should('have.text', 'RangeError');
-    cy.mount(<Probe options={{ prefetch: 0, batch: 1 }} />);
+    mountProbe({ prefetch: 0, batch: 1 });
     cy.get('[data-cy=probe]').should('have.text', 'ok');
   });
 

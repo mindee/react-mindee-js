@@ -1,5 +1,10 @@
 import type * as Pdfjs from 'pdfjs-dist';
-import type { PDFDocumentProxy, PDFWorker, RenderTask } from 'pdfjs-dist';
+import type {
+  PDFDocumentProxy,
+  PDFPageProxy,
+  PDFWorker,
+  RenderTask,
+} from 'pdfjs-dist';
 
 import { MAX_PDF_SCALE, PDF_RESOLUTION } from '@/common/constants';
 
@@ -378,6 +383,19 @@ class PDFRenderQueue {
 
   private async render(request: RenderRequest): Promise<string> {
     const page = await this.document.getPage(request.pageNumber);
+    try {
+      return await this.paint(page, request);
+    } finally {
+      // The encoded image is cached by the queue; drop pdf.js's own
+      // operator list and decoded resources for this page.
+      page.cleanup();
+    }
+  }
+
+  private async paint(
+    page: PDFPageProxy,
+    request: RenderRequest,
+  ): Promise<string> {
     const { width, height } = page.getViewport({ scale: 1 });
     const scale = Math.min(
       (request.resolution / (height * width)) ** (1 / 2),
