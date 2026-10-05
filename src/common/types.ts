@@ -38,6 +38,7 @@ export type AnnotationViewerOptions = BaseOptions & {
     modifier: number;
     /** Highest magnification reachable through the wheel. */
     max: number;
+    /** @deprecated Unused since 1.3.3; kept so existing option objects still type-check. */
     defaultZoom: number;
   };
 };

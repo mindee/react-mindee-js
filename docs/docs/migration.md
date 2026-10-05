@@ -13,7 +13,7 @@ sidebar_position: 5
 
 ### `zoom.max` is now relative to the fitted image
 
-Previously `options.zoom.max` was compared against the absolute canvas scale, so the reachable magnification depended on the pixel size of the image. It is now a factor relative to the image **fitted in the container** (`1` = fits), like `defaultZoom`. If you relied on the old behaviour, lower large values (a `max` of `10` now means "ten times the fitted size").
+Previously `options.zoom.max` was compared against the absolute canvas scale, so the reachable magnification depended on the pixel size of the image. It is now a factor relative to the image **fitted in the container** (`1` = fits). If you relied on the old behaviour, lower large values (a `max` of `10` now means "ten times the fitted size").
 
 ### PDF helpers
 
