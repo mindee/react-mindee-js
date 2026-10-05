@@ -385,8 +385,8 @@ class PDFRenderQueue {
     );
     const viewport = page.getViewport({ scale });
     const canvas = document.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+    canvas.width = Math.max(1, Math.floor(viewport.width));
+    canvas.height = Math.max(1, Math.floor(viewport.height));
 
     const task = page.render({ canvas, viewport });
     if (this.current?.request === request) {

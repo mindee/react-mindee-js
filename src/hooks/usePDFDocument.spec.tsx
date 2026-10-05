@@ -343,6 +343,33 @@ describe('usePDFDocument', () => {
     cy.get('[data-cy=status]').should('have.text', 'ready');
   });
 
+  it('ignores non-integer indexes in loadPage and loadRange', () => {
+    const Probe = (): JSX.Element => {
+      const result = usePDFDocument(multiPage, { prefetch: 0 });
+      return (
+        <div>
+          <span data-cy="status">{result.status}</span>
+          <span data-cy="loading">{String(result.loading.size)}</span>
+          <span data-cy="error">{result.error?.message ?? 'none'}</span>
+          <button
+            data-cy="fractional"
+            onClick={() => {
+              result.loadRange(0.5, 2);
+              result.loadPage(1.5);
+            }}
+          >
+            fractional
+          </button>
+        </div>
+      );
+    };
+    cy.mount(<Probe />);
+    cy.get('[data-cy=status]').should('have.text', 'ready');
+    cy.get('[data-cy=fractional]').click();
+    cy.get('[data-cy=loading]').should('have.text', '0');
+    cy.get('[data-cy=error]').should('have.text', 'none');
+  });
+
   it('throws a RangeError for invalid prefetch or batch options', () => {
     const Probe = ({
       options,

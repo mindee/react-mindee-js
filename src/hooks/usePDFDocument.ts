@@ -49,7 +49,10 @@ export type UsePDFDocumentResult = {
    * requested with high priority so it is drawn before any pending prefetch.
    */
   loadPage: (index: number) => void;
-  /** Renders every page in `[from, to)` (0-based, `to` exclusive). */
+  /**
+   * Renders every page in `[from, to)` (0-based integers, `to` exclusive).
+   * Bounds are clamped to the document; non-integer bounds are ignored.
+   */
   loadRange: (from: number, to: number) => void;
   /** Underlying handle for advanced use, `null` until `status` is `ready`. */
   document: PDFDocumentHandle | null;
@@ -214,7 +217,11 @@ export const usePDFDocument = (
       requested.current.resolution,
     );
     openPDF(source, { maxPages, signal: opening.signal })
-      .then((opened) => {
+      .then(async (opened) => {
+        if (opening.signal.aborted) {
+          await opened.destroy();
+          return;
+        }
         handle = opened;
         setState((previous) => ({
           ...previous,
@@ -307,7 +314,11 @@ export const usePDFDocument = (
 
   const loadRange = useCallback(
     (from: number, to: number) => {
-      if (document === null) {
+      if (
+        document === null ||
+        !Number.isInteger(from) ||
+        !Number.isInteger(to)
+      ) {
         return;
       }
       const start = Math.max(0, from);
@@ -321,16 +332,26 @@ export const usePDFDocument = (
 
   const loadPage = useCallback(
     (index: number) => {
-      if (document === null || index < 0 || index >= document.numPages) {
+      if (
+        document === null ||
+        !Number.isInteger(index) ||
+        index < 0 ||
+        index >= document.numPages
+      ) {
         return;
       }
+      const tracker = requested.current;
       if (
-        requested.current.document === document &&
-        requested.current.resolution === resolution &&
-        requested.current.indexes.has(index)
+        tracker.document === document &&
+        tracker.resolution === resolution &&
+        tracker.indexes.has(index)
       ) {
         void document
-          .getPage(index + 1, { priority: 'high', resolution })
+          .getPage(index + 1, {
+            priority: 'high',
+            resolution,
+            signal: tracker.controller.signal,
+          })
           .catch(() => undefined);
       } else {
         render(index, { priority: 'high' });

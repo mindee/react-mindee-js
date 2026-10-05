@@ -94,7 +94,7 @@ function App() {
 ## PDF documents
 
 PDF pages are rendered in the browser with [pdf.js](https://mozilla.github.io/pdf.js/) (the first time a PDF is processed, it's loaded lazily in a Web Worker).
-Pages are now loaded by batches (5 initial pre-fetched pages, then 3 by 3 by default) to accommodate for very large documents.
+Pages are now loaded by batches (5 initial pre-fetched pages, then 3 by 3 by default) to accommodate very large documents.
 
 ### `usePDFDocument` hook
 

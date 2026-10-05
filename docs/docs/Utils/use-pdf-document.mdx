@@ -77,7 +77,7 @@ interface UsePDFDocumentResult {
 - **`pages`** : one slot per page, **0-based**. A slot is `undefined` until the page has been rendered, then holds an image URL usable as `data.image`.
 - **`loading`** : indexes whose render is queued or in progress, handy for per-page skeletons.
 - **`loadPage(index)`** : ensures the page and the rest of its batch are rendered. Idempotent and cheap, so call it liberally (on scroll, click, keyboard navigation…). The page itself is requested with high priority so it is drawn before any pending prefetch, even if it was already queued.
-- **`loadRange(from, to)`** : renders every page in `[from, to)` with low priority.
+- **`loadRange(from, to)`** : renders every page in `[from, to)` with low priority. Bounds are clamped to the document; non-integer indexes (here and in `loadPage`) are ignored.
 - **`document`** : the underlying handle for advanced use, `null` until `status` is `ready`.
 
 :::caution

@@ -89,6 +89,14 @@ describe('openPDF', () => {
     });
   });
 
+  it('still produces an image for a tiny resolution', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      return await opened.getPage(1, { resolution: 1, output: 'data-url' });
+    }).should('match', /^data:image\/png;base64,/);
+  });
+
   it('renders close to the requested pixel resolution', () => {
     run(async () => {
       const opened = await openPDF(multiPage);
