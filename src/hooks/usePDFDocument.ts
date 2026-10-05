@@ -65,10 +65,13 @@ type State = {
 };
 
 /**
- * Pages requested so far, tagged with the resolution they were requested at
- * so that a resolution change starts over without re-rendering twice.
+ * Pages requested so far, tagged with the document and resolution they were
+ * requested for. A change of either starts a new generation; callbacks from
+ * an older generation are ignored so a closed document cannot touch the
+ * state of its replacement.
  */
 type Requested = {
+  document: PDFDocumentHandle | null;
   resolution: number | undefined;
   indexes: Set<number>;
 };
@@ -134,7 +137,11 @@ export const usePDFDocument = (
   const [state, setState] = useState<State>(() =>
     initialState(source, maxPages, resolution),
   );
-  const requested = useRef<Requested>({ resolution, indexes: new Set() });
+  const requested = useRef<Requested>({
+    document: null,
+    resolution,
+    indexes: new Set(),
+  });
 
   if (state.source !== source || state.maxPages !== maxPages) {
     setState(initialState(source, maxPages, resolution));
@@ -150,13 +157,17 @@ export const usePDFDocument = (
   }
 
   useEffect(() => {
-    requested.current.indexes = new Set();
     if (source === null || source === undefined) {
       return undefined;
     }
 
     let handle: PDFDocumentHandle | undefined;
     let cancelled = false;
+    requested.current = {
+      ...requested.current,
+      document: null,
+      indexes: new Set(),
+    };
     openPDF(source, { maxPages })
       .then(async (opened) => {
         if (cancelled) {
@@ -191,15 +202,22 @@ export const usePDFDocument = (
 
   const render = useCallback(
     (index: number, pageOptions: PDFPageOptions) => {
+      if (document === null) {
+        return;
+      }
       const tracker = requested.current;
-      if (tracker.resolution !== resolution) {
+      if (tracker.document !== document || tracker.resolution !== resolution) {
+        tracker.document = document;
         tracker.resolution = resolution;
         tracker.indexes = new Set();
       }
-      if (document === null || tracker.indexes.has(index)) {
+      if (tracker.indexes.has(index)) {
         return;
       }
       tracker.indexes.add(index);
+      const stale = (): boolean =>
+        requested.current.document !== document ||
+        requested.current.resolution !== resolution;
       setState((previous) => ({
         ...previous,
         loading: new Set(previous.loading).add(index),
@@ -207,7 +225,7 @@ export const usePDFDocument = (
       document
         .getPage(index + 1, { ...pageOptions, resolution })
         .then((image) => {
-          if (requested.current.resolution !== resolution) {
+          if (stale()) {
             return;
           }
           setState((previous) => {
@@ -217,12 +235,18 @@ export const usePDFDocument = (
           });
         })
         .catch((reason: unknown) => {
+          if (stale()) {
+            return;
+          }
           tracker.indexes.delete(index);
           if (toError(reason).name !== 'AbortError') {
             setState((previous) => ({ ...previous, error: toError(reason) }));
           }
         })
         .finally(() => {
+          if (stale()) {
+            return;
+          }
           setState((previous) => {
             const loading = new Set(previous.loading);
             loading.delete(index);
@@ -253,6 +277,7 @@ export const usePDFDocument = (
         return;
       }
       if (
+        requested.current.document === document &&
         requested.current.resolution === resolution &&
         requested.current.indexes.has(index)
       ) {

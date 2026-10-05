@@ -267,6 +267,38 @@ describe('usePDFDocument', () => {
       });
   });
 
+  it('ignores renders of the previous document after a source swap mid-prefetch', () => {
+    const Swapper = (): JSX.Element => {
+      const [source, setSource] = useState<string | Blob>(multiPage);
+      const result = usePDFDocument(source, { prefetch: 5 });
+      return (
+        <div>
+          <span data-cy="status">{result.status}</span>
+          <span data-cy="error">{result.error?.message ?? 'none'}</span>
+          <span data-cy="loading">{String(result.loading.size)}</span>
+          <span data-cy="ready">{String(readyCount(result))}</span>
+          <button
+            data-cy="swap"
+            onClick={() => {
+              void fetch(multiPage)
+                .then(async (response) => await response.blob())
+                .then(setSource);
+            }}
+          >
+            swap
+          </button>
+        </div>
+      );
+    };
+    cy.mount(<Swapper />);
+    cy.get('[data-cy=status]').should('have.text', 'ready');
+    cy.get('[data-cy=swap]').click();
+    cy.get('[data-cy=ready]').should('have.text', String(PAGE_COUNT));
+    cy.get('[data-cy=loading]').should('have.text', '0');
+    cy.get('[data-cy=error]').should('have.text', 'none');
+    cy.get('[data-cy=status]').should('have.text', 'ready');
+  });
+
   it('reports an error status for an unreadable source', () => {
     const harness = mountHarness('data:application/pdf;base64,AAAA');
     cy.wrap(null).should(() => {

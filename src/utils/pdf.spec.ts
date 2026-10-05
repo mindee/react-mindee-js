@@ -55,6 +55,45 @@ describe('openPDF', () => {
     });
   });
 
+  it('leaves a caller-owned byte source intact and reusable', () => {
+    run(async () => {
+      const buffer: ArrayBuffer = await fetch(multiPage).then(
+        async (r) => await r.arrayBuffer(),
+      );
+      const bytes = new Uint8Array(buffer);
+      const length = bytes.byteLength;
+      const first = await openPDF(bytes);
+      await first.destroy();
+      const second = await openPDF(bytes.buffer);
+      handle = second;
+      return { length, after: bytes.byteLength, numPages: second.numPages };
+    }).should(({ length, after, numPages }) => {
+      expect(length).to.be.greaterThan(0);
+      expect(after).to.equal(length);
+      expect(numPages).to.equal(PAGE_COUNT);
+    });
+  });
+
+  it('renders close to the requested pixel resolution', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      const image = await opened.getPage(1, { resolution: 300_000 });
+      return await new Promise<number>((resolve, reject) => {
+        const element = new Image();
+        element.onload = () => {
+          resolve(element.naturalWidth * element.naturalHeight);
+        };
+        element.onerror = () => {
+          reject(new Error('undecodable page'));
+        };
+        element.src = image;
+      });
+    }).should((area) => {
+      expect(area).to.be.within(300_000 * 0.9, 300_000 * 1.1);
+    });
+  });
+
   it('renders a page as an object URL by default and as a data URL on request', () => {
     run(async () => {
       const opened = await openPDF(multiPage);
@@ -202,6 +241,26 @@ describe('openPDF', () => {
       expect(a).to.equal('AbortError');
       expect(b).to.equal('AbortError');
       expect(fresh).to.match(/^blob:/);
+    });
+  });
+
+  it('starts a fresh render when a page is requested right after its only caller aborted mid-render', () => {
+    run(async () => {
+      const opened = await openPDF(multiPage);
+      handle = opened;
+      const controller = new AbortController();
+      const aborted = errorName(
+        opened.getPage(2, { signal: controller.signal }),
+      );
+      await new Promise((resolve) => {
+        setTimeout(resolve, 10);
+      });
+      controller.abort();
+      const retried = opened.getPage(2);
+      return { aborted: await aborted, retried: await retried };
+    }).should(({ aborted, retried }) => {
+      expect(aborted).to.equal('AbortError');
+      expect(retried).to.match(/^blob:/);
     });
   });
 

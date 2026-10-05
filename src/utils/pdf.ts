@@ -150,6 +150,10 @@ const assertPageInRange = (pageNumber: number, numPages: number): void => {
   }
 };
 
+/**
+ * pdf.js transfers `data` to its worker and takes ownership of the buffer, so
+ * caller-owned bytes are copied first to keep the source reusable.
+ */
 const toDocumentParameters = async (
   source: PDFSource,
 ): Promise<{ url: string } | { data: Uint8Array }> => {
@@ -160,9 +164,9 @@ const toDocumentParameters = async (
     return { data: new Uint8Array(await source.arrayBuffer()) };
   }
   if (source instanceof Uint8Array) {
-    return { data: source };
+    return { data: source.slice() };
   }
-  return { data: new Uint8Array(source) };
+  return { data: new Uint8Array(source.slice(0)) };
 };
 
 const canvasToBlob = async (canvas: HTMLCanvasElement): Promise<Blob> =>
@@ -279,7 +283,9 @@ class PDFRenderQueue {
 
   /**
    * Removes an aborting caller. The shared render is dropped (or cancelled
-   * if in progress) only when nobody is waiting for it anymore.
+   * if in progress) only when nobody is waiting for it anymore, and leaves
+   * deduplication immediately so a new request for the same page starts a
+   * fresh render instead of joining the cancelled one.
    */
   private detach(request: RenderRequest, caller: Caller): void {
     const index = request.callers.indexOf(caller);
@@ -298,6 +304,7 @@ class PDFRenderQueue {
       return;
     }
     if (this.current?.request === request) {
+      this.inFlight.delete(request.key);
       this.current.task?.cancel();
     }
   }
@@ -315,7 +322,9 @@ class PDFRenderQueue {
     request: RenderRequest,
     settleCaller: (caller: Caller) => void,
   ): void {
-    this.inFlight.delete(request.key);
+    if (this.inFlight.get(request.key) === request) {
+      this.inFlight.delete(request.key);
+    }
     request.callers.splice(0).forEach((caller) => {
       if (caller.signal !== undefined && caller.onAbort !== undefined) {
         caller.signal.removeEventListener('abort', caller.onAbort);
@@ -355,10 +364,7 @@ class PDFRenderQueue {
 
   private async render(request: RenderRequest): Promise<string> {
     const page = await this.document.getPage(request.pageNumber);
-    const [, , width, height] = page.view;
-    if (width === undefined || height === undefined) {
-      throw new Error('Invalid PDF page view');
-    }
+    const { width, height } = page.getViewport({ scale: 1 });
     const scale = Math.min(
       (request.resolution / (height * width)) ** (1 / 2),
       MAX_PDF_SCALE,
