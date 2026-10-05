@@ -1,0 +1,99 @@
+---
+sidebar_position: 1
+---
+
+# openPDF
+
+- Type : `(source: PDFSource, options?: OpenPDFOptions) => Promise<PDFDocumentHandle>`
+
+> Parses a PDF once and returns a handle from which pages are rendered **on demand**. Only the pages you ask for are rasterized, the requested one first, and memory is released by `destroy()`. This is the primitive behind [usePDFDocument](/docs/Utils/use-pdf-document) and the recommended way to display documents with more than a handful of pages.
+
+pdf.js and its Web Worker are downloaded lazily, the first time a PDF is processed, and a single worker is shared by every document in the tab.
+
+```ts
+import { openPDF } from 'react-mindee-js'
+
+const doc = await openPDF(file, { maxPages: 100 })
+doc.numPages // 5
+
+const first = await doc.getPage(1, { priority: 'high' }) // blob: URL
+for await (const { pageNumber, image } of doc.getPages(2, 4)) {
+  // inclusive range, yielded as soon as each page is ready
+}
+
+await doc.destroy() // revokes every blob: URL handed out by this handle
+```
+
+## Source
+
+`PDFSource = string | Blob | ArrayBuffer | Uint8Array`
+
+A URL or data URL string, a [File](https://developer.mozilla.org/docs/Web/API/File)/`Blob` (typically from a file input or upload library), or raw bytes. You no longer need `URL.createObjectURL()` to pass a `File`.
+
+## Options
+
+```ts
+interface OpenPDFOptions {
+  /** Rejects with a `TooManyPagesError` when the document has more pages. */
+  maxPages?: number
+}
+```
+
+## Handle
+
+```ts
+interface PDFDocumentHandle {
+  readonly numPages: number
+  /** Renders a single page. `pageNumber` is 1-based, like pdf.js. */
+  getPage: (pageNumber: number, options?: PDFPageOptions) => Promise<string>
+  /** Renders pages `from` to `to` inclusive (1-based), yielding each page as soon as it is ready. */
+  getPages: (from: number, to: number, options?: PDFPageOptions) => AsyncIterable<PDFRenderedPage>
+  /** Cancels pending renders, revokes every object URL and releases the pdf.js document. */
+  destroy: () => Promise<void>
+}
+
+interface PDFRenderedPage {
+  pageNumber: number // 1-based
+  image: string
+}
+```
+
+:::caution
+Page numbers are **1-based**. `getPage(0)`, a page above `numPages` or an inverted range reject with a `RangeError` before anything is rendered.
+:::
+
+## Page options
+
+```ts
+interface PDFPageOptions {
+  resolution?: number // default 1 500 000 px (width × height)
+  output?: 'object-url' | 'data-url' // default 'object-url'
+  priority?: 'high' | 'low' // default 'high' for getPage, 'low' for getPages
+  signal?: AbortSignal
+}
+```
+
+- **`resolution`** : target pixel count of the render. The viewer displays 1.5 Mpx; use a much lower value such as `50_000` for thumbnails. Renders at different resolutions are cached independently.
+- **`output`** : `object-url` returns a `blob:` URL backed by a PNG blob, which is light to hold in memory and is revoked by `destroy()`. `data-url` returns a self-contained base64 PNG string.
+- **`priority`** : `high` puts the request ahead of everything still waiting, so a page the user explicitly asked for is drawn before background prefetches. Requesting an already queued page again with `high` promotes it.
+- **`signal`** : aborting removes the request from the queue (or cancels the in-progress render) and rejects **that caller's** promise with an `AbortError`. Other callers waiting on the same page are unaffected; the render itself is only cancelled once nobody waits for it.
+
+## Behaviour
+
+- Pages render one at a time per document, in priority order. Every successful render is cached per page, resolution and output for the lifetime of the handle.
+- Several calls for the same page share one render.
+- After `destroy()`, every pending call rejects and the handle is unusable.
+
+:::caution
+Images are `blob:` object URLs by default: they only exist in the current tab and only until `destroy()`. To upload one, read it back first (`await fetch(url).then((r) => r.blob())`) or request `{ output: 'data-url' }`.
+:::
+
+## Errors
+
+| `error.name`          | Cause                                                   |
+| :-------------------- | :------------------------------------------------------ |
+| `InvalidPDFException` | The source is not a readable PDF                        |
+| `TooManyPagesError`   | The document has more pages than `maxPages`             |
+| `RangeError`          | A page number or range is outside `1..numPages`         |
+| `AbortError`          | The request's `signal` was aborted                      |
+| `Error`               | A render was requested after `destroy()`                |
