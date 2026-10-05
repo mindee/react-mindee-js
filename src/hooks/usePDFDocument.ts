@@ -14,8 +14,9 @@ export type UsePDFDocumentOptions = {
   batch?: number;
   /**
    * Rendering resolution in pixels, see `PDFPageOptions.resolution`.
-   * Changing it clears `pages` and re-renders them at the new value; renders
-   * are cached per resolution, so switching back is instant.
+   * Changing it clears `pages` and re-renders every page that was loaded (or
+   * loading) at the new value; renders are cached per resolution, so
+   * switching back is instant.
    */
   resolution?: number;
   /** Rejects documents with more pages, see `OpenPDFOptions.maxPages`. */
@@ -62,6 +63,8 @@ type State = {
   document: PDFDocumentHandle | null;
   pages: (string | undefined)[];
   loading: ReadonlySet<number>;
+  /** Indexes to render again after a resolution change. */
+  reload: ReadonlySet<number>;
 };
 
 /**
@@ -89,6 +92,7 @@ const initialState = (
   document: null,
   pages: [],
   loading: EMPTY_SET,
+  reload: EMPTY_SET,
 });
 
 const toError = (error: unknown): Error =>
@@ -146,14 +150,23 @@ export const usePDFDocument = (
   if (state.source !== source || state.maxPages !== maxPages) {
     setState(initialState(source, maxPages, resolution));
   } else if (state.resolution !== resolution) {
-    setState((previous) => ({
-      ...previous,
-      resolution,
-      pages: new Array<string | undefined>(previous.pages.length).fill(
-        undefined,
-      ),
-      loading: EMPTY_SET,
-    }));
+    setState((previous) => {
+      const reload = new Set(previous.loading);
+      previous.pages.forEach((page, index) => {
+        if (page !== undefined) {
+          reload.add(index);
+        }
+      });
+      return {
+        ...previous,
+        resolution,
+        pages: new Array<string | undefined>(previous.pages.length).fill(
+          undefined,
+        ),
+        loading: EMPTY_SET,
+        reload,
+      };
+    });
   }
 
   useEffect(() => {
@@ -297,6 +310,13 @@ export const usePDFDocument = (
       loadRange(0, prefetch);
     }
   }, [document, loadRange, prefetch]);
+
+  const reload = state.reload;
+  useEffect(() => {
+    reload.forEach((index) => {
+      render(index, { priority: 'low' });
+    });
+  }, [reload, render]);
 
   return useMemo(
     () => ({

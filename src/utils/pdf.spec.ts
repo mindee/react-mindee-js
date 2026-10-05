@@ -249,12 +249,11 @@ describe('openPDF', () => {
       const opened = await openPDF(multiPage);
       handle = opened;
       const controller = new AbortController();
+      const first = opened.getPage(1);
       const aborted = errorName(
         opened.getPage(2, { signal: controller.signal }),
       );
-      await new Promise((resolve) => {
-        setTimeout(resolve, 10);
-      });
+      await first;
       controller.abort();
       const retried = opened.getPage(2);
       return { aborted: await aborted, retried: await retried };

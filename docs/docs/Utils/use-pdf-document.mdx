@@ -85,7 +85,7 @@ The hook is **0-based** (array semantics); the handle is **1-based** (pdf.js sem
 :::
 
 :::tip
-Keep `source` referentially stable between renders (store the `File` in state, do not rebuild a data URL on every render), otherwise the hook closes and reopens the document each time. Changing `maxPages` also reopens the document. Changing `resolution` keeps the document but clears `pages` and re-renders them at the new value (renders are cached per resolution, so switching back is instant).
+Keep `source` referentially stable between renders (store the `File` in state, do not rebuild a data URL on every render), otherwise the hook closes and reopens the document each time. Changing `maxPages` also reopens the document. Changing `resolution` keeps the document but clears `pages` and re-renders every page that was loaded (or loading) at the new value (renders are cached per resolution, so switching back is instant).
 :::
 
 ### Example: load pages as they scroll into view

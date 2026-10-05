@@ -201,6 +201,15 @@ describe('usePDFDocument', () => {
             {String(result.pages.filter((page) => page !== undefined).length)}
           </span>
           <span data-cy="first">{result.pages[0] ?? ''}</span>
+          <span data-cy="last">{result.pages[PAGE_COUNT - 1] ?? ''}</span>
+          <button
+            data-cy="load-last"
+            onClick={() => {
+              result.loadPage(PAGE_COUNT - 1);
+            }}
+          >
+            load last
+          </button>
           <button
             data-cy="grow"
             onClick={() => {
@@ -214,11 +223,16 @@ describe('usePDFDocument', () => {
     };
     cy.mount(<Resizer />);
     cy.get('[data-cy=ready]').should('have.text', '2');
+    cy.get('[data-cy=load-last]').click();
+    cy.get('[data-cy=ready]').should('have.text', '3');
     cy.get('[data-cy=first]')
       .invoke('text')
       .then((before) => {
         cy.get('[data-cy=grow]').click();
-        cy.get('[data-cy=ready]').should('have.text', '2');
+        cy.get('[data-cy=ready]').should('have.text', '3');
+        cy.get('[data-cy=last]')
+          .invoke('text')
+          .should('match', /^blob:/);
         cy.get('[data-cy=first]')
           .invoke('text')
           .should('not.equal', before)
