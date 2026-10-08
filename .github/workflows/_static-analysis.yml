@@ -54,3 +54,6 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: Check dependency licenses
+        run: pnpm run license:check

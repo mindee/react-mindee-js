@@ -25,6 +25,14 @@ name = "Prettier"
 entry = "pnpm exec prettier --write --ignore-unknown"
 language = "system"
 
+[[repos.hooks]]
+id = "license-check"
+name = "License Check"
+entry = "pnpm run license:check"
+language = "system"
+pass_filenames = false
+stages = ["pre-push"]
+
 [[repos]]
 repo = "https://github.com/betterleaks/betterleaks"
 rev = "v1.9.0"

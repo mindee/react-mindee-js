@@ -53,6 +53,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.12.0",
     "jiti": "^2.7.0",
+    "license-checker-rseidelsohn": "^5.0.1",
     "prettier": "^3.9.9",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
@@ -67,6 +68,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
+    "prepare": "prek install --hook-type pre-commit --hook-type pre-push",
     "dev": "vite build --watch",
     "cy:prepare": "pnpm build",
     "build": "vite build",
@@ -82,7 +84,8 @@
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "lint": "tsc --noEmit && eslint --max-warnings 0 . && prettier --check .",
-    "lint:fix": "eslint --fix . && prettier --write ."
+    "lint:fix": "eslint --fix . && prettier --write .",
+    "license:check": "license-checker-rseidelsohn --production=false --onlyAllow \"MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;BlueOak-1.0.0;CC0-1.0;CC-BY-3.0;CC-BY-4.0;MPL-2.0;Unlicense;Zlib;AFL-2.1\" --summary"
   },
   "keywords": [
     "react",
