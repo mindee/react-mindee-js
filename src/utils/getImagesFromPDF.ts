@@ -1,78 +1,39 @@
-import {
-  getDocument,
-  GlobalWorkerOptions,
-  PDFDocumentProxy,
-  PDFPageProxy,
-  version,
-} from 'pdfjs-dist'
-import { RenderParameters } from 'pdfjs-dist/types/src/display/api'
+import { openPDF, type PDFSource } from './pdf';
 
-import { MAX_PDF_SCALE, PDF_RESOLUTION } from '@/common/constants'
-
-GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.js`
-
-const getImageFromPage = async (
-  _document: PDFDocumentProxy,
-  pageNumber: number,
-  resolution = PDF_RESOLUTION,
-) => {
-  const page: PDFPageProxy = await _document.getPage(pageNumber)
-  const canvas = document.createElement('canvas')
-  const context = canvas.getContext('2d')
-  const [, , width, height] = page.view
-  const newScale = (resolution / (height * width)) ** (1 / 2)
-  const safeScale = Math.min(newScale, MAX_PDF_SCALE)
-  const viewport = page.getViewport({ scale: safeScale })
-  canvas.height = viewport.height
-  canvas.width = viewport.width
-  const renderContext = {
-    canvasContext: context,
-    viewport: viewport,
-  }
-  return page
-    .render(renderContext as RenderParameters)
-    .promise.then(() => canvas.toDataURL())
-    .catch((error) => {
-      throw new Error(error)
-    })
-}
-
-export default function getImagesFromPDF(
-  file: string,
+/**
+ * Renders every page of a PDF to a PNG data URL. Pages that fail to render
+ * are skipped.
+ *
+ * @deprecated Renders and holds all pages in memory at once. Use `openPDF`
+ * (or the `usePDFDocument` hook) to render pages progressively instead.
+ */
+export default async function getImagesFromPDF(
+  file: PDFSource,
   maxPages = Infinity,
   onSuccess?: () => void,
   resolution?: number,
-) {
-  return new Promise<string[]>((resolve, reject) => {
-    getDocument(file)
-      .promise.then((document: PDFDocumentProxy) => {
-        if (document.numPages > maxPages) {
-          const error = new Error('Too many pages')
-          error.name = 'TooManyPagesError'
-          reject(error)
-          return
-        }
-        onSuccess?.()
-        Promise.allSettled(
-          Array.from(Array(document.numPages).keys()).map((index) =>
-            getImageFromPage(document, index + 1, resolution),
-          ),
-        )
-          .then((results) => {
-            const images = results.reduce<string[]>((accumulator, result) => {
-              if (result.status === 'fulfilled') {
-                accumulator.push(result.value)
-              }
-              return accumulator
-            }, [])
-            resolve(images)
-          })
-          .catch((error) => {
-            reject(error)
-          })
-      })
-      .catch((error) => {
-        reject(error)
-      })
-  })
+): Promise<string[]> {
+  const pdf = await openPDF(file, { maxPages });
+  try {
+    onSuccess?.();
+    const pageNumbers = Array.from({ length: pdf.numPages }, (_, i) => i + 1);
+    const results = await Promise.allSettled(
+      pageNumbers.map(
+        async (pageNumber) =>
+          await pdf.getPage(pageNumber, {
+            resolution,
+            output: 'data-url',
+            priority: 'low',
+          }),
+      ),
+    );
+    return results
+      .filter(
+        (result): result is PromiseFulfilledResult<string> =>
+          result.status === 'fulfilled',
+      )
+      .map((result) => result.value);
+  } finally {
+    await pdf.destroy();
+  }
 }

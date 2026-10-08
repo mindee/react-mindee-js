@@ -1,8 +1,8 @@
-declare module '*.png'
-declare module '*.jpeg'
-declare module '*.pdf'
-declare module '*.jpg'
-declare module '*.jpeg'
-declare module '*.svg'
-declare module '*.tiff'
-declare module '*.heic'
+declare module '*.png';
+declare module '*.jpeg';
+declare module '*.pdf';
+declare module '*.jpg';
+declare module '*.jpeg';
+declare module '*.svg';
+declare module '*.tiff';
+declare module '*.heic';

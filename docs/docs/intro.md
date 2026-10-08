@@ -16,7 +16,7 @@ This library was made for building frontend interfaces on top of **[Mindee](http
 
 ## Features
 
-- Support for image and PDF files
+- Support for image (JPEG, PNG, TIFF, HEIC/HEIF) and PDF files, with progressive page rendering for PDFs
 - Interactive shapes with events binding
 - Extensible styling API
 - Controllable state props and modular architecture
@@ -25,20 +25,20 @@ This library was made for building frontend interfaces on top of **[Mindee](http
 
 ## Compatibility
 
-The React SDK is compatible with `React 16.8.0 +`
+The React SDK is compatible with `React 18` and `React 19`, and requires `Node.js >= 22.13` to build.
 
 ## Installation and dependencies
 
 The easiest way to use react-select is to install it from npm and build it into your app with Webpack.
 
 ```bash
-npm install --save react-mindee-js@1.3.0
+npm install --save react-mindee-js
 ```
 
 or using yarn
 
 ```
-yarn add react-mindee-js@1.3.0
+yarn add react-mindee-js
 ```
 
 ## Usage
@@ -94,6 +94,10 @@ function App() {
 - **`style`** : style object to change container css properties
 - **`className`** : apply a className to the control
 
+## PDF documents
+
+PDF pages are rendered on demand with the [usePDFDocument](/docs/Utils/use-pdf-document) hook or the lower-level [openPDF](/docs/Utils/open-pdf) handle. See the [PDF tutorial](/docs/Tutorial/pdf-file).
+
 ## Browser support
 
 React mindee supports all recent browsers and works where React works. However, you may need check the [SSR](/docs/ssr) section.
@@ -103,8 +107,8 @@ React mindee supports all recent browsers and works where React works. However, 
 Feel free to use github to submit issues, pull requests or general feedback.
 You can also visit [our website](https://mindee.com) or drop us an [email](mailto:contact@mindee.com).
 
-Please read our [Contributing section](https://github.com/publicMindee/react-mindee-js/blob/master/CONTRIBUTING.md) before contributing.
+Please read our [Contributing section](https://github.com/mindee/react-mindee-js/blob/master/CONTRIBUTING.md) before contributing.
 
 ## License
 
-GPLv3 © [mindee](https://mindee.com)
+MIT © [mindee](https://mindee.com)

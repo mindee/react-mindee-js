@@ -1,17 +1,48 @@
-import { Stage } from 'konva/lib/Stage'
+import demoHeic from 'cypress/assets/demo.heic';
+import type { Stage } from 'konva/lib/Stage';
 
-import { ImageBoundingBox } from '@/common/types'
+import type { ImageBoundingBox } from '@/common/types';
 
 import {
   computeImageBoundingBox,
+  prepareImage,
   setStageBasedImagePosition,
-} from '@/utils/image'
+} from '@/utils/image';
 
 describe('image', () => {
+  describe('prepareImage', () => {
+    const withMimeType = async (type: string): Promise<string> => {
+      const blob = await fetch(demoHeic).then(async (r) => await r.blob());
+      return URL.createObjectURL(new Blob([blob], { type }));
+    };
+
+    [
+      'image/heic',
+      'image/heif',
+      'image/heif-sequence',
+      'image/heic-sequence',
+    ].forEach((type) => {
+      it(`converts a ${type} blob to a JPEG data URL`, () => {
+        cy.then(
+          async () => await prepareImage(await withMimeType(type)),
+        ).should('match', /^data:image\/jpeg;base64,/);
+      });
+    });
+
+    it('returns other image types untouched', () => {
+      cy.then(async () => {
+        const url = await withMimeType('image/png');
+        return [url, await prepareImage(url)];
+      }).should(([url, prepared]) => {
+        expect(prepared).to.equal(url);
+      });
+    });
+  });
+
   describe('computeImageBoundingBox', () => {
     it('should return the correct bounding box', () => {
-      const htmlDivElement = { clientWidth: 700, clientHeight: 800 }
-      const htmlImageElement = { width: 768, height: 1024 }
+      const htmlDivElement = { clientWidth: 700, clientHeight: 800 };
+      const htmlImageElement = { width: 768, height: 1024 };
 
       const expected = {
         x: 50,
@@ -19,21 +50,21 @@ describe('image', () => {
         width: 600,
         height: 800,
         scale: 0.781,
-      }
+      };
 
       const actual = computeImageBoundingBox(
         htmlDivElement as HTMLDivElement,
         htmlImageElement as HTMLImageElement,
-      )
+      );
 
-      expect(actual).to.deep.equal(expected)
-    })
-  })
+      expect(actual).to.deep.equal(expected);
+    });
+  });
 
   describe('setStageBasedImagePosition', () => {
     it('should set the correct bounding box', () => {
-      const imageBoundingBox = { x: 50, y: 0, width: 600, height: 800 }
-      const pointerPosition = { x: 25, y: 25 }
+      const imageBoundingBox = { x: 50, y: 0, width: 600, height: 800 };
+      const pointerPosition = { x: 25, y: 25 };
 
       const stage = {
         getAttr: () => 1,
@@ -43,17 +74,17 @@ describe('image', () => {
         height: () => 800,
         position: cy.spy().as('stagePositionSpy'),
         batchDraw: cy.spy(),
-      }
+      };
 
-      const expected = { x: 25, y: 0 }
+      const expected = { x: 25, y: 0 };
 
       setStageBasedImagePosition({
         imageBoundingBox: imageBoundingBox as ImageBoundingBox,
         stage: stage as unknown as Stage,
         newPosition: pointerPosition,
-      })
+      });
 
-      cy.get('@stagePositionSpy').should('be.calledWithExactly', expected)
-    })
-  })
-})
+      cy.get('@stagePositionSpy').should('be.calledWithExactly', expected);
+    });
+  });
+});
