@@ -1,0 +1,105 @@
+---
+sidebar_position: 2
+---
+
+# usePDFDocument
+
+- Type : `(source: PDFSource | null | undefined, options?: UsePDFDocumentOptions) => UsePDFDocumentResult`
+
+> React hook that opens a PDF with [openPDF](/docs/Utils/open-pdf) and renders its pages progressively: the first `prefetch` pages right away, then `batch` pages at a time whenever `loadPage` is called for a page that is not rendered yet. The document and every image URL it produced are released automatically when `source` changes or the component unmounts.
+
+```tsx
+import { useState } from 'react'
+import { AnnotationViewer, usePDFDocument } from 'react-mindee-js'
+
+function Document({ file }: { file: File }) {
+  const { status, pages, loading, loadPage, error } = usePDFDocument(file, {
+    prefetch: 5,
+    batch: 3,
+  })
+  const [current, setCurrent] = useState(0)
+
+  if (status === 'error') return <p>{error?.message}</p>
+  if (status !== 'ready') return <p>Opening…</p>
+
+  return (
+    <>
+      <nav>
+        {pages.map((image, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setCurrent(index)
+              loadPage(index)
+            }}
+          >
+            {loading.has(index) ? '…' : index + 1}
+          </button>
+        ))}
+      </nav>
+      {pages[current] && (
+        <AnnotationViewer data={{ image: pages[current], shapes: [] }} />
+      )}
+    </>
+  )
+}
+```
+
+## Options
+
+```ts
+interface UsePDFDocumentOptions {
+  prefetch?: number // default 5, integer >= 0
+  batch?: number // default 3, integer >= 1
+  resolution?: number // see PDFPageOptions.resolution
+  maxPages?: number // see OpenPDFOptions.maxPages
+}
+```
+
+- **`prefetch`** : pages rendered as soon as the document opens.
+- **`batch`** : pages rendered together when `loadPage` asks for one that is not rendered yet. The first `prefetch` pages form one block, the remaining pages are grouped `batch` at a time after it.
+
+## Result
+
+```ts
+interface UsePDFDocumentResult {
+  status: 'idle' | 'opening' | 'ready' | 'error'
+  error: Error | null
+  numPages: number
+  pages: (string | undefined)[]
+  loading: ReadonlySet<number>
+  loadPage: (index: number) => void
+  loadRange: (from: number, to: number) => void
+  document: PDFDocumentHandle | null
+}
+```
+
+- **`pages`** : one slot per page, **0-based**. A slot is `undefined` until the page has been rendered, then holds an image URL usable as `data.image`.
+- **`loading`** : indexes whose render is queued or in progress, handy for per-page skeletons.
+- **`loadPage(index)`** : ensures the page and the rest of its batch are rendered. Idempotent and cheap, so call it liberally (on scroll, click, keyboard navigation…). The page itself is requested with high priority so it is drawn before any pending prefetch, even if it was already queued.
+- **`loadRange(from, to)`** : renders every page in `[from, to)` with low priority. Bounds are clamped to the document; non-integer indexes (here and in `loadPage`) are ignored.
+- **`document`** : the underlying handle for advanced use, `null` until `status` is `ready`.
+
+:::caution
+The hook is **0-based** (array semantics); the handle is **1-based** (pdf.js semantics). Do not mix them up when using `document` directly.
+:::
+
+:::tip
+Keep `source` referentially stable between renders (store the `File` in state, do not rebuild a data URL on every render), otherwise the hook closes and reopens the document each time. Changing `maxPages` also reopens the document. A document still downloading or parsing when the source changes (or the component unmounts) is aborted immediately. Changing `resolution` keeps the document but clears `pages` and aborts any pending render at the old value and re-renders every page that was loaded (or loading) at the new value (renders are cached per resolution, so switching back is instant).
+:::
+
+### Example: load pages as they scroll into view
+
+```tsx
+const { pages, loadPage } = usePDFDocument(file)
+
+useEffect(() => {
+  const observer = new IntersectionObserver((entries) => {
+    entries
+      .filter((entry) => entry.isIntersecting)
+      .forEach((entry) => loadPage(Number(entry.target.dataset.index)))
+  })
+  document.querySelectorAll('[data-index]').forEach((el) => observer.observe(el))
+  return () => observer.disconnect()
+}, [pages.length, loadPage])
+```

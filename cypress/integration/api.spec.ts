@@ -15,8 +15,10 @@ describe('built library public API', () => {
     'getImagesFromPDF',
     'getPDFPageCount',
     'getZoomScale',
+    'openPDF',
     'setShapeConfig',
     'toBase64',
+    'usePDFDocument',
   ];
 
   it('exposes exactly the documented runtime exports, all of them functions', () => {

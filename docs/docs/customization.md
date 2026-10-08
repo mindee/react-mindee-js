@@ -24,7 +24,7 @@ sidebar_position: 6
 individual shape [**config**](https://konvajs.org/api/Konva.Shape.html) passed on each item of the list of shapes override the **shapeConfig** property
 :::
 
-- `zoom`:
+- `zoom`: wheel zoom settings. `modifier` is the multiplier applied per wheel step; `max` is the highest magnification reachable (`1` = fits, `3` = three times larger), independently of the image pixel size. `defaultZoom` is accepted for backward compatibility but currently has no effect.
 
 ##### Example
 

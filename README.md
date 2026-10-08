@@ -91,6 +91,74 @@ function App() {
 - **`style`** : style object to change container css properties
 - **`className`** : apply a className to the control
 
+## PDF documents
+
+PDF pages are rendered in the browser with [pdf.js](https://mozilla.github.io/pdf.js/) (the first time a PDF is processed, it's loaded lazily in a Web Worker).
+Pages are rendered by batch to accommodate very large documents.
+
+### `usePDFDocument` hook
+
+The simplest way to display a PDF in a React component:
+
+```jsx
+import { useState } from 'react';
+import { AnnotationViewer, usePDFDocument } from 'react-mindee-js';
+
+function Document({ file }) {
+  const { status, numPages, pages, loading, loadPage, error } = usePDFDocument(
+    file,
+    { prefetch: 5, batch: 3 },
+  );
+  const [current, setCurrent] = useState(0);
+
+  if (status === 'error') return <p>{error.message}</p>;
+  if (status !== 'ready') return <p>Opening…</p>;
+
+  return (
+    <>
+      <nav>
+        {pages.map((image, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setCurrent(index);
+              loadPage(index);
+            }}
+          >
+            {loading.has(index) ? '…' : index + 1}
+          </button>
+        ))}
+      </nav>
+      {pages[current] && (
+        <AnnotationViewer data={{ image: pages[current], shapes: [] }} />
+      )}
+    </>
+  );
+}
+```
+
+### `openPDF` (framework-agnostic)
+
+For custom scheduling, use the handle directly. Page numbers are **1-based**, like pdf.js.
+
+```js
+import { openPDF } from 'react-mindee-js';
+
+const doc = await openPDF(file, { maxPages: 100 });
+doc.numPages; // 5
+
+const first = await doc.getPage(1, { priority: 'high' }); // blob: URL
+for await (const { pageNumber, image } of doc.getPages(2, 4)) {
+  // inclusive range, yielded as soon as each page is ready
+}
+
+await doc.destroy(); // revokes every blob: URL handed out by this handle
+```
+
+### `getPDFPageCount` / `getImagesFromPDF`
+
+`getPDFPageCount(source)` returns the page count without rendering. `getImagesFromPDF` still works but is **deprecated**: it renders and holds every page in memory at once. Prefer `usePDFDocument` or `openPDF`.
+
 ## Browser support
 
 React mindee supports all recent browsers and works where React works. However, you may need check the [SSR](/docs/ssr) section.

@@ -130,4 +130,33 @@ describe('built library PDF support', () => {
       cy.wrap(getPDFPageCount(multiPage)).should('equal', PAGE_COUNT);
     });
   });
+
+  it('renders pages on demand through openPDF with the inlined worker', () => {
+    cy.window().then((win) => {
+      cy.spy(win, 'Worker').as('worker');
+    });
+    loadDist({ fresh: true }).then(({ openPDF }) => {
+      cy.then(async () => {
+        const handle = await openPDF(multiPage);
+        const image = await handle.getPage(1);
+        const size = await imageDimensions(image);
+        await handle.destroy();
+        return { numPages: handle.numPages, image, size };
+      }).should(({ numPages, image, size }) => {
+        expect(numPages).to.equal(PAGE_COUNT);
+        expect(image).to.match(/^blob:/);
+        expect(size.width * size.height).to.be.greaterThan(0);
+      });
+    });
+    cy.get<sinon.SinonSpy>('@worker').should((spy) => {
+      expect(spy.calledOnce).to.equal(true);
+      expect(String(spy.firstCall.args[0])).to.match(/^blob:/);
+    });
+  });
+
+  it('exposes usePDFDocument from the built entry point', () => {
+    loadDist().then(({ usePDFDocument }) => {
+      expect(usePDFDocument).to.be.a('function');
+    });
+  });
 });

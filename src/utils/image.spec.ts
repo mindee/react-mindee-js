@@ -1,13 +1,44 @@
+import demoHeic from 'cypress/assets/demo.heic';
 import type { Stage } from 'konva/lib/Stage';
 
 import type { ImageBoundingBox } from '@/common/types';
 
 import {
   computeImageBoundingBox,
+  prepareImage,
   setStageBasedImagePosition,
 } from '@/utils/image';
 
 describe('image', () => {
+  describe('prepareImage', () => {
+    const withMimeType = async (type: string): Promise<string> => {
+      const blob = await fetch(demoHeic).then(async (r) => await r.blob());
+      return URL.createObjectURL(new Blob([blob], { type }));
+    };
+
+    [
+      'image/heic',
+      'image/heif',
+      'image/heif-sequence',
+      'image/heic-sequence',
+    ].forEach((type) => {
+      it(`converts a ${type} blob to a JPEG data URL`, () => {
+        cy.then(
+          async () => await prepareImage(await withMimeType(type)),
+        ).should('match', /^data:image\/jpeg;base64,/);
+      });
+    });
+
+    it('returns other image types untouched', () => {
+      cy.then(async () => {
+        const url = await withMimeType('image/png');
+        return [url, await prepareImage(url)];
+      }).should(([url, prepared]) => {
+        expect(prepared).to.equal(url);
+      });
+    });
+  });
+
   describe('computeImageBoundingBox', () => {
     it('should return the correct bounding box', () => {
       const htmlDivElement = { clientWidth: 700, clientHeight: 800 };
