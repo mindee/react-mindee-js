@@ -47,7 +47,7 @@ export const calculateZoomScale = (
     y: roundTo(pointerPosition.y - mousePointTo.y * newScale, 2),
   };
 
-  return { newScale: roundTo(newScale, 2), newPos };
+  return { newScale, newPos };
 };
 
 export const handleZoomScale = (
@@ -107,7 +107,7 @@ export const calculateStageZoom = (
     y: roundTo(pointerPosition.y - mousePointTo.y * newScale, 2),
   };
 
-  return { newScale: roundTo(newScale, 2), newPos };
+  return { newScale, newPos };
 };
 
 export const handleStageZoom = (

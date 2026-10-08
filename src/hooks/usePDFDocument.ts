@@ -20,9 +20,7 @@ export type UsePDFDocumentOptions = {
   batch?: number;
   /**
    * Rendering resolution in pixels, see `PDFPageOptions.resolution`.
-   * Changing it clears `pages` and re-renders every page that was loaded (or
-   * loading) at the new value; renders are cached per resolution, so
-   * switching back is instant.
+   * Re-renders on change.
    */
   resolution?: number;
   /** Rejects documents with more pages, see `OpenPDFOptions.maxPages`. */
@@ -36,22 +34,17 @@ export type UsePDFDocumentResult = {
   error: Error | null;
   numPages: number;
   /**
-   * One slot per page, indexed from 0. A slot is `undefined` until the page
-   * has been rendered, then holds an image URL usable as `data.image`.
+   * One slot per page, indexed from 0.
    */
   pages: (string | undefined)[];
   /** Pages (0-based indexes) whose render is queued or in progress. */
   loading: ReadonlySet<number>;
   /**
-   * Ensures the page at `index` (0-based) and the rest of its batch are
-   * rendered. Safe to call repeatedly: already rendered pages are skipped and
-   * a page still waiting in the queue is promoted. The page itself is
-   * requested with high priority so it is drawn before any pending prefetch.
+   * Renders a batch starting at `index` (0-based).
    */
   loadPage: (index: number) => void;
   /**
    * Renders every page in `[from, to)` (0-based integers, `to` exclusive).
-   * Bounds are clamped to the document; non-integer bounds are ignored.
    */
   loadRange: (from: number, to: number) => void;
   /** Underlying handle for advanced use, `null` until `status` is `ready`. */
@@ -78,9 +71,7 @@ type State = {
 
 /**
  * Pages requested so far, tagged with the document and resolution they were
- * requested for. A change of either starts a new generation: the previous
- * generation's pending renders are aborted and its callbacks ignored, so a
- * closed document cannot touch the state of its replacement.
+ * requested for.
  */
 type Requested = {
   document: PDFDocumentHandle | null;
@@ -148,16 +139,7 @@ const assertInteger = (name: string, value: number, min: number): void => {
 };
 
 /**
- * Opens a PDF and renders its pages progressively: the first `prefetch`
- * pages right away, then `batch` pages at a time whenever `loadPage` is
- * called for a page that is not rendered yet. The document is destroyed
- * (and its object URLs revoked) when `source` changes or on unmount.
- *
- * @example
- * const { pages, numPages, loadPage } = usePDFDocument(file);
- * <AnnotationViewer data={{ image: pages[current] }} />
- * // when the user scrolls page `index` into view:
- * loadPage(index);
+ * Opens a PDF and renders its pages progressively.
  */
 export const usePDFDocument = (
   source: PDFSource | null | undefined,

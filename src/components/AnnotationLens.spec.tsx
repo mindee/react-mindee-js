@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import anotherDummyImage from 'cypress/assets/another-demo.jpg';
+import dummyImageHEIC from 'cypress/assets/demo.heic';
 import dummyImage from 'cypress/assets/demo.jpg';
+import dummyImageTIFF from 'cypress/assets/demo.tiff';
 import { dummyShapes } from 'cypress/assets/shapes';
 
 import type { AnnotationData, PointerPosition } from '@/common/types';
@@ -172,5 +174,47 @@ describe('AnnotationLens', () => {
         'annotationLens.different-orientation',
       );
     });
+  });
+
+  it('shows a TIFF image in the lens', () => {
+    cy.mount(
+      <AnnotationLens
+        id={componentId}
+        data={{ image: dummyImageTIFF, shapes: dummyShapes }}
+        style={{ height: CONTAINER_HEIGHT, width: CONTAINER_WIDTH }}
+      />,
+    );
+    cy.get(`#${componentId}`).should('be.visible');
+    cy.wait(1000);
+    cy.get('canvas')
+      .should('have.length', 2)
+      .each(($canvas) => {
+        const canvasWidth = $canvas.width();
+        const canvasHeight = $canvas.height();
+        cy.wrap(canvasWidth).should('equal', CONTAINER_WIDTH);
+        cy.wrap(canvasHeight).should('equal', CONTAINER_HEIGHT);
+      });
+    cy.get(`#${componentId}`).matchImageSnapshot('annotationLens.tiff.file');
+  });
+
+  it('shows a HEIC image in the lens', () => {
+    cy.mount(
+      <AnnotationLens
+        id={componentId}
+        data={{ image: dummyImageHEIC, shapes: dummyShapes }}
+        style={{ height: CONTAINER_HEIGHT, width: CONTAINER_WIDTH }}
+      />,
+    );
+    cy.get(`#${componentId}`).should('be.visible');
+    cy.wait(1000);
+    cy.get('canvas')
+      .should('have.length', 2)
+      .each(($canvas) => {
+        const canvasWidth = $canvas.width();
+        const canvasHeight = $canvas.height();
+        cy.wrap(canvasWidth).should('equal', CONTAINER_WIDTH);
+        cy.wrap(canvasHeight).should('equal', CONTAINER_HEIGHT);
+      });
+    cy.get(`#${componentId}`).matchImageSnapshot('annotationLens.heic.file');
   });
 });

@@ -2,8 +2,7 @@ import { openPDF, type PDFSource } from './pdf';
 
 /**
  * Renders every page of a PDF to a PNG data URL. Pages that fail to render
- * are skipped rather than failing the whole call, so the result may be
- * shorter than the page count.
+ * are skipped.
  *
  * @deprecated Renders and holds all pages in memory at once. Use `openPDF`
  * (or the `usePDFDocument` hook) to render pages progressively instead.

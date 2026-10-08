@@ -45,10 +45,7 @@ describe('zoom', () => {
       const deltaY = -60;
       const options = { zoom: { modifier: 1.2 } };
 
-      const expected = {
-        newScale: 1.35,
-        newPos: { x: -168.4, y: -291.2 },
-      };
+      const expectedPos = { x: -168.4, y: -291.2 };
 
       const actual = calculateStageZoom(
         stage as Konva.Stage,
@@ -56,7 +53,9 @@ describe('zoom', () => {
         options as AnnotationViewerOptions,
       );
 
-      expect(actual).to.deep.equal(expected);
+      // Scale is kept at full precision; only positions are rounded.
+      expect(actual?.newScale).to.be.closeTo(1.12464 * 1.2, 1e-9);
+      expect(actual?.newPos).to.deep.equal(expectedPos);
     });
   });
 
@@ -76,10 +75,7 @@ describe('zoom', () => {
       };
       const deltaY = -60;
 
-      const expected = {
-        newScale: -35.16,
-        newPos: { x: 12242.59, y: 15181.35 },
-      };
+      const expectedPos = { x: 12242.59, y: 15181.35 };
 
       const actual = calculateZoomScale(
         stage as Konva.Stage,
@@ -87,7 +83,8 @@ describe('zoom', () => {
         imageBoundingBox,
       );
 
-      expect(actual).to.deep.equal(expected);
+      expect(actual.newScale).to.be.closeTo(-60 * 0.586, 1e-9);
+      expect(actual.newPos).to.deep.equal(expectedPos);
     });
   });
 });

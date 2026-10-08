@@ -6,9 +6,7 @@ import { imageDimensions, loadDist } from './helpers';
 const PAGE_COUNT = 5;
 
 /**
- * pdf.js and its worker are shipped as lazy chunks and the worker is inlined
- * as a blob. Those rewrites only happen in the production library build, so
- * every expectation here runs against dist/ rather than the sources.
+ * Runs expectations against dist/ (rather than the sources).
  */
 describe('built library PDF support', () => {
   it('does not spawn the pdf.js worker until a PDF is actually processed', () => {

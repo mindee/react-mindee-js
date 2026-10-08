@@ -14,9 +14,7 @@ const EMPTY_AREA = { x: 10, y: 10 };
 type MountResult = { stage: () => Stage };
 
 /**
- * Mounts the built AnnotationViewer with the demo image and shapes and
- * captures the Konva stage through the getStage prop so that tests can
- * inspect the rendered scene graph directly.
+ * Mounts the built AnnotationViewer with the demo image and shapes.
  */
 const mountViewer = (
   lib: DistLibrary,

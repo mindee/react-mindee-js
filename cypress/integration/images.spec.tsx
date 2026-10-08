@@ -8,8 +8,7 @@ import { CONTAINER_STYLE, loadDist, loadedResources } from './helpers';
 const containerId = 'annotationViewer';
 
 /**
- * Asserts that the viewer ended up with a drawn image by checking that the
- * canvas pixels are not fully transparent.
+ * Asserts that the viewer ended up with a drawn image.
  */
 const expectPaintedCanvas = (): void => {
   cy.get(`#${containerId} canvas`)
@@ -33,8 +32,7 @@ const expectPaintedCanvas = (): void => {
 
 /**
  * Format conversion runs through utif (TIFF) and a lazily loaded heic2any
- * chunk (HEIC). These paths rely on the production chunking, so they are
- * verified against the built viewer.
+ * chunk (HEIC).
  */
 describe('built library image formats', () => {
   it('displays a JPEG image', () => {

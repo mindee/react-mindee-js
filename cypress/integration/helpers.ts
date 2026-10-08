@@ -3,10 +3,7 @@ import type * as Library from '@/index';
 export type DistLibrary = typeof Library;
 
 /**
- * Path of the built entry point, relative to this file. It is kept in a
- * variable so that neither tsc nor Vite resolve it ahead of time: the
- * integration suite must stay type-checkable without a prior build, and the
- * browser must receive the production chunks exactly as Rolldown emitted them.
+ * Path of the built entry point, relative to this file.
  */
 const distEntry = '../../dist/index.js';
 
@@ -18,14 +15,7 @@ export const CONTAINER_STYLE = {
 };
 
 /**
- * Imports the built library (dist/) at runtime, as a consumer would, so that
- * production-only behaviour such as lazy chunks and the inlined pdf.js worker
- * is exercised rather than the TypeScript sources.
- *
- * Cypress keeps the same window for every test of a spec file, so module-level
- * state inside dist/index.js (such as the memoised pdf.js worker) survives
- * between tests. Pass `fresh: true` to cache-bust the entry point and get a
- * brand new module instance when a test asserts on first-use behaviour.
+ * Loads the built library so that it is kept between tests.
  */
 export const loadDist = (
   options: { fresh?: boolean } = {},
@@ -46,13 +36,8 @@ export const loadDist = (
 };
 
 /**
- * Names of the network resources fetched so far by the test window whose URL
- * contains the given fragment. Used to prove that a lazy chunk is only
+ * Used to prove that a lazy chunk is only
  * downloaded once the feature that needs it is used.
- *
- * Resource entries accumulate for the whole spec file, so the "not yet
- * loaded" assertion is only meaningful if no earlier test in the same file
- * used the feature.
  */
 export const loadedResources = (
   win: Cypress.AUTWindow,

@@ -1,8 +1,7 @@
 import { openPDF, type PDFSource } from './pdf';
 
 /**
- * Counts the pages of a PDF. If you also need to render pages, use `openPDF`
- * instead so the document is only parsed once.
+ * Counts the pages of a PDF.
  */
 export default async function getPDFPageCount(
   file: PDFSource,

@@ -24,7 +24,7 @@ import type {
 } from '@/common/types';
 
 import { mapShapesToPolygons } from '@/utils/canvas';
-import { handleResizeImage } from '@/utils/image';
+import { handleResizeImage, prepareImage } from '@/utils/image';
 import { clearLayers } from '@/utils/layer';
 import { rotateImage } from '@/utils/orientation';
 import { handleLensZoom } from '@/utils/zoom';
@@ -111,7 +111,9 @@ export default function AnnotationLens({
     const { signal } = controller;
     void (async () => {
       try {
-        const src = await rotateImage(image, orientation);
+        const prepared = await prepareImage(image);
+        signal.throwIfAborted();
+        const src = await rotateImage(prepared, orientation);
         if (signal.aborted) {
           return;
         }

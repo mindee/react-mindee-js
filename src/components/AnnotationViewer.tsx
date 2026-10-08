@@ -127,7 +127,11 @@ export default function AnnotationViewer({
     };
   });
 
-  useMultiSelection({ stageRef: stageObject, isSelectionActiveRef });
+  useMultiSelection({
+    stageRef: stageObject,
+    isSelectionActiveRef,
+    isEnabled: options.enableSelection === true,
+  });
 
   const fitImageToContainer = (): void => {
     const imageBoundingBox = handleResizeImage(
