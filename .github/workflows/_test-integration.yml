@@ -1,0 +1,40 @@
+name: Integration Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  cypress:
+    name: Run Cypress integration tests against the built library
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Cypress run
+        uses: cypress-io/github-action@c541a95ea92d9239347a2355f2e895cd4b3f8060 # v7.4.6
+        with:
+          install-command: pnpm install --frozen-lockfile
+          build: pnpm build
+          command: pnpm cy:run:integration
+
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cypress-integration-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

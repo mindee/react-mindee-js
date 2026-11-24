@@ -18,13 +18,15 @@ sidebar_position: 6
 
 - `onClick`: pass a function that takes as argument the [polygon](https://konvajs.org/api/Konva.Line.html#main) executed on shape click
 
+Use [getShapeFromNode](/docs/Utils/get-shape-from-node) to get back the `AnnotationShape` a polygon was drawn from.
+
 - `shapeConfig`: shapes config applied to all shapes.
 
 :::caution
 individual shape [**config**](https://konvajs.org/api/Konva.Shape.html) passed on each item of the list of shapes override the **shapeConfig** property
 :::
 
-- `zoom`:
+- `zoom`: wheel zoom settings. `modifier` is the multiplier applied per wheel step; `max` is the highest magnification reachable (`1` = fits, `3` = three times larger), independently of the image pixel size. `defaultZoom` is accepted for backward compatibility but currently has no effect.
 
 ##### Example
 
