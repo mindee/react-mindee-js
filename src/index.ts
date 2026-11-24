@@ -16,6 +16,7 @@ import {
   type UsePDFDocumentResult,
   type UsePDFDocumentStatus,
 } from './hooks/usePDFDocument';
+import { getShapeFromNode } from './utils/canvas';
 import {
   drawLayer,
   drawShape,
@@ -66,6 +67,7 @@ export {
   // eslint-disable-next-line @typescript-eslint/no-deprecated -- still part of the public API
   getImagesFromPDF,
   getPDFPageCount,
+  getShapeFromNode,
   getZoomScale,
   openPDF,
   usePDFDocument,

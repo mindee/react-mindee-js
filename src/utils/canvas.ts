@@ -14,6 +14,13 @@ import type {
 import { roundTo } from './roundTo';
 
 const shapeByNode = new WeakMap<Konva.Node, AnnotationShape>();
+
+/**
+ * Returns the `AnnotationShape` a polygon was drawn from, e.g. inside the
+ * `options.onClick`, `onMouseEnter` and `onMouseLeave` callbacks, which
+ * receive the Konva `Line`. Returns `undefined` for nodes the library did not
+ * create from a shape.
+ */
 export const getShapeFromNode = (
   node: Konva.Node,
 ): AnnotationShape | undefined => shapeByNode.get(node);
@@ -40,6 +47,9 @@ export const mapShapesToPolygons = (
 
       ...(options.shapeConfig ?? {}),
       ...shape.config,
+      // Kept for v1 compatibility (`polygon.attrs.shape`, `getAttr('shape')`).
+      // Prefer `getShapeFromNode(polygon)`.
+      shape,
     });
     shapeByNode.set(polygon, shape);
     shapesLayer.add(polygon);

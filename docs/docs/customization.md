@@ -18,6 +18,8 @@ sidebar_position: 6
 
 - `onClick`: pass a function that takes as argument the [polygon](https://konvajs.org/api/Konva.Line.html#main) executed on shape click
 
+Use [getShapeFromNode](/docs/Utils/get-shape-from-node) to get back the `AnnotationShape` a polygon was drawn from.
+
 - `shapeConfig`: shapes config applied to all shapes.
 
 :::caution

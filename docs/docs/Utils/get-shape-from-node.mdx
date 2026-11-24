@@ -1,0 +1,35 @@
+---
+sidebar_position: 8
+---
+
+# getShapeFromNode
+
+- Type : `(node: Konva.Node) => AnnotationShape | undefined`
+
+> Returns the `AnnotationShape` a polygon was drawn from, or `undefined` for a node the library did not create from a shape.
+
+Use it in the `options.onClick`, `options.onMouseEnter` and `options.onMouseLeave` callbacks, which receive the Konva [polygon](https://konvajs.org/api/Konva.Line.html#main) rather than your shape.
+
+```tsx
+import { getShapeFromNode, type AnnotationShape } from 'react-mindee-js'
+
+type MyShape = AnnotationShape<{ featureName: string }>
+
+<AnnotationViewer
+  // other props
+  options={{
+    onClick: (polygon) => {
+      const shape = getShapeFromNode(polygon) as MyShape | undefined
+      console.log(shape?.featureName)
+    },
+  }}
+/>
+```
+
+:::tip
+If you only need the shape, the `onShapeClick`, `onShapeMouseEnter` and `onShapeMouseLeave` props receive it directly.
+:::
+
+:::note
+The shape is also still stored on the polygon as the `shape` attribute (`polygon.getAttr('shape')`), as in v1. `getShapeFromNode` is the recommended way to read it.
+:::

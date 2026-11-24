@@ -166,6 +166,53 @@ describe('built library AnnotationViewer', () => {
     );
   });
 
+  it('passes polygons to options callbacks that resolve back to their shape', () => {
+    type PolygonEvent = 'enter' | 'click' | 'leave';
+    const resolved: Record<PolygonEvent, unknown[]> = {
+      enter: [],
+      click: [],
+      leave: [],
+    };
+    loadDist().then((lib) => {
+      const resolve =
+        (key: PolygonEvent) =>
+        (polygon: Line): void => {
+          resolved[key].push(
+            (polygon.attrs as { shape?: unknown }).shape,
+            polygon.getAttr('shape'),
+            lib.getShapeFromNode(polygon),
+          );
+        };
+      mountViewer(lib, {
+        options: {
+          onMouseEnter: resolve('enter'),
+          onClick: resolve('click'),
+          onMouseLeave: resolve('leave'),
+        },
+      }).then(({ stage }) => {
+        waitForShapes(stage, dummyShapes.length);
+      });
+    });
+
+    cy.get(`#${containerId} .konvajs-content`).trigger(
+      'mousemove',
+      SHAPE_HIT.x,
+      SHAPE_HIT.y,
+    );
+    cy.get(`#${containerId}`).click(SHAPE_HIT.x, SHAPE_HIT.y);
+    cy.get(`#${containerId} .konvajs-content`).trigger(
+      'mousemove',
+      EMPTY_AREA.x,
+      EMPTY_AREA.y,
+    );
+    cy.wrap(null).should(() => {
+      const expected = [dummyShapes[1], dummyShapes[1], dummyShapes[1]];
+      expect(resolved.enter).to.deep.equal(expected);
+      expect(resolved.click).to.deep.equal(expected);
+      expect(resolved.leave).to.deep.equal(expected);
+    });
+  });
+
   it('reports relative pointer positions within [0, 1] while hovering the image', () => {
     const getPointerPosition = cy.spy().as('getPointerPosition');
     loadDist().then((lib) => {

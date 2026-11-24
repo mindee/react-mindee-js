@@ -30,6 +30,10 @@ Previously `options.zoom.max` was compared against the absolute canvas scale, so
 - HEIC/HEIF files are now detected by every HEIF MIME type (`image/heic`, `image/heif` and their `-sequence` variants); previously only `image/heic` was converted.
 - The HEIC decoder (`heic2any`) is loaded lazily, only when such a file is displayed.
 
+### Reading the shape from a polygon
+
+The `options.onClick`, `onMouseEnter` and `onMouseLeave` callbacks still receive the Konva `Line`, and `polygon.attrs.shape` / `polygon.getAttr('shape')` still return its `AnnotationShape`. Prefer the new [getShapeFromNode](/docs/Utils/get-shape-from-node) export, which is typed, or the `onShapeClick`, `onShapeMouseEnter` and `onShapeMouseLeave` props, which receive the shape directly.
+
 ### Removed
 
 - `loadPdfDocument` (internal pdf.js loader) is no longer exported. Use `openPDF`.

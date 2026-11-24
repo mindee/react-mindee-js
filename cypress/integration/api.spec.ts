@@ -14,6 +14,7 @@ describe('built library public API', () => {
     'drawShapes',
     'getImagesFromPDF',
     'getPDFPageCount',
+    'getShapeFromNode',
     'getZoomScale',
     'openPDF',
     'setShapeConfig',
